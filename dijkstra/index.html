@@ -164,16 +164,17 @@
      * vis-network를 사용하여 그래프를 시각적으로 그리는 함수
      * @param {Array} nodesArr - 노드 이름 배열
      * @param {Object} graphObj - { 노드이름: { 인접노드: 가중치, ... }, ... }
+     * @param {Boolean} isUndirected - true이면 양방향, false이면 단방향
      */
-    function drawGraph(nodesArr, graphObj) {
+    function drawGraph(nodesArr, graphObj, isUndirected) {
       const visNodes = nodesArr.map(node => ({ id: node, label: node }));
       
       let visEdges = [];
       let addedEdges = new Set();
+      // graphObj의 모든 연결에 대해 단방향/양방향에 맞게 edge 생성
       for (let from in graphObj) {
         for (let to in graphObj[from]) {
-          // 단방향인 경우, from -> to 만 추가. 양방향인 경우, 중복 제거 후 추가.
-          let key = [from, to].join('-');
+          let key = isUndirected ? [from, to].sort().join('-') : [from, to].join('-');
           if (!addedEdges.has(key)) {
             addedEdges.add(key);
             visEdges.push({ from: from, to: to, label: String(graphObj[from][to]) });
@@ -181,12 +182,17 @@
         }
       }
       
+      // directed(단방향)인 경우: "to"쪽에만 화살표, 양방향인 경우: 양쪽에 화살표 표시
+      const edgeArrowOptions = isUndirected
+        ? { arrows: { to: { enabled: true, scaleFactor: 1 }, from: { enabled: true, scaleFactor: 1 } } }
+        : { arrows: { to: { enabled: true, scaleFactor: 1 } } };
+      
       const container = document.getElementById('graph');
       const data = { nodes: visNodes, edges: visEdges };
       const options = {
         layout: { hierarchical: false },
         physics: { stabilization: false },
-        edges: { font: { align: 'middle' } }
+        edges: Object.assign({ font: { align: 'middle' } }, edgeArrowOptions)
       };
       new vis.Network(container, data, options);
     }
@@ -220,8 +226,8 @@
         }
       });
       
-      // 그래프 시각화
-      drawGraph(nodes, graph);
+      // 그래프 시각화 (단방향/양방향에 따라 화살표 표시)
+      drawGraph(nodes, graph, isUndirected);
       
       const { path, distances, processLog, iterationRecords } = dijkstra(graph, startNode, endNode);
       const resultDiv = document.getElementById('result');
@@ -268,8 +274,7 @@
         document.getElementById('edges').value = params.get('edges');
         document.getElementById('start').value = params.get('start');
         document.getElementById('end').value = params.get('end');
-        // 체크박스: URL에 undirected 값이 있으면 적용, 없으면 기본 체크(true)
-        document.getElementById('undirected').checked = params.get('undirected') === "true" ? true : false;
+        document.getElementById('undirected').checked = params.get('undirected') === "true";
         runDijkstra();
       }
     });
