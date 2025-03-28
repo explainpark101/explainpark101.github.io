@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>Dijkstra Algorithm Calculator</title>
+  <!-- PicoCSS (원하는 경우) -->
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+  <!-- vis-network 라이브러리 -->
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     textarea { width: 100%; height: 100px; }
@@ -12,31 +16,43 @@
     table, th, td { border: 1px solid #ccc; }
     th, td { padding: 8px; text-align: center; }
     th { background-color: #f5f5f5; }
+    /* 그래프 영역 스타일 */
+    #graph {
+      width: 100%;
+      height: 400px;
+      border: 1px solid #ccc;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
-  <h1>Dijkstra 알고리즘 계산기</h1>
-  <p>
-    다익스트라 알고리즘은 가중치가 있는 그래프에서 한 노드로부터 다른 노드까지의 최단 경로를 찾는 알고리즘입니다.<br>
-    각 Iteration마다 노드까지의 비용이 어떻게 변화하는지 표와 로그로 확인할 수 있습니다.
-  </p>
-  <form id="dijkstraForm">
-    <label for="nodes">노드 정보 (예: A,B,C,D):</label><br>
-    <input type="text" id="nodes" name="nodes" placeholder="A,B,C,D" required><br>
+  <main class="container">
+    <h1>Dijkstra 알고리즘 계산기</h1>
+    <p>
+      다익스트라 알고리즘은 가중치가 있는 그래프에서 한 노드로부터 다른 노드까지의 최단 경로를 찾는 알고리즘입니다.<br>
+      각 Iteration마다 노드까지의 비용이 어떻게 변화하는지 표와 로그로 확인할 수 있으며, 입력한 데이터로 구성된 그래프를 시각적으로도 볼 수 있습니다.
+    </p>
+    <form id="dijkstraForm">
+      <label for="nodes">노드 정보 (예: A,B,C,D):</label><br>
+      <input type="text" id="nodes" name="nodes" placeholder="A,B,C,D" required><br>
+      
+      <label for="edges">링크 정보 (예: A,B,3&#10;A,C,5&#10;B,C,2&#10;C,D,1):</label><br>
+      <textarea id="edges" name="edges" placeholder="A,B,3&#10;A,C,5&#10;B,C,2&#10;C,D,1" required></textarea><br>
+      
+      <label for="start">시작 노드:</label><br>
+      <input type="text" id="start" name="start" placeholder="A" required><br>
+      
+      <label for="end">도착 노드:</label><br>
+      <input type="text" id="end" name="end" placeholder="D" required><br>
+      
+      <button type="button" onclick="runDijkstra()">최단 경로 계산</button>
+    </form>
     
-    <label for="edges">링크 정보 (예: A,B,3 | A,C,5 | B,C,2 | C,D,1):</label><br>
-    <textarea id="edges" name="edges" placeholder="A,B,3&#10;A,C,5&#10;B,C,2&#10;C,D,1" required></textarea><br>
+    <!-- 그래프 시각화를 위한 컨테이너 -->
+    <div id="graph"></div>
     
-    <label for="start">시작 노드:</label><br>
-    <input type="text" id="start" name="start" placeholder="A" required><br>
-    
-    <label for="end">도착 노드:</label><br>
-    <input type="text" id="end" name="end" placeholder="D" required><br>
-    
-    <button type="button" onclick="runDijkstra()">최단 경로 계산</button>
-  </form>
-  
-  <div class="result" id="result"></div>
+    <div class="result" id="result"></div>
+  </main>
   
   <script>
     /**
@@ -139,7 +155,39 @@
     }
     
     /**
-     * 폼 데이터를 읽어 그래프 객체를 구성하고 다익스트라 알고리즘을 실행 후 결과를 출력
+     * vis-network를 사용하여 그래프를 시각적으로 그리는 함수
+     * @param {Array} nodesArr - 노드 이름 배열
+     * @param {Object} graphObj - { 노드이름: { 인접노드: 가중치, ... }, ... }
+     */
+    function drawGraph(nodesArr, graphObj) {
+      // vis-network용 노드 데이터 생성
+      const visNodes = nodesArr.map(node => ({ id: node, label: node }));
+      
+      // 중복되지 않게 간선 데이터 생성 (무방향 그래프)
+      let visEdges = [];
+      let addedEdges = new Set();
+      for (let from in graphObj) {
+        for (let to in graphObj[from]) {
+          let key = [from, to].sort().join('-');
+          if (!addedEdges.has(key)) {
+            addedEdges.add(key);
+            visEdges.push({ from: from, to: to, label: String(graphObj[from][to]) });
+          }
+        }
+      }
+      
+      const container = document.getElementById('graph');
+      const data = { nodes: visNodes, edges: visEdges };
+      const options = {
+        layout: { hierarchical: false },
+        physics: { stabilization: false },
+        edges: { font: { align: 'middle' } }
+      };
+      new vis.Network(container, data, options);
+    }
+    
+    /**
+     * 폼 데이터를 읽어 그래프 객체를 구성하고 다익스트라 알고리즘 실행 및 결과와 그래프 시각화를 진행
      */
     function runDijkstra() {
       const nodesInput = document.getElementById('nodes').value.trim();
@@ -147,10 +195,13 @@
       const startNode = document.getElementById('start').value.trim();
       const endNode = document.getElementById('end').value.trim();
       
+      // 노드 목록 파싱
       const nodes = nodesInput.split(',').map(n => n.trim());
+      // 그래프 객체 생성 (각 노드마다 빈 객체)
       const graph = {};
       nodes.forEach(node => { graph[node] = {}; });
       
+      // 링크 정보 파싱 (각 줄 "from,to,weight")
       const edgesLines = edgesInput.split('\n');
       edgesLines.forEach(line => {
         const parts = line.split(/,|\|/).map(p => p.trim());
@@ -158,10 +209,15 @@
         const from = parts[0];
         const to = parts[1];
         const weight = parseFloat(parts[2]);
+        // 무방향 그래프로 처리 (단방향일 경우 한쪽만)
         graph[from][to] = weight;
         graph[to][from] = weight;
       });
       
+      // 그래프 시각화
+      drawGraph(nodes, graph);
+      
+      // 다익스트라 알고리즘 실행
       const { path, distances, processLog, iterationRecords } = dijkstra(graph, startNode, endNode);
       const resultDiv = document.getElementById('result');
       
@@ -179,7 +235,7 @@
     }
     
     /**
-     * 폼 입력값 변경 시 URL의 searchParams를 업데이트하는 함수
+     * 입력값 변경 시 URL의 searchParams를 업데이트하는 함수
      */
     function updateSearchParams() {
       const params = new URLSearchParams(window.location.search);
@@ -190,13 +246,13 @@
       window.history.replaceState(null, "", "?" + params.toString());
     }
     
-    // 각 입력 필드에 이벤트 리스너를 추가하여 값 변경 시 URL 업데이트
+    // 각 입력 필드에 이벤트 리스너를 추가 (URL 업데이트)
     document.getElementById('nodes').addEventListener('input', updateSearchParams);
     document.getElementById('edges').addEventListener('input', updateSearchParams);
     document.getElementById('start').addEventListener('input', updateSearchParams);
     document.getElementById('end').addEventListener('input', updateSearchParams);
     
-    // 페이지 로드시 URL searchParams에 데이터가 있다면 자동으로 입력 채우고 계산 실행
+    // 페이지 로드시 URL에 데이터가 있다면 자동으로 입력 채우고 계산 실행
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
       if (params.get('nodes') && params.get('edges') && params.get('start') && params.get('end')) {
