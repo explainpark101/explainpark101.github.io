@@ -45,6 +45,12 @@
       <label for="end">도착 노드:</label><br>
       <input type="text" id="end" name="end" placeholder="D" required><br>
       
+      <!-- 양방향 / 단방향 선택 -->
+      <label for="undirected">
+        <input type="checkbox" id="undirected" name="undirected" checked>
+        양방향 링크 (체크 시 양방향, 해제 시 단방향)
+      </label><br>
+      
       <button type="button" onclick="runDijkstra()">최단 경로 계산</button>
     </form>
     
@@ -160,15 +166,14 @@
      * @param {Object} graphObj - { 노드이름: { 인접노드: 가중치, ... }, ... }
      */
     function drawGraph(nodesArr, graphObj) {
-      // vis-network용 노드 데이터 생성
       const visNodes = nodesArr.map(node => ({ id: node, label: node }));
       
-      // 중복되지 않게 간선 데이터 생성 (무방향 그래프)
       let visEdges = [];
       let addedEdges = new Set();
       for (let from in graphObj) {
         for (let to in graphObj[from]) {
-          let key = [from, to].sort().join('-');
+          // 단방향인 경우, from -> to 만 추가. 양방향인 경우, 중복 제거 후 추가.
+          let key = [from, to].join('-');
           if (!addedEdges.has(key)) {
             addedEdges.add(key);
             visEdges.push({ from: from, to: to, label: String(graphObj[from][to]) });
@@ -187,21 +192,20 @@
     }
     
     /**
-     * 폼 데이터를 읽어 그래프 객체를 구성하고 다익스트라 알고리즘 실행 및 결과와 그래프 시각화를 진행
+     * 폼 데이터를 읽어 그래프 객체를 구성하고, 다익스트라 알고리즘 실행 및 결과와 그래프 시각화를 진행
      */
     function runDijkstra() {
       const nodesInput = document.getElementById('nodes').value.trim();
       const edgesInput = document.getElementById('edges').value.trim();
       const startNode = document.getElementById('start').value.trim();
       const endNode = document.getElementById('end').value.trim();
+      // 체크박스 상태: true이면 양방향, false이면 단방향
+      const isUndirected = document.getElementById('undirected').checked;
       
-      // 노드 목록 파싱
       const nodes = nodesInput.split(',').map(n => n.trim());
-      // 그래프 객체 생성 (각 노드마다 빈 객체)
       const graph = {};
       nodes.forEach(node => { graph[node] = {}; });
       
-      // 링크 정보 파싱 (각 줄 "from,to,weight")
       const edgesLines = edgesInput.split('\n');
       edgesLines.forEach(line => {
         const parts = line.split(/,|\|/).map(p => p.trim());
@@ -209,15 +213,16 @@
         const from = parts[0];
         const to = parts[1];
         const weight = parseFloat(parts[2]);
-        // 무방향 그래프로 처리 (단방향일 경우 한쪽만)
+        // 단방향: from -> to 만 추가, 양방향: 반대쪽도 추가
         graph[from][to] = weight;
-        graph[to][from] = weight;
+        if (isUndirected) {
+          graph[to][from] = weight;
+        }
       });
       
       // 그래프 시각화
       drawGraph(nodes, graph);
       
-      // 다익스트라 알고리즘 실행
       const { path, distances, processLog, iterationRecords } = dijkstra(graph, startNode, endNode);
       const resultDiv = document.getElementById('result');
       
@@ -243,14 +248,17 @@
       params.set('edges', document.getElementById('edges').value);
       params.set('start', document.getElementById('start').value);
       params.set('end', document.getElementById('end').value);
+      // 체크박스 값: "true" (체크됨, 양방향) 또는 "false"
+      params.set('undirected', document.getElementById('undirected').checked);
       window.history.replaceState(null, "", "?" + params.toString());
     }
     
-    // 각 입력 필드에 이벤트 리스너를 추가 (URL 업데이트)
+    // 각 입력 필드 및 체크박스에 이벤트 리스너를 추가 (URL 업데이트)
     document.getElementById('nodes').addEventListener('input', updateSearchParams);
     document.getElementById('edges').addEventListener('input', updateSearchParams);
     document.getElementById('start').addEventListener('input', updateSearchParams);
     document.getElementById('end').addEventListener('input', updateSearchParams);
+    document.getElementById('undirected').addEventListener('change', updateSearchParams);
     
     // 페이지 로드시 URL에 데이터가 있다면 자동으로 입력 채우고 계산 실행
     window.addEventListener('DOMContentLoaded', () => {
@@ -260,6 +268,8 @@
         document.getElementById('edges').value = params.get('edges');
         document.getElementById('start').value = params.get('start');
         document.getElementById('end').value = params.get('end');
+        // 체크박스: URL에 undirected 값이 있으면 적용, 없으면 기본 체크(true)
+        document.getElementById('undirected').checked = params.get('undirected') === "true" ? true : false;
         runDijkstra();
       }
     });
