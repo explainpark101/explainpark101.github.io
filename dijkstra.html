@@ -17,11 +17,9 @@
 <body>
   <h1>Dijkstra 알고리즘 계산기</h1>
   <p>
-    다익스트라 알고리즘은 가중치가 있는 그래프에서 한 노드로부터 다른 노드까지의 최단 경로를 찾는 알고리즘입니다.
-    <br>아래 폼에 노드 및 링크 정보를 입력하고, 시작/도착 노드를 설정한 뒤 "최단 경로 계산" 버튼을 누르면
-    각 Iteration마다 노드까지의 비용(Cost)이 어떻게 변화하는지 표와 함께 확인할 수 있습니다.
+    다익스트라 알고리즘은 가중치가 있는 그래프에서 한 노드로부터 다른 노드까지의 최단 경로를 찾는 알고리즘입니다.<br>
+    각 Iteration마다 노드까지의 비용이 어떻게 변화하는지 표와 로그로 확인할 수 있습니다.
   </p>
-
   <form id="dijkstraForm">
     <label for="nodes">노드 정보 (예: A,B,C,D):</label><br>
     <input type="text" id="nodes" name="nodes" placeholder="A,B,C,D" required><br>
@@ -49,29 +47,21 @@
      * @returns {Object} { path, distances, processLog, iterationRecords }
      */
     function dijkstra(graph, startNode, endNode) {
-      // 노드 목록 추출
       const nodes = Object.keys(graph);
-      
-      // 초기화
       let distances = {};
       let previous = {};
       let unvisited = new Set(nodes);
-      
-      // 각 노드까지의 거리를 무한대로 초기화, 시작 노드는 0
       nodes.forEach(node => {
         distances[node] = Infinity;
         previous[node] = null;
       });
       distances[startNode] = 0;
       
-      // 각 반복(iteration)마다의 정보 저장용
       let processLog = "";
       let iterationRecords = [];
       let iteration = 1;
-
-      // 알고리즘 실행
+      
       while (unvisited.size > 0) {
-        // 방문하지 않은 노드 중 가장 거리가 짧은 노드를 찾음
         let currentNode = null;
         unvisited.forEach(node => {
           if (currentNode === null || distances[node] < distances[currentNode]) {
@@ -79,15 +69,11 @@
           }
         });
         
-        // 만약 현재 노드의 거리가 무한대라면, 더 이상 연결된 경로가 없으므로 종료
-        if (distances[currentNode] === Infinity) {
-          break;
-        }
+        if (distances[currentNode] === Infinity) break;
         
         unvisited.delete(currentNode);
         processLog += `<strong>Iteration ${iteration}:</strong> 현재 노드: ${currentNode} (거리: ${distances[currentNode]})<br>`;
         
-        // 인접 노드들의 거리 갱신
         for (let neighbor in graph[currentNode]) {
           if (unvisited.has(neighbor)) {
             let alt = distances[currentNode] + graph[currentNode][neighbor];
@@ -98,18 +84,15 @@
             }
           }
         }
-
-        // 이번 Iteration이 끝난 후 각 노드까지의 거리 정보를 저장
+        
         iterationRecords.push({
           iteration: iteration,
           currentNode: currentNode,
-          distances: Object.assign({}, distances) // 객체 복사
+          distances: Object.assign({}, distances)
         });
-
         iteration++;
       }
       
-      // 경로 추적
       let path = [];
       let current = endNode;
       if (previous[current] !== null || current === startNode) {
@@ -123,7 +106,7 @@
     }
     
     /**
-     * 각 Iteration 별로 distances를 표로 만들어주는 함수
+     * 각 Iteration별 distances 정보를 HTML 테이블로 구성
      * @param {Array} iterationRecords - [{ iteration, currentNode, distances }, ...]
      * @param {Array} nodes - 노드 이름 배열
      * @returns {String} HTML table string
@@ -132,7 +115,6 @@
       if (iterationRecords.length === 0) return "";
       
       let tableHtml = "<table>";
-      // 헤더 (Iteration, Current Node, 그리고 각 노드별 거리)
       tableHtml += "<tr>";
       tableHtml += "<th>Iteration</th>";
       tableHtml += "<th>Current Node</th>";
@@ -141,7 +123,6 @@
       });
       tableHtml += "</tr>";
       
-      // 각 Iteration 별 데이터
       iterationRecords.forEach(record => {
         tableHtml += "<tr>";
         tableHtml += `<td>${record.iteration}</td>`;
@@ -156,9 +137,9 @@
       tableHtml += "</table>";
       return tableHtml;
     }
-
+    
     /**
-     * 폼 입력을 읽고, 그래프를 구성한 뒤 다익스트라 함수를 호출하는 메인 함수
+     * 폼 데이터를 읽어 그래프 객체를 구성하고 다익스트라 알고리즘을 실행 후 결과를 출력
      */
     function runDijkstra() {
       const nodesInput = document.getElementById('nodes').value.trim();
@@ -166,40 +147,24 @@
       const startNode = document.getElementById('start').value.trim();
       const endNode = document.getElementById('end').value.trim();
       
-      // 노드 목록 파싱
       const nodes = nodesInput.split(',').map(n => n.trim());
-      
-      // 그래프 객체 생성
       const graph = {};
-      nodes.forEach(node => {
-        graph[node] = {};
-      });
+      nodes.forEach(node => { graph[node] = {}; });
       
-      // 링크 정보 파싱
       const edgesLines = edgesInput.split('\n');
       edgesLines.forEach(line => {
-        // ',' 혹은 '|'로 구분
         const parts = line.split(/,|\|/).map(p => p.trim());
         if (parts.length < 3) return;
         const from = parts[0];
         const to = parts[1];
         const weight = parseFloat(parts[2]);
-        
-        // 무방향 그래프로 처리 (단방향이라면 한쪽만 추가)
         graph[from][to] = weight;
         graph[to][from] = weight;
       });
       
-      // 다익스트라 알고리즘 실행
       const { path, distances, processLog, iterationRecords } = dijkstra(graph, startNode, endNode);
-      
-      // 결과 출력
       const resultDiv = document.getElementById('result');
       
-      // 1) 경로
-      // 2) 총 거리
-      // 3) Iteration 별 노드까지의 비용 표
-      // 4) 계산 로그
       if (path.length === 0 || distances[endNode] === Infinity) {
         resultDiv.innerHTML = "<p>경로를 찾을 수 없습니다.</p>";
       } else {
@@ -207,12 +172,41 @@
         html += `<h3>최단 경로</h3><p>${path.join(" -> ")}</p>`;
         html += `<h3>총 거리</h3><p>${distances[endNode]}</p>`;
         html += `<h3>Iteration별 Node Cost</h3>`;
-        html += buildIterationTable(iterationRecords, nodes);  // 테이블 생성
+        html += buildIterationTable(iterationRecords, nodes);
         html += `<h3>계산 과정 (Log)</h3><p>${processLog}</p>`;
-        
         resultDiv.innerHTML = html;
       }
     }
+    
+    /**
+     * 폼 입력값 변경 시 URL의 searchParams를 업데이트하는 함수
+     */
+    function updateSearchParams() {
+      const params = new URLSearchParams(window.location.search);
+      params.set('nodes', document.getElementById('nodes').value);
+      params.set('edges', document.getElementById('edges').value);
+      params.set('start', document.getElementById('start').value);
+      params.set('end', document.getElementById('end').value);
+      window.history.replaceState(null, "", "?" + params.toString());
+    }
+    
+    // 각 입력 필드에 이벤트 리스너를 추가하여 값 변경 시 URL 업데이트
+    document.getElementById('nodes').addEventListener('input', updateSearchParams);
+    document.getElementById('edges').addEventListener('input', updateSearchParams);
+    document.getElementById('start').addEventListener('input', updateSearchParams);
+    document.getElementById('end').addEventListener('input', updateSearchParams);
+    
+    // 페이지 로드시 URL searchParams에 데이터가 있다면 자동으로 입력 채우고 계산 실행
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('nodes') && params.get('edges') && params.get('start') && params.get('end')) {
+        document.getElementById('nodes').value = params.get('nodes');
+        document.getElementById('edges').value = params.get('edges');
+        document.getElementById('start').value = params.get('start');
+        document.getElementById('end').value = params.get('end');
+        runDijkstra();
+      }
+    });
   </script>
 </body>
 </html>
