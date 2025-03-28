@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Dijkstra Algorithm Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    textarea { width: 100%; height: 100px; }
+    input, button { margin: 5px 0; }
+    .result { margin-top: 20px; border: 1px solid #ccc; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Dijkstra 알고리즘 계산기</h1>
+  <p>
+    다익스트라 알고리즘은 가중치가 있는 그래프에서 한 노드로부터 다른 노드까지의 최단 경로를 찾는 알고리즘입니다. 
+    각 노드까지의 최단 거리를 단계적으로 업데이트하며, 아직 방문하지 않은 노드 중 가장 짧은 거리를 가진 노드를 선택해 경로를 확장합니다.
+  </p>
+  <form id="dijkstraForm">
+    <label for="nodes">노드 정보 (예: A,B,C,D):</label><br>
+    <input type="text" id="nodes" name="nodes" placeholder="A,B,C,D" required><br>
+    
+    <label for="edges">링크 정보 (예: A,B,3 | A,C,5 | B,C,2 | C,D,1):</label><br>
+    <textarea id="edges" name="edges" placeholder="A,B,3&#10;A,C,5&#10;B,C,2&#10;C,D,1" required></textarea><br>
+    
+    <label for="start">시작 노드:</label><br>
+    <input type="text" id="start" name="start" placeholder="A" required><br>
+    
+    <label for="end">도착 노드:</label><br>
+    <input type="text" id="end" name="end" placeholder="D" required><br>
+    
+    <button type="button" onclick="runDijkstra()">최단 경로 계산</button>
+  </form>
+  
+  <div class="result" id="result"></div>
+  
+  <script>
+    function runDijkstra() {
+      const nodesInput = document.getElementById('nodes').value.trim();
+      const edgesInput = document.getElementById('edges').value.trim();
+      const startNode = document.getElementById('start').value.trim();
+      const endNode = document.getElementById('end').value.trim();
+      
+      // 노드 정보 파싱 (콤마로 구분)
+      const nodes = nodesInput.split(',').map(n => n.trim());
+      
+      // 그래프 생성: 각 노드에 대해 빈 객체 생성
+      const graph = {};
+      nodes.forEach(node => {
+        graph[node] = {};
+      });
+      
+      // 링크 정보 파싱 (각 줄마다 "from,to,weight" 형식)
+      const edgesLines = edgesInput.split('\n');
+      edgesLines.forEach(line => {
+        // 구분자가 ',' 또는 '|' 인 경우로 처리
+        const parts = line.split(/,|\|/).map(p => p.trim());
+        if(parts.length < 3) return;
+        const from = parts[0];
+        const to = parts[1];
+        const weight = parseFloat(parts[2]);
+        // 양방향(undirected) 그래프로 처리 (단방향이면 한 쪽만 추가)
+        graph[from][to] = weight;
+        graph[to][from] = weight;
+      });
+      
+      // 다익스트라 알고리즘 초기화
+      let distances = {};
+      let previous = {};
+      let unvisited = new Set(nodes);
+      
+      nodes.forEach(node => {
+        distances[node] = Infinity;
+        previous[node] = null;
+      });
+      distances[startNode] = 0;
+      
+      let processLog = "";
+      
+      // 다익스트라 알고리즘 실행
+      while(unvisited.size > 0) {
+        // 아직 방문하지 않은 노드 중 가장 거리가 짧은 노드 선택
+        let currentNode = null;
+        unvisited.forEach(node => {
+          if (currentNode === null || distances[node] < distances[currentNode]) {
+            currentNode = node;
+          }
+        });
+        
+        // 남은 노드들의 거리가 모두 무한대라면 종료
+        if(distances[currentNode] === Infinity) {
+          break;
+        }
+        
+        unvisited.delete(currentNode);
+        processLog += "현재 노드: " + currentNode + " (거리: " + distances[currentNode] + ")<br>";
+        
+        // 인접한 노드들의 최단 거리 갱신
+        for (let neighbor in graph[currentNode]) {
+          if (unvisited.has(neighbor)) {
+            let alt = distances[currentNode] + graph[currentNode][neighbor];
+            if (alt < distances[neighbor]) {
+              distances[neighbor] = alt;
+              previous[neighbor] = currentNode;
+              processLog += "&emsp; 업데이트: " + neighbor + "의 새로운 거리: " + alt + " (이전 노드: " + currentNode + ")<br>";
+            }
+          }
+        }
+      }
+      
+      // 시작 노드부터 도착 노드까지의 경로 추적
+      let path = [];
+      let current = endNode;
+      if(previous[current] !== null || current === startNode) {
+        while (current) {
+          path.unshift(current);
+          current = previous[current];
+        }
+      }
+      
+      let resultDiv = document.getElementById('result');
+      if(path.length === 0 || distances[endNode] === Infinity) {
+        resultDiv.innerHTML = "경로를 찾을 수 없습니다.";
+      } else {
+        resultDiv.innerHTML = "<h3>최단 경로:</h3>" + path.join(" -> ") +
+                              "<br><h3>총 거리:</h3>" + distances[endNode] +
+                              "<br><h3>계산 과정:</h3>" + processLog;
+      }
+    }
+  </script>
+</body>
+</html>
