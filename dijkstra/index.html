@@ -26,6 +26,15 @@
   </style>
 </head>
 <body>
+  <nav class="container-fluid">
+    <ul>
+      <li>
+        <a href="/" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 1.2rem;">
+          <span class="material-icons" style="font-size: 1.5rem;">home</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
   <main class="container">
     <h1>Dijkstra 알고리즘 계산기</h1>
     <p>
@@ -35,31 +44,31 @@
     <form id="dijkstraForm">
       <label for="nodes">노드 정보 (예: A,B,C,D):</label><br>
       <input type="text" id="nodes" name="nodes" placeholder="A,B,C,D" required><br>
-      
+
       <label for="edges">링크 정보 (예: A,B,3&#10;A,C,5&#10;B,C,2&#10;C,D,1):</label><br>
       <textarea id="edges" name="edges" placeholder="A,B,3&#10;A,C,5&#10;B,C,2&#10;C,D,1" required></textarea><br>
-      
+
       <label for="start">시작 노드:</label><br>
       <input type="text" id="start" name="start" placeholder="A" required><br>
-      
+
       <label for="end">도착 노드:</label><br>
       <input type="text" id="end" name="end" placeholder="D" required><br>
-      
+
       <!-- 양방향 / 단방향 선택 -->
       <label for="undirected">
         <input type="checkbox" id="undirected" name="undirected" checked>
         양방향 링크 (체크 시 양방향, 해제 시 단방향)
       </label><br>
-      
+
       <button type="button" onclick="runDijkstra()">최단 경로 계산</button>
     </form>
-    
+
     <!-- 그래프 시각화를 위한 컨테이너 -->
     <div id="graph"></div>
-    
+
     <div class="result" id="result"></div>
   </main>
-  
+
   <script>
     /**
      * 다익스트라 알고리즘을 수행하는 함수
@@ -78,11 +87,11 @@
         previous[node] = null;
       });
       distances[startNode] = 0;
-      
+
       let processLog = "";
       let iterationRecords = [];
       let iteration = 1;
-      
+
       while (unvisited.size > 0) {
         let currentNode = null;
         unvisited.forEach(node => {
@@ -90,12 +99,12 @@
             currentNode = node;
           }
         });
-        
+
         if (distances[currentNode] === Infinity) break;
-        
+
         unvisited.delete(currentNode);
         processLog += `<strong>Iteration ${iteration}:</strong> 현재 노드: ${currentNode} (거리: ${distances[currentNode]})<br>`;
-        
+
         for (let neighbor in graph[currentNode]) {
           if (unvisited.has(neighbor)) {
             let alt = distances[currentNode] + graph[currentNode][neighbor];
@@ -106,7 +115,7 @@
             }
           }
         }
-        
+
         iterationRecords.push({
           iteration: iteration,
           currentNode: currentNode,
@@ -114,7 +123,7 @@
         });
         iteration++;
       }
-      
+
       let path = [];
       let current = endNode;
       if (previous[current] !== null || current === startNode) {
@@ -123,10 +132,10 @@
           current = previous[current];
         }
       }
-      
+
       return { path, distances, processLog, iterationRecords };
     }
-    
+
     /**
      * 각 Iteration별 distances 정보를 HTML 테이블로 구성
      * @param {Array} iterationRecords - [{ iteration, currentNode, distances }, ...]
@@ -135,7 +144,7 @@
      */
     function buildIterationTable(iterationRecords, nodes) {
       if (iterationRecords.length === 0) return "";
-      
+
       let tableHtml = "<table>";
       tableHtml += "<tr>";
       tableHtml += "<th>Iteration</th>";
@@ -144,7 +153,7 @@
         tableHtml += `<th>${node}</th>`;
       });
       tableHtml += "</tr>";
-      
+
       iterationRecords.forEach(record => {
         tableHtml += "<tr>";
         tableHtml += `<td>${record.iteration}</td>`;
@@ -155,11 +164,11 @@
         });
         tableHtml += "</tr>";
       });
-      
+
       tableHtml += "</table>";
       return tableHtml;
     }
-    
+
     /**
      * vis-network를 사용하여 그래프를 시각적으로 그리는 함수
      * @param {Array} nodesArr - 노드 이름 배열
@@ -168,7 +177,7 @@
      */
     function drawGraph(nodesArr, graphObj, isUndirected) {
       const visNodes = nodesArr.map(node => ({ id: node, label: node }));
-      
+
       let visEdges = [];
       let addedEdges = new Set();
       // graphObj의 모든 연결에 대해 단방향/양방향에 맞게 edge 생성
@@ -181,12 +190,12 @@
           }
         }
       }
-      
+
       // directed(단방향)인 경우: "to"쪽에만 화살표, 양방향인 경우: 양쪽에 화살표 표시
       const edgeArrowOptions = isUndirected
         ? { arrows: { to: { enabled: true, scaleFactor: 1 }, from: { enabled: true, scaleFactor: 1 } } }
         : { arrows: { to: { enabled: true, scaleFactor: 1 } } };
-      
+
       const container = document.getElementById('graph');
       const data = { nodes: visNodes, edges: visEdges };
       const options = {
@@ -196,7 +205,7 @@
       };
       new vis.Network(container, data, options);
     }
-    
+
     /**
      * 폼 데이터를 읽어 그래프 객체를 구성하고, 다익스트라 알고리즘 실행 및 결과와 그래프 시각화를 진행
      */
@@ -207,11 +216,11 @@
       const endNode = document.getElementById('end').value.trim();
       // 체크박스 상태: true이면 양방향, false이면 단방향
       const isUndirected = document.getElementById('undirected').checked;
-      
+
       const nodes = nodesInput.split(',').map(n => n.trim());
       const graph = {};
       nodes.forEach(node => { graph[node] = {}; });
-      
+
       const edgesLines = edgesInput.split('\n');
       edgesLines.forEach(line => {
         const parts = line.split(/,|\|/).map(p => p.trim());
@@ -225,13 +234,13 @@
           graph[to][from] = weight;
         }
       });
-      
+
       // 그래프 시각화 (단방향/양방향에 따라 화살표 표시)
       drawGraph(nodes, graph, isUndirected);
-      
+
       const { path, distances, processLog, iterationRecords } = dijkstra(graph, startNode, endNode);
       const resultDiv = document.getElementById('result');
-      
+
       if (path.length === 0 || distances[endNode] === Infinity) {
         resultDiv.innerHTML = "<p>경로를 찾을 수 없습니다.</p>";
       } else {
@@ -244,7 +253,7 @@
         resultDiv.innerHTML = html;
       }
     }
-    
+
     /**
      * 입력값 변경 시 URL의 searchParams를 업데이트하는 함수
      */
@@ -258,14 +267,14 @@
       params.set('undirected', document.getElementById('undirected').checked);
       window.history.replaceState(null, "", "?" + params.toString());
     }
-    
+
     // 각 입력 필드 및 체크박스에 이벤트 리스너를 추가 (URL 업데이트)
     document.getElementById('nodes').addEventListener('input', updateSearchParams);
     document.getElementById('edges').addEventListener('input', updateSearchParams);
     document.getElementById('start').addEventListener('input', updateSearchParams);
     document.getElementById('end').addEventListener('input', updateSearchParams);
     document.getElementById('undirected').addEventListener('change', updateSearchParams);
-    
+
     // 페이지 로드시 URL에 데이터가 있다면 자동으로 입력 채우고 계산 실행
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
