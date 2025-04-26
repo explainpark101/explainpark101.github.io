@@ -248,6 +248,38 @@
     if (typeof fx === "undefined") {
       alert("glfx.js가 정상적으로 로드되지 않았습니다. 네트워크 상태를 확인하거나, CDN 주소를 확인하세요.");
     }
+
+    // 클립보드에서 이미지 붙여넣기 지원
+    window.addEventListener('paste', async function (e) {
+      if (!navigator.clipboard || !navigator.clipboard.read) return;
+
+      try {
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+          for (const type of item.types) {
+            if (type.startsWith('image/')) {
+              const blob = await item.getType(type);
+              const file = new File([blob], 'pasted-image.png', { type: blob.type });
+
+              const dataTransfer = new DataTransfer();
+              dataTransfer.items.add(file);
+
+              const input = document.getElementById('target-input');
+              input.files = dataTransfer.files;
+
+              // change 이벤트 강제 발생
+              const event = new Event('change', { bubbles: true });
+              input.dispatchEvent(event);
+
+              M.toast({html: '클립보드 이미지를 붙여넣었습니다.', classes: 'blue'});
+              return;
+            }
+          }
+        }
+      } catch (err) {
+        M.toast({html: '클립보드에서 이미지를 읽을 수 없습니다.', classes: 'red'});
+      }
+    });
   </script>
 </body>
 </html>
