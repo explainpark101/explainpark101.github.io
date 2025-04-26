@@ -135,12 +135,31 @@
 
     // perspective 변환 (Promise 반환)
     async function perspectiveTransform(img) {
+      // 1. 이미지 크기 체크 및 리사이즈
+      let w = img.width, h = img.height;
+      let resizedImg = img;
+
+      if (w < 1000 || h < 600) {
+        // 1000x600으로 리사이즈
+        const resizeCanvas = document.createElement('canvas');
+        resizeCanvas.width = Math.max(w, 1000);
+        resizeCanvas.height = Math.max(h, 800);
+        const rctx = resizeCanvas.getContext('2d');
+        rctx.drawImage(img, 0, 0, resizeCanvas.width, resizeCanvas.height);
+        resizedImg = await new Promise(resolve => {
+          const tmpImg = new Image();
+          tmpImg.onload = () => resolve(tmpImg);
+          tmpImg.src = resizeCanvas.toDataURL();
+        });
+        w = resizeCanvas.width;
+        h = resizeCanvas.height;
+      }
+
       const fxCanvas = fx.canvas();
-      const texture = fxCanvas.texture(img);
-      const w = img.width, h = img.height;
-      // 꼭짓점 좌표 (원하는 대로 수정)
+      const texture = fxCanvas.texture(resizedImg);
+      console.log(w, h);
       const before = [0,0, w,0, w,h, 0,h];
-      const after  = [107,134, 	946,41, 957,645, 95,588];
+      const after  = [107,134, 946,41, 957,645, 95,588];
       fxCanvas.draw(texture).perspective(before, after).update();
 
       // 변환된 이미지를 임시 캔버스에 복사
