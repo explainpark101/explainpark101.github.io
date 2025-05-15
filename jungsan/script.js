@@ -90,9 +90,11 @@ const calculate = () => {
         if (totalPeople === 0) return null;
 
         const pricePerPerson = foodPrice / totalPeople;
-        const memberSupport = supportPerMember * memberCount;
-        const memberPayment = (pricePerPerson * memberCount) - memberSupport;
-        const guestPayment = pricePerPerson * guestCount;
+        let remainingSupport = 0;
+        const memberPayment = Math.max(pricePerPerson - supportPerMember, 0);
+        const guestPayment = pricePerPerson;
+
+        if (!memberPayment) remainingSupport = supportPerMember * memberCount - (pricePerPerson * memberCount);
 
         return {
             tableNumber: index + 1,
@@ -101,27 +103,35 @@ const calculate = () => {
             memberCount,
             guestPayment,
             guestCount,
-            hasAlcohol
+            hasAlcohol,
+            remainingSupport
         };
     }).filter(Boolean);
 
     return displayResults(results);
 };
 
+const sum = array => array.reduce((acc, cur)=>acc+cur, 0);
+
 // 결과 표시 함수
 const resultDiv = document.querySelector(selectors.result);
 const displayResults = (results) => {
+    let remainingSupportSum = sum(results.map(el=>el.remainingSupport ?? 0)) > 0 ? `<div class="remaining-support" style="font-size: 1.2rem; margin-bottom: .5rem;"><strong>총 남은 지원금: </strong> ${sum(results.map(el=>el.remainingSupport)).toLocaleString()}원 </div>` : '';
+
+    const resultHTML = results.map(result => `
+        <div class="table-container">
+            <h3>테이블 ${result.tableNumber} ${result.hasAlcohol ? '🍺' : ''}</h3>
+            <p><strong>메모:</strong> ${result.memo || '없음'}</p>
+            <p><strong>부원(${result.memberCount}명) 정산금액:</strong> ${Math.round(result.memberPayment).toLocaleString()}원</p>
+            <p><strong>난입(${result.guestCount}명) 정산금액:</strong> ${Math.round(result.guestPayment).toLocaleString()}원</p>
+            ${result.hasAlcohol ? '<p><strong>술 섭취:</strong> 예</p>' : ''}
+            ${result.remainingSupport > 0 ? `<p class="remaining-support"><strong>남은 지원금:</strong> ${Math.round(result.remainingSupport).toLocaleString()}원</p>` : ''}
+        </div>
+    `).join('');
     const html = `
         <h2>정산 결과</h2>
-        ${results.map(result => `
-            <div class="table-container">
-                <h3>테이블 ${result.tableNumber} ${result.hasAlcohol ? '🍺' : ''}</h3>
-                <p><strong>메모:</strong> ${result.memo || '없음'}</p>
-                <p><strong>부원(${result.memberCount}명) 정산금액:</strong> ${Math.round(result.memberPayment).toLocaleString()}원</p>
-                <p><strong>난입(${result.guestCount}명) 정산금액:</strong> ${Math.round(result.guestPayment).toLocaleString()}원</p>
-                ${result.hasAlcohol ? '<p><strong>술 섭취:</strong> 예</p>' : ''}
-            </div>
-        `).join('')}
+        ${remainingSupportSum}
+        ${resultHTML}
     `;
 
     resultDiv.innerHTML = html;
