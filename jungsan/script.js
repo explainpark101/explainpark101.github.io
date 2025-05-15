@@ -36,8 +36,9 @@ const createTables = () => {
                 <input type="number" class="foodPrice" min="0" value="0">
             </div>
             <div class="checkbox-group">
-                <input type="checkbox" id="alcohol${i}" class="alcoholCheck">
-                <label for="alcohol${i}">술 섭취</label>
+                <label for="alcohol${i}">
+                    <input type="checkbox" id="alcohol${i}" class="alcoholCheck">
+                술 섭취</label>
             </div>
         `;
         return tableDiv;
@@ -108,16 +109,15 @@ const calculate = () => {
         };
     }).filter(Boolean);
 
-    return displayResults(results);
+    return displayResults({results, supportPerMember});
 };
 
 const sum = array => array.reduce((acc, cur)=>acc+cur, 0);
 
 // 결과 표시 함수
 const resultDiv = document.querySelector(selectors.result);
-const displayResults = (results) => {
-    let remainingSupportSum = sum(results.map(el=>el.remainingSupport ?? 0)) > 0 ? `<div class="remaining-support" style="font-size: 1.2rem; margin-bottom: .5rem;"><strong>총 남은 지원금: </strong> ${sum(results.map(el=>el.remainingSupport)).toLocaleString()}원 </div>` : '';
-
+const displayResults = ({results, supportPerMember}) => {
+    const remainingSupportSum = sum(results.map(el=>el.remainingSupport ?? 0)) > 0 ? `<div class="remaining-support" style="font-size: 1.2rem;"><strong>총 남은 지원금: </strong> ${sum(results.map(el=>el.remainingSupport)).toLocaleString()}원 </div>` : '';
     const resultHTML = results.map(result => `
         <div class="table-container">
             <h3>테이블 ${result.tableNumber} ${result.hasAlcohol ? '🍺' : ''}</h3>
@@ -130,6 +130,7 @@ const displayResults = (results) => {
     `).join('');
     const html = `
         <h2>정산 결과</h2>
+        <div class="support-per-person">인당 지원금: ${supportPerMember.toLocaleString()}원 </div>
         ${remainingSupportSum}
         ${resultHTML}
     `;
