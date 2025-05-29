@@ -3,13 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회식 정산 계산기</title>
+    <title>언네임드 회식 정산 계산기</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
+    <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/msgpack-lite@0.1.26/dist/msgpack.min.js"></script>
 </head>
 <body>
-    <h1>회식 정산 계산기</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>언네임드 회식 정산 계산기</h1>
+        <div>
+            <button id="resetFormBtn" style="margin-left: 1rem;"><span class="material-icons">restart_alt</span>초기화</button>
+            <button id="exportJsonBtn" style="margin-left: 0.5rem;"><span class="material-icons">file_upload</span>JSON 내보내기</button>
+            <button id="importJsonBtn" style="margin-left: 0.5rem;"><span class="material-icons">file_download</span>JSON 가져오기</button>
+            <button id="shareLinkBtn" style="margin-left: 0.5rem;"><span class="material-icons">link</span>링크로 공유</button>
+        </div>
+    </div>
     
     <div class="input-group">
         <label for="tableCount">테이블 개수</label>

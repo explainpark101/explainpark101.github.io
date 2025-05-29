@@ -8,6 +8,9 @@ const selectors = {
     createTablesButton: '#createTables'
 };
 
+// localStorage 저장 키
+const STORAGE_KEY = 'jungsanFormData';
+
 // 테이블 생성 함수
 const createTables = () => {
     const tableCount = parseInt(document.querySelector(selectors.tableCount).value);
@@ -138,15 +141,214 @@ const displayResults = ({results, supportPerMember}) => {
     resultDiv.innerHTML = html;
 };
 
-// 이벤트 리스너 설정
-const setupEventListeners = () => {
-    document.querySelector(selectors.calcButton).addEventListener('click', ()=>{resultDiv.innerHTML = '';calculate();});
-    document.querySelector(selectors.createTablesButton).addEventListener('click', createTables);
+// msgpack + pako + base64url 조합 인코딩/디코딩 함수
+function base64UrlEncode(uint8arr) {
+    let b64 = btoa(String.fromCharCode(...uint8arr));
+    return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function base64UrlDecode(str) {
+    str = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (str.length % 4) str += '=';
+    return Uint8Array.from(atob(str), c => c.charCodeAt(0));
+}
+function encodeForShare(data) {
+    const raw = window.msgpack.encode(data);
+    const deflated = window.pako.deflate(raw);
+    return base64UrlEncode(deflated);
+}
+function decodeFromShare(b64url) {
+    const deflated = base64UrlDecode(b64url);
+    const raw = window.pako.inflate(deflated);
+    return window.msgpack.decode(raw);
+}
+
+// 링크로 공유 함수
+const shareLink = () => {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (!data) {
+        alert('공유할 데이터가 없습니다.');
+        return;
+    }
+    const obj = JSON.parse(data);
+    const b64url = encodeForShare(obj);
+    const url = `${location.origin}${location.pathname}?data=${encodeURIComponent(b64url)}`;
+    window.history.replaceState(null, '', url);
+    navigator.clipboard.writeText(url).then(() => {
+        alert('공유 링크가 클립보드에 복사되었습니다!');
+    });
 };
 
-// 초기화
-const init = () => {
+// 쿼리에서 data 있으면 복원 (복원 성공 시 true 반환)
+function tryRestoreFromQuery() {
+    const params = new URLSearchParams(location.search);
+    const b64url = params.get('data');
+    if (b64url) {
+        try {
+            const parsed = decodeFromShare(b64url);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+            loadFromLocalStorage(parsed);
+            alert('공유된 데이터를 불러왔습니다.');
+            return true;
+        } catch {
+            alert('공유 데이터 복원에 실패했습니다.');
+        }
+    }
+    return false;
+}
+
+// 폼 데이터 저장 함수
+const saveToLocalStorage = () => {
+    const tableCount = parseInt(document.querySelector(selectors.tableCount).value) || 0;
+    const totalSupport = parseInt(document.querySelector(selectors.totalSupport).value) || 0;
+    const tables = document.getElementsByClassName('table-container');
+    const tableData = Array.from(tables).map(table => collectTableData(table));
+    const data = {
+        tableCount,
+        totalSupport,
+        tableData
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    // 쿼리스트링에 data가 있을 경우, 최신 데이터로 갱신
+    const params = new URLSearchParams(location.search);
+    if (params.get('data')) {
+        const b64url = encodeForShare(data);
+        const url = `${location.origin}${location.pathname}?data=${encodeURIComponent(b64url)}`;
+        window.history.replaceState(null, '', url);
+    }
+};
+
+// 폼 데이터 불러오기 함수
+const loadFromLocalStorage = (dataObj) => {
+    let data = dataObj;
+    if (!data) {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        if (!confirm('기존에 작성중이던 데이터를 불러올까요?')) return;
+        data = JSON.parse(raw);
+    }
+    document.querySelector(selectors.tableCount).value = data.tableCount;
+    document.querySelector(selectors.totalSupport).value = data.totalSupport;
     createTables();
+    // 테이블 입력값 세팅
+    const tables = document.getElementsByClassName('table-container');
+    data.tableData.forEach((table, i) => {
+        if (!tables[i]) return;
+        tables[i].querySelector('.memberCount').value = table.memberCount;
+        tables[i].querySelector('.guestCount').value = table.guestCount;
+        tables[i].querySelector('.foodPrice').value = table.foodPrice;
+        tables[i].querySelector('.memo').value = table.memo;
+        tables[i].querySelector('.alcoholCheck').checked = table.hasAlcohol;
+    });
+    // 입력 리스너 재설정
+    setInputListeners();
+};
+
+// 입력 리스너 부착 함수
+const setInputListeners = () => {
+    // 테이블 개수, 총 지원금
+    document.querySelector(selectors.tableCount).addEventListener('input', saveToLocalStorage);
+    document.querySelector(selectors.totalSupport).addEventListener('input', saveToLocalStorage);
+    // 각 테이블 입력
+    const tables = document.getElementsByClassName('table-container');
+    Array.from(tables).forEach(table => {
+        table.querySelector('.memberCount').addEventListener('input', saveToLocalStorage);
+        table.querySelector('.guestCount').addEventListener('input', saveToLocalStorage); 
+        table.querySelector('.foodPrice').addEventListener('input', saveToLocalStorage);
+        table.querySelector('.memo').addEventListener('input', saveToLocalStorage);
+        table.querySelector('.alcoholCheck').addEventListener('change', saveToLocalStorage);
+    });
+};
+
+// createTables 확장: 테이블 생성 후 입력 리스너 부착
+const _originalCreateTables = createTables;
+const createTablesWithListeners = () => {
+    _originalCreateTables();
+    setInputListeners();
+};
+
+// 기존 createTables를 교체
+window.createTables = createTablesWithListeners;
+
+// 폼 전체 초기화 함수
+const resetForm = () => {
+    if (!confirm(`정말 초기화 하시겠습니까? 초기화시 임시저장된 데이터는 삭제되고 되돌릴 수 없습니다.`)) return;
+
+    localStorage.removeItem(STORAGE_KEY);
+    document.querySelector(selectors.tableCount).value = 1;
+    document.querySelector(selectors.totalSupport).value = 0;
+    createTablesWithListeners();
+    resultDiv.innerHTML = '';
+};
+
+// JSON 내보내기 함수
+const exportJson = () => {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (!data) {
+        alert('내보낼 데이터가 없습니다.');
+        return;
+    }
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'jungsan_data.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
+
+// JSON 가져오기 함수
+const importJson = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const json = JSON.parse(event.target.result);
+                // 데이터 유효성 간단 체크
+                if (!json.tableCount || !Array.isArray(json.tableData)) {
+                    alert('올바르지 않은 파일입니다.');
+                    return;
+                }
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(json));
+                loadFromLocalStorage(json);
+                alert('데이터를 성공적으로 불러왔습니다.');
+            } catch {
+                alert('올바르지 않은 JSON 파일입니다.');
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+};
+
+// 이벤트 리스너 설정 함수 수정
+const setupEventListeners = () => {
+    document.querySelector(selectors.calcButton).addEventListener('click', ()=>{resultDiv.innerHTML = '';calculate();});
+    document.querySelector(selectors.createTablesButton).addEventListener('click', createTablesWithListeners);
+    document.querySelector(`#tableCount`).addEventListener('input', createTablesWithListeners);
+    document.getElementById('resetFormBtn').addEventListener('click', resetForm);
+    document.getElementById('exportJsonBtn').addEventListener('click', exportJson);
+    document.getElementById('importJsonBtn').addEventListener('click', importJson);
+    document.getElementById('shareLinkBtn').addEventListener('click', shareLink);
+    setInputListeners();
+};
+
+// 초기화 함수 수정
+const init = () => {
+    if (tryRestoreFromQuery()) {
+        setupEventListeners();
+        return;
+    }
+    if (localStorage.getItem(STORAGE_KEY)) 
+        loadFromLocalStorage();
+    else
+        createTablesWithListeners();
     setupEventListeners();
 };
 
