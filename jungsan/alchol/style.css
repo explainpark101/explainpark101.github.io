@@ -1,3 +1,4 @@
+/* Design Theme: Material Design */
 :root {
     --primary-color: #1976d2;
     --primary-light: #4791db;
@@ -10,6 +11,7 @@
     --green-light: #66BB6A;
     --green-dark: #2E7D32;
 }
+
 
 body {
     font-family: 'Roboto', sans-serif;
@@ -172,7 +174,6 @@ input[type="number"] {
     align-items: center;
 }
 
-
 /* Material Design Button Style for <a> */
 a.md-btn {
     display: inline-flex;
@@ -196,4 +197,140 @@ a.md-btn:hover, a.md-btn:focus {
     text-decoration: none;
     box-shadow: 0 4px 8px rgba(0,0,0,0.12);
     color: #fff;
+}
+
+/* 반응형 flex 레이아웃 for form#input-fields */
+form#input-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    padding: 24px 20px 20px 20px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+form#input-fields .input-group {
+    flex: 1 1 240px;
+    min-width: 220px;
+    max-width: 320px;
+}
+form#input-fields button {
+    flex: 1 1 100%;
+    max-width: 100%;
+    margin-top: 12px;
+    align-self: flex-end;
+    justify-content: center;
+    width: 100%;
+}
+@media (max-width: 900px) {
+    form#input-fields {
+        gap: 12px;
+        padding: 16px 8px 12px 8px;
+    }
+    form#input-fields .input-group {
+        min-width: 160px;
+        max-width: 100%;
+    }
+}
+@media (max-width: 600px) {
+    form#input-fields {
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 2vw 8px 2vw;
+    }
+    form#input-fields .input-group {
+        min-width: 0;
+        max-width: 100%;
+    }
+    form#input-fields button {
+        margin-top: 8px;
+    }
+}
+form#input-fields {
+    justify-content: center;
+    align-items: center;
+}
+
+/* 2x2 표 스타일 for input-group-table */
+.input-group-table {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 12px 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.input-group-cell {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 6px;
+    padding: 12px 10px 10px 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    min-width: 0;
+}
+.input-group-cell label {
+    margin-bottom: 6px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+@media (max-width: 700px) {
+    .input-group-table {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 10px;
+        padding: 6px 2px;
+    }
+    .input-group-cell {
+        padding: 10px 6px 8px 6px;
+    }
+}
+
+/* input-group-values grid layout (반응형) */
+.input-group-values {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+@media (max-width: 900px) {
+    .input-group-values {
+        gap: 12px;
+    }
+}
+@media (max-width: 600px) {
+    .input-group-values {
+        gap: 8px;
+    }
+}
+
+/* 모든 form 필드 100% 너비 */
+form input,
+form select,
+form textarea,
+form button {
+    width: 100%;
+    box-sizing: border-box;
+}
+.input-group,
+.input-group-cell,
+.input-group-values{
+    width: 100%;
+}
+.input-group-values > .input-group > :is(input, select, textarea) {
+    width: 100%;
+}
+
+/* textarea 자동 resize (auto-grow) */
+form textarea {
+    resize: vertical;
+    min-height: 32px;
+    max-height: 200px;
+    overflow-y: auto;
+    transition: min-height 0.2s;
 }
