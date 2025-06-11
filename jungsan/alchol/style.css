@@ -334,3 +334,13 @@ form textarea {
     overflow-y: auto;
     transition: min-height 0.2s;
 }
+
+@media (min-width: 768px) {
+    form#input-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        & > button {
+            grid-column: span 2;
+        }
+    }
+}
