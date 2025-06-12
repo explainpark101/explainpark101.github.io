@@ -560,7 +560,7 @@
 
         // 입력 필드 포커스 이벤트 리스너 추가
         this.inputElement.addEventListener('focus', () => {
-          localStorage.setItem('lastFocusedInput', this.abbr);
+          localStorage.setItem('lastFocusedInput-endterm', this.abbr);
           // 포커스된 요소를 화면 가운데로 스크롤
           this.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
@@ -787,7 +787,7 @@
         this.loadState();
 
         // 마지막으로 포커스된 입력 필드 복원
-        const lastFocusedInput = localStorage.getItem('lastFocusedInput');
+        const lastFocusedInput = localStorage.getItem('lastFocusedInput-endterm');
         if (lastFocusedInput) {
           const question = this.questions.find(q => q.abbr === lastFocusedInput);
           if (question && question.element.style.display !== 'none') {
@@ -972,14 +972,14 @@
       saveState() {
         const state = {
           questions: this.questions.map(question => question.saveState()),
-          lastFocusedInput: localStorage.getItem('lastFocusedInput'),
+          lastFocusedInput: localStorage.getItem('lastFocusedInput-endterm'),
           isIncorrectOnlyMode: this.isIncorrectOnlyMode
         };
-        localStorage.setItem('examState', JSON.stringify(state));
+        localStorage.setItem('examState-endterm', JSON.stringify(state));
       }
 
       loadState() {
-        const savedState = localStorage.getItem('examState');
+        const savedState = localStorage.getItem('examState-endterm');
         if (savedState) {
           const state = JSON.parse(savedState);
           this.isIncorrectOnlyMode = state.isIncorrectOnlyMode || false;
