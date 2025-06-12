@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>기말고사: GRAPHIC COMMUNICATIONS IN CONSTRUCTION</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #1976d2;
+      --primary-light: #42a5f5;
+      --primary-dark: #1565c0;
+      --text-primary: #212121;
+      --text-secondary: #757575;
+      --background: #f5f5f5;
+      --surface: #ffffff;
+      --error: #d32f2f;
+      --success: #388e3c;
+      --border-color: #e0e0e0;
+      --shadow-color: rgba(0,0,0,0.1);
+      --overlay-color: rgba(0,0,0,0.5);
+      transition: background-color 500ms ease-in-out, color 500ms ease-in-out, border-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
+    }
+
+    /* 다크모드 기본 설정 (브라우저 설정) */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary-color: #90caf9;
+        --primary-light: #42a5f5;
+        --primary-dark: #1565c0;
+        --text-primary: #ffffff;
+        --text-secondary: #b0bec5;
+        --background: #121212;
+        --surface: #1e1e1e;
+        --error: #ef5350;
+        --success: #66bb6a;
+        --border-color: #424242;
+        --shadow-color: rgba(0,0,0,0.3);
+        --overlay-color: rgba(0,0,0,0.7);
+      }
+    }
+
+    /* 사용자 설정 - 라이트 모드 */
+    [data-theme="light"] {
+      --primary-color: #1976d2;
+      --primary-light: #42a5f5;
+      --primary-dark: #1565c0;
+      --text-primary: #212121;
+      --text-secondary: #757575;
+      --background: #f5f5f5;
+      --surface: #ffffff;
+      --error: #d32f2f;
+      --success: #388e3c;
+      --border-color: #e0e0e0;
+      --shadow-color: rgba(0,0,0,0.1);
+      --overlay-color: rgba(0,0,0,0.5);
+    }
+
+    /* 사용자 설정 - 다크 모드 */
+    [data-theme="dark"] {
+      --primary-color: #90caf9;
+      --primary-light: #42a5f5;
+      --primary-dark: #1565c0;
+      --text-primary: #ffffff;
+      --text-secondary: #b0bec5;
+      --background: #121212;
+      --surface: #1e1e1e;
+      --error: #ef5350;
+      --success: #66bb6a;
+      --border-color: #424242;
+      --shadow-color: rgba(0,0,0,0.3);
+      --overlay-color: rgba(0,0,0,0.7);
+    }
+
+    [data-theme="dark"] .question input {
+      background-color: #2d2d2d;
+      color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .question input:focus {
+      background-color: #333333;
+    }
+
+    /* 브라우저 기본 다크모드 설정 */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme]) .question input {
+        background-color: #2d2d2d;
+        color: var(--text-primary);
+      }
+
+      :root:not([data-theme]) .question input:focus {
+        background-color: #333333;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 500ms ease-in-out, color 500ms ease-in-out, border-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 20px;
+      transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: var(--surface);
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px var(--shadow-color);
+      position: relative;
+      transition: background-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
+    }
+
+    .progress-box {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: var(--surface);
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px var(--shadow-color);
+      z-index: 1000;
+      min-width: 200px;
+      transition: background-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
+    }
+
+    .progress-box h3 {
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      transition: color 500ms ease-in-out;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background-color: var(--border-color);
+      border-radius: 4px;
+      margin: 0.5rem 0;
+      overflow: hidden;
+      transition: background-color 500ms ease-in-out;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: var(--primary-color);
+      transition: width 0.3s ease, background-color 500ms ease-in-out;
+    }
+
+    .progress-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      transition: color 500ms ease-in-out;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 500ms ease-in-out;
+    }
+
+    button:hover {
+      background-color: var(--primary-dark);
+    }
+
+    button.secondary {
+      background-color: var(--text-secondary);
+    }
+
+    button.secondary:hover {
+      background-color: var(--text-primary);
+    }
+
+    button.danger {
+      background-color: var(--error);
+    }
+
+    button.danger:hover {
+      background-color: #b71c1c;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+      transition: color 500ms ease-in-out;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      transition: color 500ms ease-in-out;
+    }
+
+    #questions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .question {
+      width: calc(50% - 0.5rem);
+      background-color: var(--surface);
+      padding: 1rem;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px var(--shadow-color);
+      transition: box-shadow 500ms ease-in-out, background-color 500ms ease-in-out;
+    }
+
+    .question:focus-within {
+      box-shadow: 0 0 0 2px var(--primary-color);
+    }
+
+    .question label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+      transition: color 500ms ease-in-out;
+    }
+
+    .question input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: border-color 500ms ease-in-out, background-color 500ms ease-in-out, color 500ms ease-in-out;
+    }
+
+    .question input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+    }
+
+    .result {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
+    }
+
+    .correct {
+      color: var(--success);
+      background-color: rgba(56, 142, 60, 0.1);
+      transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
+    }
+
+    .incorrect {
+      color: var(--error);
+      background-color: rgba(211, 47, 47, 0.1);
+      transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
+    }
+
+    #score {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background-color: var(--surface);
+      border-radius: 4px;
+      box-shadow: 0 1px 3px var(--shadow-color);
+      transition: background-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
+    }
+
+    @keyframes dialogSlideIn {
+      from {
+        transform: translateY(-100px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes backdropFadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    dialog {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: var(--surface);
+      border: none;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px var(--shadow-color);
+      min-width: 300px;
+      animation: dialogSlideIn 0.3s ease-out;
+    }
+
+    dialog::backdrop {
+      background-color: var(--overlay-color);
+      animation: backdropFadeIn 0.3s ease-out;
+    }
+
+    .settings-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: transparent;
+      color: var(--text-primary);
+      border: none;
+      padding: 0.5rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .settings-button:hover {
+      background-color: var(--shadow-color);
+    }
+
+    .settings-button::before {
+      content: '⚙️';
+      font-size: 1.2rem;
+    }
+
+    .settings-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .settings-title {
+      margin: 0 0 1rem 0;
+      color: var(--text-primary);
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    .theme-switch {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .theme-switch label {
+      color: var(--text-primary);
+      font-size: 1rem;
+    }
+
+    .theme-switch input[type="checkbox"] {
+      width: 40px;
+      height: 20px;
+      appearance: none;
+      background-color: var(--border-color);
+      border-radius: 10px;
+      position: relative;
+      cursor: pointer;
+      transition: background-color 500ms ease-in-out;
+    }
+
+    .theme-switch input[type="checkbox"]:checked {
+      background-color: var(--primary-color);
+    }
+
+    .theme-switch input[type="checkbox"]::before {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: white;
+      top: 2px;
+      left: 2px;
+      transition: transform 500ms ease-in-out;
+    }
+
+    .theme-switch input[type="checkbox"]:checked::before {
+      transform: translateX(20px);
+    }
+
+    .dialog-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .dialog-buttons button {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .dialog-buttons button.secondary {
+      background-color: var(--text-secondary);
+    }
+
+    .dialog-buttons button.secondary:hover {
+      background-color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+  <nav style="background-color: transparent; padding: 1rem; margin-bottom: 2rem;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+      <a href="/" style="color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 1.2rem; font-weight: 500;">
+        <span class="material-icons" style="font-size: 1.5rem;">home</span>
+      </a>
+    </div>
+  </nav>
+  <button class="settings-button" id="settingsButton">설정</button>
+  <dialog id="settingsDialog">
+    <div class="settings-content">
+      <h3 class="settings-title">설정</h3>
+      <div class="theme-switch">
+        <input type="checkbox" id="themeSwitch">
+        <label for="themeSwitch">다크 모드</label>
+      </div>
+      <div class="dialog-buttons">
+        <button class="secondary" id="closeDialog">닫기</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="progress-box">
+    <h3>진행 상황</h3>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-stats">
+      <span id="progressText">0%</span>
+      <span id="accuracyText">정답률: 0%</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>기말고사: GRAPHIC COMMUNICATIONS IN CONSTRUCTION</h1>
+    <p class="subtitle">범위: A ~ Z 약어</p>
+
+    <form id="examForm">
+      <div id="questions"></div>
+      <div class="button-group">
+        <button type="button" id="resetBtn">리셋</button>
+        <button type="button" id="hardResetBtn" class="danger">하드 리셋</button>
+        <button type="submit">제출</button>
+      </div>
+    </form>
+
+    <div id="score"></div>
+  </div>
+
+  <script>
+    // 정답 매핑 (A~H)
+    const answers = {
+      "ABV":"Above","AB":"Anchor Bolt","A/C":"Air Conditioner","AD":"Access Door",
+      "ADD":"Addition","ADJ":"Adjust","AFF":"Above Finished Floor","AFG":"Above Finished Grade",
+      "ALT":"Alternate","APP'D":"Approved","ARCH":"Architect, Architectural","ASPH":"Asphalt",
+      "AWG":"American wire gauge","BC":"Bookcase","BD":"Board","BL":"Building Line",
+      "BLDG":"Building","BLK":"Block","BM":"Beam","BOF":"Bottom of footing",
+      "BOW":"Bottom of wall","BRG":"Bearing","BU":"Built up","BTM":"Bottom",
+      "CSMNT":"Casement","CABT":"Cabinet","CC":"Center-to-Center","CD":"Construction document",
+      "CEM":"Cement","CL":"Center line","CH":"Channel","CI":"Cast Iron",
+      "CIP":"Cast in place","CLG":"Ceiling","CMU":"Concrete Masonry Unit","CO":"Clean Out",
+      "COL":"Column","CONT":"Continuous","CONTR":"Contractor","CONC":"Concrete",
+      "CPT":"Carpet","CT":"Ceramic Tile","D/W":"Dishwasher","DBL":"Double",
+      "DEMO":"Demolition","DIA":"Diameter","DIM":"Dimension","DL":"Dead Load",
+      "DN":"Down","DR":"Door","EA":"Each","ED":"Edge distance",
+      "EJ":"Expansion joint","ELEV":"Elevation","ELECT":"Electric, electrical","EQ":"Equal",
+      "EQUIP":"Equipment","EST":"Estimate","EW":"Each way","EXC":"Excavate",
+      "EXIST":"Existing","EXT":"Exterior","FA":"Fire alarm","FAO":"Finish all over",
+      "FCO":"Floor clean out","FD":"Floor drain","FE":"Fire extinguisher","FAB":"Fabricate",
+      "FDN":"Foundation","FFL":"Finished floor level","FIN":"Finish","FL":"Floor level",
+      "FLR":"Floor","FRPF":"Fireproof","GA":"Gauge","GALV":"Galvanized",
+      "GAR":"Garage","GC":"General Contractor","GFCI":"Ground Fault Circuit Interrupt",
+      "GL":"Glass","GM":"Grade mark","GT":"Glazed tile","GYP":"Gypsum",
+      "HB":"Hose bib","HC":"Hollow core","HDBD":"Hardboard","HDW":"Hardware",
+      "HGT":"Height","HOR":"Horizontal","HR":"Hour or Handrail","HTR":"Heater",
+      "HV":"High voltage","HVAC":"Heating, Venting and Air Conditioning","HW":"Hot water",
+      "ICF":"Insulated Concrete Form","ID":"Inside diameter","IF":"Inside Face",
+      "INCL":"Inclusive, including","INV":"Invert","INSUL":"Insulation","INT":"Interior",
+      "JCT":"Junction","JST":"Joist","kW":"Killowatt","LFT":"Linear feet",
+      "LAM":"Laminate","LAT":"Lateral","LH":"Left hand","LIN":"Linear",
+      "LL":"Live load","LT":"Light","LVL":"Laminated Veneer Lumber","MB":"Machine bolt",
+      "MO":"Masonry opening","MAR":"Marble","MAS":"Masonry","MTL":"Material",
+      "MAX":"Maximum","MECH":"Mechanical","MED":"Medium","MFG":"Manufacturing",
+      "MH":"Manhole","MIN":"Minimum","MOD":"Modular","MTL":"Metal (steel)",
+      "MUL":"Mullion","NTS":"Not to scale","NCM":"Non-corrosive metal","NFC":"Not for construction",
+      "NIC":"Not in contract","NO":"Number","NOM":"Nominal","OAL":"Overall length",
+      "OC":"On-Center","OD":"Outside diameter","OR":"Outside radius","OH":"Overhead",
+      "OPNG":"Opening","P":"Paint","PART":"Partition","PAV":"Pavement",
+      "PC":"Pre-Cast Concrete","PL":"Plaster or Property line","PLT":"Plate","PLAS":"Plastic",
+      "PLV":"Plastic laminate veneer","PLYWD":"Plywood","PSF":"Pounds per square foot",
+      "PSI":"Pounds per square inch","PTD":"Painted","PVC":"Polyvinyl chloride","PWR":"Power",
+      "QTY":"Quantity","RAD":"Radius","RC":"Reinforced Concrete","RD":"Roof Drain",
+      "RO":"Rough Opening","ROW":"Right of Way","REFG":"Refrigerator","REF":"Reference",
+      "REINF":"Reinforced","RET":"Return","REV":"Revision","RH":"Right hand",
+      "RM":"Room","RMV":"Remove","SAN":"Sanitary","SC":"Solid Core",
+      "SCHED":"Schedule","SD":"Smoke Detector","SECT":"Section","SHT":"Sheet",
+      "SHT'G":"Sheathing","SIM":"Similar","SPECS":"Specifications","SPK":"Sprinkler",
+      "SQ.FT.":"Square feet","SQ. IN.":"Square inches","STD":"Standard","STL":"Steel",
+      "SY":"Square yard","SYS":"System","T&B":"Top and bottom","TO":"Top of",
+      "TOB":"Top of beam","TOC":"Top of curb","TOF":"Top of footing","TOJ":"Top of joist",
+      "TOM":"Top of masonry","TOW":"Top of wall","TS":"Tube steel","TH":"Threshold",
+      "TYP":"Typical","UNF":"Unfinished","VA":"Voltage","VB":"Vapor barrier",
+      "VIF":"Verify in field","VCT":"Vinyl composition tile","WC":"Toilet (water closet)",
+      "WDW":"Window","WL":"Water level","WP":"Weatherproof","WT":"Weight",
+      "WTR. HTR":"Water Heater","WD":"Wood","WIC":"Walk In Closet","W/O":"Without",
+      "YD":"Yard"
+    };
+
+
+    class Question {
+      constructor(abbr, answer, index) {
+        this.abbr = abbr;
+        this.answer = answer;
+        this.index = index;
+        this.element = this.createQuestionElement();
+        this.inputElement = this.element.querySelector('input');
+        this.resultElement = this.element.querySelector('.result');
+        this.isGraded = false;
+        this.isIncorrect = false;
+        this.originalIndex = index;
+
+        // 입력 필드 포커스 이벤트 리스너 추가
+        this.inputElement.addEventListener('focus', () => {
+          localStorage.setItem('lastFocusedInput', this.abbr);
+          // 포커스된 요소를 화면 가운데로 스크롤
+          this.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      }
+
+      createQuestionElement() {
+        const div = document.createElement('div');
+        div.className = 'question';
+        div.innerHTML = `
+          <label for="ans-${this.abbr}">${this.index}. ${this.abbr}</label>
+          <input type="text" id="ans-${this.abbr}" autocomplete="off">
+          <div id="res-${this.abbr}" class="result"></div>
+        `;
+        return div;
+      }
+
+      // 오타 감지 함수
+      isTypo(userAns, correctAns) {
+        // 정규화된 답변
+        const normalizedUserAns = this.normalizeAnswer(userAns);
+        const normalizedCorrectAns = this.normalizeAnswer(correctAns);
+
+        // 정확히 일치하는 경우
+        if (normalizedUserAns === normalizedCorrectAns) {
+          return false;
+        }
+
+        // 길이 차이가 2 이상인 경우 오타로 보기 어려움
+        if (Math.abs(normalizedUserAns.length - normalizedCorrectAns.length) > 1) {
+          return false;
+        }
+
+        // 레벤슈타인 거리 계산
+        const distance = this.levenshteinDistance(normalizedUserAns, normalizedCorrectAns);
+
+        // 거리가 1이고, 길이가 같거나 1 차이 나는 경우 오타로 판단
+        return distance === 1;
+      }
+
+      // 레벤슈타인 거리 계산 함수
+      levenshteinDistance(a, b) {
+        if (a.length === 0) return b.length;
+        if (b.length === 0) return a.length;
+
+        const matrix = [];
+
+        // 첫 번째 행 초기화
+        for (let i = 0; i <= b.length; i++) {
+          matrix[i] = [i];
+        }
+
+        // 첫 번째 열 초기화
+        for (let j = 0; j <= a.length; j++) {
+          matrix[0][j] = j;
+        }
+
+        // 거리 계산
+        for (let i = 1; i <= b.length; i++) {
+          for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+              matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+              matrix[i][j] = Math.min(
+                matrix[i - 1][j - 1] + 1, // 치환
+                matrix[i][j - 1] + 1,     // 삽입
+                matrix[i - 1][j] + 1      // 삭제
+              );
+            }
+          }
+        }
+
+        return matrix[b.length][a.length];
+      }
+
+      normalizeAnswer(answer) {
+        // 공백 제거
+        answer = answer.replace(/\s+/g, '');
+        // 특수문자 제거
+        answer = answer.replace(/[-,]/g, '');
+        return answer.toLowerCase();
+      }
+
+      grade() {
+        const userAns = this.inputElement.value.trim();
+
+        if (!userAns) {
+          this.resultElement.textContent = "";
+          this.resultElement.className = "result";
+          this.isGraded = false;
+          this.isIncorrect = false;
+          return null;
+        }
+
+        this.isGraded = true;
+
+        // 정답을 쉼표 또는 'or'로 분리하여 여러 가능한 답 체크
+        const possibleAnswers = this.answer.split(/[,]| or /).map(ans => ans.trim());
+        const normalizedUserAns = this.normalizeAnswer(userAns);
+
+        // 정확한 답 확인
+        const isExactMatch = possibleAnswers.some(ans =>
+          this.normalizeAnswer(ans) === normalizedUserAns
+        );
+
+        if (isExactMatch) {
+          this.resultElement.textContent = "정답";
+          this.resultElement.className = "result correct";
+          this.isIncorrect = false;
+          return true;
+        }
+
+        // 오타 확인
+        const isTypo = possibleAnswers.some(ans =>
+          this.isTypo(userAns, ans)
+        );
+
+        if (isTypo) {
+          // 다른 가능한 답이 있는지 확인
+          const otherAnswers = possibleAnswers.filter(ans =>
+            this.normalizeAnswer(ans) !== normalizedUserAns
+          );
+
+          let message = "정답(오타를 정정해주세요)";
+          if (otherAnswers.length > 0) {
+            message += ` (다른 정답: ${otherAnswers.join(', ')})`;
+          }
+
+          this.resultElement.textContent = message;
+          this.resultElement.className = "result incorrect";
+          this.isIncorrect = true;
+          return false;
+        }
+
+        // 오답인 경우 다른 가능한 답 표시
+        this.resultElement.textContent = `오답 (정답: ${this.answer})`;
+        this.resultElement.className = "result incorrect";
+        this.isIncorrect = true;
+        return false;
+      }
+
+      reset(forceReset = false) {
+        if (!forceReset && this.isIncorrect) {
+          return;
+        }
+        this.inputElement.value = "";
+        this.resultElement.textContent = "";
+        this.resultElement.className = "result";
+        this.isGraded = false;
+        this.isIncorrect = false;
+      }
+
+      saveState() {
+        return {
+          value: this.inputElement.value,
+          isGraded: this.isGraded,
+          isIncorrect: this.isIncorrect,
+          isVisible: this.element.style.display !== 'none'
+        };
+      }
+
+      loadState(state) {
+        if (state) {
+          this.inputElement.value = state.value || '';
+          this.isIncorrect = state.isIncorrect || false;
+          if (state.value) {
+            this.grade();
+          }
+          this.element.style.display = state.isVisible !== false ? 'block' : 'none';
+        }
+      }
+
+      updateIndex(newIndex) {
+        this.index = newIndex;
+        const label = this.element.querySelector('label');
+        label.textContent = `${newIndex}. ${this.abbr}`;
+      }
+    }
+
+    class Exam {
+      constructor(answers) {
+        this.answers = answers;
+        this.questions = [];
+        this.container = document.getElementById('questions');
+        this.scoreElement = document.getElementById('score');
+        this.form = document.getElementById('examForm');
+        this.resetBtn = document.getElementById('resetBtn');
+        this.hardResetBtn = document.getElementById('hardResetBtn');
+        this.progressFill = document.getElementById('progressFill');
+        this.progressText = document.getElementById('progressText');
+        this.accuracyText = document.getElementById('accuracyText');
+        this.isIncorrectOnlyMode = false;
+        this.settingsButton = document.getElementById('settingsButton');
+        this.settingsDialog = document.getElementById('settingsDialog');
+        this.themeSwitch = document.getElementById('themeSwitch');
+        this.closeDialog = document.getElementById('closeDialog');
+        this.initialize();
+      }
+
+      initialize() {
+        // 문제 순서를 무작위로 섞기
+        const shuffledAnswers = Object.entries(this.answers)
+          .sort(() => Math.random() - 0.5);
+
+        let index = 1;
+        for (let [abbr, answer] of shuffledAnswers) {
+          const question = new Question(abbr, answer, index++);
+          this.questions.push(question);
+          this.container.appendChild(question.element);
+
+          question.inputElement.addEventListener('blur', () => {
+            question.grade();
+            this.updateTotalScore();
+            this.updateProgress();
+            this.saveState();
+            this.checkCompletion();
+          });
+
+          question.inputElement.addEventListener('input', () => {
+            this.saveState();
+          });
+        }
+
+        // 저장된 상태 복원
+        this.loadState();
+
+        // 마지막으로 포커스된 입력 필드 복원
+        const lastFocusedInput = localStorage.getItem('lastFocusedInput');
+        if (lastFocusedInput) {
+          const question = this.questions.find(q => q.abbr === lastFocusedInput);
+          if (question && question.element.style.display !== 'none') {
+            setTimeout(() => {
+              question.inputElement.focus();
+              question.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+          }
+        } else if (this.questions.length > 0) {
+          const firstVisibleQuestion = this.questions.find(q => q.element.style.display !== 'none');
+          if (firstVisibleQuestion) {
+            firstVisibleQuestion.inputElement.focus();
+          }
+        }
+
+        this.form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.gradeAll();
+        });
+
+        this.resetBtn.addEventListener('click', () => {
+          const forceReset = confirm('모든 문제를 초기화하시겠습니까? (Ctrl + R을 누르면 틀린 문제만 유지됩니다)');
+          this.resetAll(forceReset);
+          this.saveState();
+        });
+
+        this.hardResetBtn.addEventListener('click', () => {
+          if (confirm('모든 진행 상황이 초기화됩니다. 계속하시겠습니까?')) {
+            localStorage.clear();
+            // 모든 문제의 상태를 완전히 초기화
+            this.questions.forEach(question => {
+              question.loadState({
+                value: '',
+                isGraded: false,
+                isIncorrect: false,
+                isVisible: true
+              });
+              question.updateIndex(question.originalIndex);
+            });
+            this.isIncorrectOnlyMode = false;
+            this.updateTotalScore();
+            this.updateProgress();
+          }
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.ctrlKey && e.key === 'r') {
+            e.preventDefault();
+            this.resetAll(false);
+            this.saveState();
+          }
+          if (e.ctrlKey && e.shiftKey && e.key === 'R') {
+            e.preventDefault();
+            this.hardResetBtn.click();
+          }
+        });
+
+        window.addEventListener('beforeunload', () => {
+          this.saveState();
+        });
+
+        // 설정 버튼 이벤트 리스너
+        this.settingsButton.addEventListener('click', () => {
+          this.settingsDialog.showModal();
+        });
+
+        // 다이얼로그 닫기 버튼 이벤트 리스너
+        this.closeDialog.addEventListener('click', () => {
+          this.settingsDialog.close();
+        });
+
+        // 테마 스위치 이벤트 리스너
+        this.themeSwitch.addEventListener('change', (e) => {
+          const isDarkMode = e.target.checked;
+          this.setTheme(isDarkMode ? 'dark' : 'light');
+        });
+
+        // 초기 테마 설정
+        this.initializeTheme();
+      }
+
+      initializeTheme() {
+        // 저장된 사용자 테마 설정 확인
+        const savedTheme = localStorage.getItem('theme');
+
+        if (savedTheme) {
+          // 저장된 사용자 설정이 있으면 적용
+          this.setTheme(savedTheme);
+          this.themeSwitch.checked = savedTheme === 'dark';
+        } else {
+          // 저장된 설정이 없으면 브라우저 설정에 따라 초기화
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          this.themeSwitch.checked = prefersDark;
+        }
+      }
+
+      setTheme(theme) {
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+      }
+
+      checkCompletion() {
+        const allAnswered = this.questions.every(q => q.inputElement.value.trim() !== "");
+        if (allAnswered) {
+          const incorrectQuestions = this.questions.filter(q => q.isIncorrect);
+          if (incorrectQuestions.length > 0) {
+            setTimeout(() => {
+              if (confirm(`${incorrectQuestions.length}개의 문제를 틀렸습니다. 틀린 문제만 다시 풀어보시겠습니까?`)) {
+                this.showIncorrectOnly();
+              }
+            }, 500);
+          }
+        }
+      }
+
+      showIncorrectOnly() {
+        this.isIncorrectOnlyMode = true;
+        let visibleIndex = 1;
+
+        this.questions.forEach(question => {
+          if (question.isIncorrect) {
+            question.reset(true);
+            question.element.style.display = 'block';
+            question.updateIndex(visibleIndex++);
+          } else {
+            question.element.style.display = 'none';
+          }
+        });
+
+        this.saveState();
+
+        const firstIncorrect = this.questions.find(q => q.isIncorrect);
+        if (firstIncorrect) {
+          firstIncorrect.inputElement.focus();
+          firstIncorrect.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+
+      showAllQuestions() {
+        this.isIncorrectOnlyMode = false;
+        this.questions.forEach(question => {
+          question.element.style.display = 'block';
+          question.updateIndex(question.originalIndex);
+        });
+        this.saveState();
+      }
+
+      resetAll(forceReset = false) {
+        if (forceReset) {
+          this.showAllQuestions();
+        }
+
+        this.questions.forEach(question => {
+          if (question.isIncorrect) {
+            // 틀린 문제는 답을 초기화하고 보이게 함
+            question.reset(true);
+            question.element.style.display = 'block';
+          } else if (question.inputElement.value.trim() === '') {
+            // 입력되지 않은 문제는 보이게 함
+            question.element.style.display = 'block';
+          } else {
+            // 맞춘 문제는 숨김
+            question.element.style.display = 'none';
+          }
+        });
+
+        this.updateTotalScore();
+        this.updateProgress();
+
+        // 첫 번째 빈칸으로 포커스 이동
+        const firstEmptyQuestion = this.questions.find(q =>
+          q.element.style.display !== 'none' && q.inputElement.value.trim() === ''
+        );
+        if (firstEmptyQuestion) {
+          setTimeout(() => {
+            firstEmptyQuestion.inputElement.focus();
+            firstEmptyQuestion.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 100);
+        }
+      }
+
+      saveState() {
+        const state = {
+          questions: this.questions.map(question => question.saveState()),
+          lastFocusedInput: localStorage.getItem('lastFocusedInput'),
+          isIncorrectOnlyMode: this.isIncorrectOnlyMode
+        };
+        localStorage.setItem('examState', JSON.stringify(state));
+      }
+
+      loadState() {
+        const savedState = localStorage.getItem('examState');
+        if (savedState) {
+          const state = JSON.parse(savedState);
+          this.isIncorrectOnlyMode = state.isIncorrectOnlyMode || false;
+
+          this.questions.forEach((question, index) => {
+            if (state.questions && state.questions[index]) {
+              question.loadState(state.questions[index]);
+            } else {
+              // 저장된 상태가 없는 경우 기본값으로 초기화
+              question.loadState({
+                value: '',
+                isGraded: false,
+                isIncorrect: false,
+                isVisible: true
+              });
+            }
+          });
+
+          if (this.isIncorrectOnlyMode) {
+            let visibleIndex = 1;
+            this.questions.forEach(question => {
+              if (question.isIncorrect) {
+                question.updateIndex(visibleIndex++);
+              }
+            });
+          } else {
+            this.questions.forEach(question => {
+              question.updateIndex(question.originalIndex);
+            });
+          }
+
+          this.updateTotalScore();
+          this.updateProgress();
+        } else {
+          // 저장된 상태가 없는 경우 모든 문제를 보이게 하고 초기화
+          this.questions.forEach(question => {
+            question.loadState({
+              value: '',
+              isGraded: false,
+              isIncorrect: false,
+              isVisible: true
+            });
+          });
+        }
+      }
+
+      updateProgress() {
+        const answeredCount = this.questions.filter(q => q.inputElement.value.trim() !== "").length;
+        const totalQuestions = this.questions.length;
+        const progress = (answeredCount / totalQuestions) * 100;
+
+        const correctCount = this.questions.filter(q => q.grade() === true).length;
+        const accuracy = answeredCount > 0 ? (correctCount / answeredCount) * 100 : 0;
+
+        this.progressFill.style.width = `${progress}%`;
+        this.progressText.textContent = `${Math.round(progress)}%`;
+        this.accuracyText.textContent = `정답률: ${Math.round(accuracy)}%`;
+      }
+
+      updateTotalScore() {
+        const correctCount = this.questions.reduce((count, question) => {
+          const result = question.grade();
+          return result === true ? count + 1 : count;
+        }, 0);
+
+        this.scoreElement.textContent =
+          `총점: ${correctCount} / ${this.questions.length}`;
+      }
+
+      gradeAll() {
+        this.updateTotalScore();
+        this.scoreElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    let exam;
+    window.onload = () => {
+      exam = new Exam(answers);
+    };
+  </script>
+</body>
+</html>
