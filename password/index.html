@@ -5,6 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>강력한 비밀번호 생성기</title>
     <link href="http://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css" rel="stylesheet" type="text/css">
+
+    <!-- PWA 관련 메타 태그 -->
+    <meta name="description" content="강력한 비밀번호 생성기 - 로컬에서 안전하게 작동하는 비밀번호 생성 도구">
+    <meta name="theme-color" content="#28a745">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="비밀번호 생성기">
+
+    <!-- PWA 아이콘 -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+
+    <!-- PWA 매니페스트 -->
+    <link rel="manifest" href="data:application/json,{
+      'name': '강력한 비밀번호 생성기',
+      'short_name': '비밀번호 생성기',
+      'description': '로컬에서 안전하게 작동하는 비밀번호 생성 도구',
+      'start_url': '/password/',
+      'display': 'standalone',
+      'background_color': '#f0f2f5',
+      'theme_color': '#28a745',
+      'scope': '/password/',
+      'icons': [
+        {
+          'src': 'data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><text y=\'.9em\' font-size=\'90\'>🔐</text></svg>',
+          'sizes': '100x100',
+          'type': 'image/svg+xml'
+        }
+      ]
+    }">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/toss/tossface/dist/tossface.css');
         @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
@@ -463,6 +493,34 @@
             transform: translateX(0);
         }
 
+                /* PWA 설치 버튼 스타일 */
+        .pwa-install-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .pwa-install-button:hover {
+            background: #218838;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+        }
+
+        .pwa-install-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        }
+
         /* 4:3 비율보다 가로가 긴 경우 (가로 레이아웃) */
         @media (max-aspect-ratio: 4/3) {
             .wrapper {
@@ -485,12 +543,23 @@
 </head>
 <body>
 
-    <div class="container">
-        <div style="text-align: left; margin-bottom: 20px;">
-            <a href="/" style="text-decoration: none; color: #007bff; font-weight: 500; display: inline-flex; align-items: center;">
+        <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <a href="/" id="back-to-apps" style="text-decoration: none; color: #007bff; font-weight: 500; display: inline-flex; align-items: center;">
                 ← 앱 목록
             </a>
+
+            <!-- PWA 설치 버튼 -->
+            <div id="pwa-install-container" style="display: none;">
+                <button id="pwa-install-btn" class="pwa-install-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    앱 설치
+                </button>
+            </div>
         </div>
+
         <h1>강력한 비밀번호 생성기</h1>
         <span class="description">
             🔒 모든 데이터는 로컬에서만 처리되며, 인터넷 연결 없이도 완벽하게 작동합니다
@@ -1012,9 +1081,57 @@
                         // 저장된 목록 토글 클릭 이벤트
         savedListsToggle.addEventListener('click', toggleSavedLists);
 
-                        // 페이지 로드 시 초기화
+                        // PWA 관련 변수들
+        let deferredPrompt;
+        const pwaInstallContainer = document.getElementById('pwa-install-container');
+        const pwaInstallBtn = document.getElementById('pwa-install-btn');
+        const backToAppsLink = document.getElementById('back-to-apps');
+
+        // PWA 모드 감지 및 UI 조정
+        function checkPWAMode() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                               window.navigator.standalone === true;
+
+            if (isStandalone) {
+                // PWA 모드에서는 앱 목록으로 가는 버튼 숨기기
+                backToAppsLink.style.display = 'none';
+            }
+        }
+
+        // PWA 설치 이벤트 감지
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            pwaInstallContainer.style.display = 'block';
+        });
+
+        // PWA 설치 버튼 클릭 이벤트
+        pwaInstallBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+
+                if (outcome === 'accepted') {
+                    console.log('PWA 설치가 수락되었습니다.');
+                    pwaInstallContainer.style.display = 'none';
+                } else {
+                    console.log('PWA 설치가 거부되었습니다.');
+                }
+
+                deferredPrompt = null;
+            }
+        });
+
+        // PWA가 설치되었을 때
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('PWA가 성공적으로 설치되었습니다.');
+            pwaInstallContainer.style.display = 'none';
+        });
+
+        // 페이지 로드 시 초기화
         updateSavedListsDisplay();
         loadLengthFromStorage();
+        checkPWAMode(); // PWA 모드 확인
 
         // 사용자 정의 문자 목록이 비어있으면 기본 문자들 추가
         if (!customChars.value.trim()) {

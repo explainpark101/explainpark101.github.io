@@ -2,7 +2,23 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dijkstra Algorithm Calculator</title>
+
+  <!-- PWA 관련 메타 태그 -->
+  <meta name="description" content="다익스트라 알고리즘 계산기 - 최단 경로 계산 도구">
+  <meta name="theme-color" content="#43A047">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="다익스트라 알고리즘">
+  <meta name="msapplication-TileColor" content="#43A047">
+
+  <!-- PWA 아이콘 -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
+  <link rel="apple-touch-icon" href="/icons/icon-152x152.png">
+  <link rel="manifest" href="/manifest.json">
+
   <!-- PicoCSS (원하는 경우) -->
   <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
   <!-- vis-network 라이브러리 -->
@@ -287,6 +303,21 @@
         runDijkstra();
       }
     });
+  </script>
+
+  <!-- PWA Service Worker 등록 -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered: ', registration);
+          })
+          .catch((registrationError) => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
   </script>
 </body>
 </html>
