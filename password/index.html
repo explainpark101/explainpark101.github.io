@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>강력한 비밀번호 생성기</title>
+    <link href="http://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css" rel="stylesheet" type="text/css">
     <style>
         @import url('https://cdn.jsdelivr.net/gh/toss/tossface/dist/tossface.css');
         @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Noto+Color+Emoji&display=swap');
         /* 🎨 기본 스타일링 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -202,7 +204,7 @@
             padding: 10px;
             border: 1px solid #ced4da;
             border-radius: 5px;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: "JetBrains Mono", 'D2 coding', monospace;
             resize: vertical;
             box-sizing: border-box;
             overflow-y: auto;
@@ -389,7 +391,7 @@
             border: 1px solid #dee2e6;
             border-radius: 4px;
             padding: 10px;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: "JetBrains Mono", 'D2 coding', monospace;
             font-size: 0.9em;
             word-break: break-all;
         }
@@ -433,6 +435,33 @@
         .d-none {
             display: none !important;
         }
+        .description {
+            color: #666;
+            font-size: 0.9em;
+            text-align: center;
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
 
         /* 4:3 비율보다 가로가 긴 경우 (가로 레이아웃) */
         @media (max-aspect-ratio: 4/3) {
@@ -463,6 +492,9 @@
             </a>
         </div>
         <h1>강력한 비밀번호 생성기</h1>
+        <span class="description">
+            🔒 모든 데이터는 로컬에서만 처리되며, 인터넷 연결 없이도 완벽하게 작동합니다
+        </span>
         <div class="wrapper">
             <div class="main-content">
                 <div class="password-display">
@@ -555,6 +587,8 @@
         </div>
     </div>
 
+    <div id="toast" class="toast"></div>
+
     <script>
         // 🚀 자바스크립트 로직
         const passwordOutput = document.getElementById('passwordOutput');
@@ -582,6 +616,7 @@
         const toggleIcon = document.getElementById('toggleIcon');
         const toggleText = document.getElementById('toggleText');
         const savedListsEmpty = document.getElementById('savedListsEmpty');
+        const toast = document.getElementById('toast');
 
         const charSets = {
             uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -589,6 +624,34 @@
             numbers: '0123456789',
             symbols: '!@#$%^&*()_+-=[]{}|;:,.<>/?'
         };
+
+                        // Toast 알림 함수
+        function showToast(message) {
+            // 새로운 hash 생성
+            const currentHash = `${Date.now()}-${Math.random()}`;
+
+            // 기존 toast를 즉시 닫기
+            toast.classList.remove('show');
+
+            // 새로운 메시지 설정
+            toast.textContent = message;
+
+            // 약간의 지연 후 새로운 toast 표시
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+
+            // 2초 후 자동으로 닫기 (hash 검증)
+            setTimeout(() => {
+                // 현재 toast의 hash와 비교하여 일치할 때만 닫기
+                if (toast.dataset.currentHash == currentHash) {
+                    toast.classList.remove('show');
+                }
+            }, 2100);
+
+            // 현재 hash를 toast에 저장
+            toast.dataset.currentHash = currentHash;
+        }
 
         // localStorage 관련 함수들
         function saveCustomCharsList(name, chars) {
@@ -780,6 +843,7 @@
             navigator.clipboard.writeText(passwordOutput.value).then(() => {
                 const originalHTML = copyButton.innerHTML;
                 copyButton.innerHTML = '<span class="material-icons">check</span> 복사됨!';
+                showToast('비밀번호가 클립보드에 복사되었습니다!');
                 setTimeout(() => {
                     copyButton.innerHTML = originalHTML;
                 }, 1500);
@@ -927,7 +991,7 @@
             dbUrlOutput.textContent = postgresUrl;
         });
 
-                // PostgreSQL URL 복사 버튼 이벤트
+                        // PostgreSQL URL 복사 버튼 이벤트
         copyDbUrl.addEventListener('click', () => {
             const url = dbUrlOutput.textContent;
             if (url === 'PostgreSQL URL이 여기에 표시됩니다...') {
@@ -938,6 +1002,7 @@
             navigator.clipboard.writeText(url).then(() => {
                 const originalHTML = copyDbUrl.innerHTML;
                 copyDbUrl.innerHTML = '<span class="material-icons">check</span> 복사됨!';
+                showToast('PostgreSQL URL이 클립보드에 복사되었습니다!');
                 setTimeout(() => {
                     copyDbUrl.innerHTML = originalHTML;
                 }, 1500);
