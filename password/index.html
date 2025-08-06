@@ -29,12 +29,15 @@
             flex-direction: column;
             gap: 1rem;
         }
+
+
         .wrapper {
             display: flex;
             flex-direction: row;
             gap: 2rem;
             align-items: flex-start;
         }
+
         .main-content {
             flex: 1;
             display: flex;
@@ -208,6 +211,7 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            justify-content: flex-end;
         }
         .custom-chars-controls button {
             padding: 8px 12px;
@@ -428,6 +432,25 @@
         }
         .d-none {
             display: none !important;
+        }
+
+        /* 4:3 비율보다 가로가 긴 경우 (가로 레이아웃) */
+        @media (max-aspect-ratio: 4/3) {
+            .wrapper {
+                justify-content: center;
+                flex-direction: column;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+            .option {
+                align-content: center;
+                align-items: center;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .custom-chars-controls {
+                justify-content: center;
+            }
         }
     </style>
 </head>
