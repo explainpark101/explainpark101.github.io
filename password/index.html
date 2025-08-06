@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>강력한 비밀번호 생성기</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/toss/tossface/dist/tossface.css');
+        @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+        /* 🎨 기본 스타일링 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .wrapper {
+            display: flex;
+            flex-direction: row;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 0;
+        }
+        .sidebar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 0;
+        }
+        .container > * {
+            flex-shrink: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #1a1a1a;
+        }
+        .password-display {
+            display: flex;
+            align-items: center;
+        }
+        #passwordOutput {
+            flex-grow: 1;
+            padding: 12px;
+            font-size: 1.1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+        }
+        #copyButton {
+            margin-left: 10px;
+            padding: 12px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #copyButton:hover {
+            background-color: #0056b3;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            background: #fff !important;
+            padding: 10px;
+        }
+        .option {
+            display: flex;
+            align-items: center;
+            background-color: #cfcfcf;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .option {
+            display: flex;
+            align-items: center;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            justify-content: space-between;
+        }
+        .option input[type="checkbox"] {
+            width: 1.2em;
+            height: 1.2em;
+            margin-right: 10px;
+        }
+        .toggle-button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+        }
+        .toggle-button.active {
+            background-color: #28a745;
+            color: white;
+        }
+        .toggle-button.inactive {
+            background-color: #dc3545;
+            color: white;
+        }
+        .add-chars-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+            background-color: #28a745;
+            color: white;
+            white-space: nowrap;
+        }
+        .add-chars-btn:hover {
+            background-color: #218838;
+        }
+        .length-option {
+            grid-column: 1 / -1; /* 전체 너비 차지 */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #lengthSlider {
+            flex-grow: 1;
+            margin: 0 10px;
+        }
+        #lengthInput {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        #generateButton {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #generateButton:hover {
+            background-color: #218838;
+        }
+        .custom-chars-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .custom-chars-section h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            color: #495057;
+            position: relative;
+            width: 100%;
+
+
+        }
+        #customChars {
+            width: 100%;
+            min-height: 60px;
+            max-height: 200px;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-family: 'Courier New', Courier, monospace;
+            resize: vertical;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        .custom-chars-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .custom-chars-controls button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+        }
+        .save-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .save-btn:hover {
+            background-color: #218838;
+        }
+        .load-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .load-btn:hover {
+            background-color: #138496;
+        }
+        .export-btn {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .export-btn:hover {
+            background-color: #e0a800;
+        }
+        .import-btn {
+            background-color: #6f42c1;
+            color: white;
+        }
+        .import-btn:hover {
+            background-color: #5a32a3;
+        }
+        .saved-lists {
+        }
+        .saved-lists-header {
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .saved-lists-header h4 {
+            margin: 0;
+            font-size: 1em;
+            color: #495057;
+        }
+        .saved-lists-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 0.9em;
+            padding: 4px 0;
+        }
+        .saved-lists-toggle:hover {
+            color: #495057;
+        }
+        .saved-lists-empty {
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.9em;
+            padding: 10px 0;
+        }
+        .toggle-icon {
+            transition: transform 0.3s ease;
+            font-size: 1.2em;
+            color: #6c757d;
+        }
+        .toggle-icon.rotated {
+            transform: rotate(0.5turn);
+        }
+        .saved-lists-content {
+            max-height: 200px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .saved-lists-content.collapsed {
+            max-height: 0;
+        }
+        .saved-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+        .saved-list-item button {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        .load-list-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .delete-list-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .tossface {
+            font-family: 'Tossface', sans-serif;
+        }
+        :has( > .material-icons) {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        button:has( > .material-icons) {
+            justify-content: center;
+        }
+        .material-icons {
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        .db-url-section {
+            padding: 15px;
+            background-color: #e8f4fd;
+            border-radius: 8px;
+            border: 1px solid #bee5eb;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .db-url-section h3 {
+            margin: 0;
+            font-size: 1.1em;
+            color: #0c5460;
+        }
+        .db-url-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .db-url-input-group {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        .db-url-input-group label {
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #495057;
+        }
+        .db-url-inputs input {
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.9em;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .db-url-output {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            word-break: break-all;
+        }
+        .db-url-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .db-url-controls button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+        }
+        .generate-db-url-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .generate-db-url-btn:hover {
+            background-color: #138496;
+        }
+        .copy-db-url-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        .copy-db-url-btn:hover {
+            background-color: #5a6268;
+        }
+        label {
+            cursor: pointer;
+        }
+
+
+        .d-flex {
+            display: flex;
+        }
+        .gap-2 {
+            gap: .5rem;
+        }
+        .d-none {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div style="text-align: left; margin-bottom: 20px;">
+            <a href="/" style="text-decoration: none; color: #007bff; font-weight: 500; display: inline-flex; align-items: center;">
+                ← 앱 목록
+            </a>
+        </div>
+        <h1>강력한 비밀번호 생성기</h1>
+        <div class="wrapper">
+            <div class="main-content">
+                <div class="password-display">
+                    <input type="text" id="passwordOutput" readonly>
+                    <button id="copyButton"><span class="material-icons">content_copy</span> 복사</button>
+                </div>
+                <div class="length-option">
+                    <label for="lengthSlider">길이:</label>
+                    <input type="range" id="lengthSlider" min="1" max="64" value="16">
+                    <input type="number" id="lengthInput" min="1" max="64" value="16">
+                    <span id="lengthValue" class="d-none">16</span>
+                </div>
+                <button id="generateButton"><span class="material-icons">rocket_launch</span> 생성하기</button>
+
+                <div class="custom-chars-section">
+                    <h3>사용자 정의 문자 목록</h3>
+                    <textarea id="customChars" placeholder="추가로 사용할 문자들을 입력하세요 (예: 한글, 이모지, 특수문자 등)"></textarea>
+
+                    <div class="options">
+                        <div class="option">
+                            <span>대문자 (A-Z)</span>
+                            <button class="add-chars-btn" data-chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ"><span class="material-icons">add</span> 추가</button>
+                        </div>
+                        <div class="option">
+                            <span>소문자 (a-z)</span>
+                            <button class="add-chars-btn" data-chars="abcdefghijklmnopqrstuvwxyz"><span class="material-icons">add</span> 추가</button>
+                        </div>
+                        <div class="option">
+                            <span>숫자 (0-9)</span>
+                            <button class="add-chars-btn" data-chars="0123456789"><span class="material-icons">add</span> 추가</button>
+                        </div>
+                        <div class="option">
+                            <span>특수문자 (!@#)</span>
+                            <button class="add-chars-btn" data-chars="!@#$%^&*()_+-=[]{}|;:,.<>/?"><span class="material-icons">add</span> 추가</button>
+                        </div>
+                    </div>
+
+                    <div class="custom-chars-controls">
+                        <button class="save-btn" id="saveCustomChars"><span class="material-icons">save</span> 저장</button>
+                        <button class="export-btn" id="exportCustomChars"><span class="material-icons">file_download</span> 내보내기</button>
+                        <button class="import-btn" id="importCustomChars"><span class="material-icons">file_upload</span> 가져오기</button>
+                        <input type="file" id="importFile" accept=".json" style="display: none;">
+                    </div>
+
+                    <div class="saved-lists" id="savedLists">
+                        <div class="saved-lists-header">
+                            <h4>저장된 목록들</h4>
+                            <div class="saved-lists-toggle" id="savedListsToggle" style="display: none;">
+                                <span class="material-icons" id="toggleIcon">expand_more</span>
+                                <span id="toggleText">펼치기</span>
+                            </div>
+                            <div class="saved-lists-empty" id="savedListsEmpty">저장된 목록이 없습니다.</div>
+                        </div>
+                        <div class="saved-lists-content" id="savedListsContent">
+                            <div id="savedListsContainer"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar">
+                <div class="db-url-section">
+                    <h3><span class="material-icons">link</span> PostgreSQL URL 생성</h3>
+                    <div class="db-url-inputs">
+                        <div class="db-url-input-group">
+                            <label for="dbHost">호스트</label>
+                            <input type="text" id="dbHost" placeholder="예: aws-0-us-east-1.pooler.supabase.com" value="localhost">
+                        </div>
+                        <div class="db-url-input-group">
+                            <label for="dbPort">포트</label>
+                            <input type="text" id="dbPort" placeholder="예: 5432" value="5432">
+                        </div>
+                        <div class="db-url-input-group">
+                            <label for="dbUser">사용자명</label>
+                            <input type="text" id="dbUser" placeholder="예: postgres" value="postgres">
+                        </div>
+                        <div class="db-url-input-group">
+                            <label for="dbName">데이터베이스명</label>
+                            <input type="text" id="dbName" placeholder="예: postgres" value="postgres">
+                        </div>
+                    </div>
+                    <div class="db-url-output" id="dbUrlOutput">
+                        PostgreSQL URL이 여기에 표시됩니다...
+                    </div>
+                    <div class="db-url-controls">
+                        <button class="generate-db-url-btn" id="generateDbUrl"><span class="material-icons">link</span> URL 생성</button>
+                        <button class="copy-db-url-btn" id="copyDbUrl"><span class="material-icons">content_copy</span> 복사</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 🚀 자바스크립트 로직
+        const passwordOutput = document.getElementById('passwordOutput');
+        const lengthSlider = document.getElementById('lengthSlider');
+        const lengthInput = document.getElementById('lengthInput');
+        const lengthValue = document.getElementById('lengthValue');
+
+        const generateButton = document.getElementById('generateButton');
+        const copyButton = document.getElementById('copyButton');
+        const customChars = document.getElementById('customChars');
+        const saveCustomChars = document.getElementById('saveCustomChars');
+        const exportCustomChars = document.getElementById('exportCustomChars');
+        const importCustomChars = document.getElementById('importCustomChars');
+        const importFile = document.getElementById('importFile');
+        const savedListsContainer = document.getElementById('savedListsContainer');
+        const dbHost = document.getElementById('dbHost');
+        const dbPort = document.getElementById('dbPort');
+        const dbUser = document.getElementById('dbUser');
+        const dbName = document.getElementById('dbName');
+        const dbUrlOutput = document.getElementById('dbUrlOutput');
+        const generateDbUrl = document.getElementById('generateDbUrl');
+        const copyDbUrl = document.getElementById('copyDbUrl');
+        const savedListsToggle = document.getElementById('savedListsToggle');
+        const savedListsContent = document.getElementById('savedListsContent');
+        const toggleIcon = document.getElementById('toggleIcon');
+        const toggleText = document.getElementById('toggleText');
+        const savedListsEmpty = document.getElementById('savedListsEmpty');
+
+        const charSets = {
+            uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            lowercase: 'abcdefghijklmnopqrstuvwxyz',
+            numbers: '0123456789',
+            symbols: '!@#$%^&*()_+-=[]{}|;:,.<>/?'
+        };
+
+        // localStorage 관련 함수들
+        function saveCustomCharsList(name, chars) {
+            const savedLists = JSON.parse(localStorage.getItem('customCharsLists') || '{}');
+            savedLists[name] = {
+                chars: chars,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('customCharsLists', JSON.stringify(savedLists));
+            updateSavedListsDisplay();
+        }
+
+        function loadCustomCharsList(name) {
+            const savedLists = JSON.parse(localStorage.getItem('customCharsLists') || '{}');
+            return savedLists[name] ? savedLists[name].chars : '';
+        }
+
+        function deleteCustomCharsList(name) {
+            const savedLists = JSON.parse(localStorage.getItem('customCharsLists') || '{}');
+            delete savedLists[name];
+            localStorage.setItem('customCharsLists', JSON.stringify(savedLists));
+            updateSavedListsDisplay();
+        }
+
+        function updateSavedListsDisplay() {
+            const savedLists = JSON.parse(localStorage.getItem('customCharsLists') || '{}');
+            const listCount = Object.keys(savedLists).length;
+
+            savedListsContainer.innerHTML = '';
+
+            // 목록 개수에 따라 UI 업데이트
+            if (listCount > 0) {
+                savedListsToggle.style.display = 'flex';
+                savedListsEmpty.style.display = 'none';
+
+                Object.keys(savedLists).forEach(name => {
+                    const item = document.createElement('div');
+                    item.className = 'saved-list-item';
+                    item.innerHTML = `
+                        <span>${name}</span>
+                        <div class="d-flex gap-2">
+                            <button class="load-list-btn" onclick="loadList('${name}')"><span class="material-icons">folder_open</span> 불러오기</button>
+                            <button class="delete-list-btn" onclick="deleteList('${name}')"><span class="material-icons">delete</span> 삭제</button>
+                        </div>
+                    `;
+                    savedListsContainer.appendChild(item);
+                });
+            } else {
+                savedListsToggle.style.display = 'none';
+                savedListsEmpty.style.display = 'block';
+            }
+        }
+
+        // 접기/펼치기 기능
+        let isSavedListsCollapsed = false;
+
+                                function toggleSavedLists() {
+            isSavedListsCollapsed = !isSavedListsCollapsed;
+
+            if (isSavedListsCollapsed) {
+                savedListsContent.classList.add('collapsed');
+                toggleIcon.textContent = 'expand_less';
+                toggleText.textContent = '접기';
+                toggleIcon.classList.add('rotated');
+            } else {
+                savedListsContent.classList.remove('collapsed');
+                toggleIcon.textContent = 'expand_more';
+                toggleText.textContent = '펼치기';
+                toggleIcon.classList.remove('rotated');
+            }
+        }
+
+        function loadList(name) {
+            const chars = loadCustomCharsList(name);
+            customChars.value = chars;
+        }
+
+        function deleteList(name) {
+            if (confirm(`"${name}" 목록을 삭제하시겠습니까?`)) {
+                deleteCustomCharsList(name);
+            }
+        }
+
+        // PostgreSQL URL 관련 함수들
+        function percentEncode(str) {
+            return encodeURIComponent(str);
+        }
+
+        function generatePostgresUrl(password) {
+            const host = dbHost.value.trim() || 'localhost';
+            const port = dbPort.value.trim() || '5432';
+            const user = dbUser.value.trim() || 'postgres';
+            const db = dbName.value.trim() || 'postgres';
+
+            const encodedPassword = percentEncode(password);
+
+            return `postgresql://${user}:${encodedPassword}@${host}:${port}/${db}`;
+        }
+
+        // 길이 정보 localStorage 저장
+        function saveLengthToStorage(length) {
+            localStorage.setItem('passwordLength', length.toString());
+        }
+
+        // 길이 정보 localStorage에서 불러오기
+        function loadLengthFromStorage() {
+            const savedLength = localStorage.getItem('passwordLength');
+            if (savedLength) {
+                const length = parseInt(savedLength);
+                if (length >= 1 && length <= 64) {
+                    lengthSlider.value = length;
+                    lengthInput.value = length;
+                    lengthValue.textContent = length;
+                }
+            }
+        }
+
+        // 길이 입력 동기화
+        lengthSlider.addEventListener('input', () => {
+            const value = lengthSlider.value;
+            lengthValue.textContent = value;
+            lengthInput.value = value;
+            saveLengthToStorage(value);
+        });
+
+        lengthInput.addEventListener('input', () => {
+            const value = lengthInput.value;
+            if (value >= 1 && value <= 64) {
+                lengthSlider.value = value;
+                lengthValue.textContent = value;
+                saveLengthToStorage(value);
+            }
+        });
+
+        // 스크롤 기능 추가
+        function updateLengthValue(newValue) {
+            if (newValue >= 1 && newValue <= 64) {
+                lengthSlider.value = newValue;
+                lengthInput.value = newValue;
+                lengthValue.textContent = newValue;
+            }
+        }
+
+        // range 슬라이더에 스크롤 이벤트 추가
+        lengthSlider.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const currentValue = parseInt(lengthSlider.value);
+            const delta = e.deltaY > 0 ? -1 : 1;
+            const newValue = currentValue + delta;
+            updateLengthValue(newValue);
+        });
+
+        // number input에 스크롤 이벤트 추가
+        lengthInput.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const currentValue = parseInt(lengthInput.value) || 16;
+            const delta = e.deltaY > 0 ? -1 : 1;
+            const newValue = currentValue + delta;
+            updateLengthValue(newValue);
+        });
+
+                        // 문자 추가 버튼 기능
+        document.querySelectorAll('.add-chars-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const charsToAdd = button.getAttribute('data-chars');
+                const currentChars = customChars.value;
+
+                // 중복 제거를 위해 Set 사용
+                const uniqueChars = new Set(currentChars.split(''));
+                charsToAdd.split('').forEach(char => uniqueChars.add(char));
+
+                customChars.value = Array.from(uniqueChars).join('');
+            });
+        });
+
+        // 생성 버튼 클릭 이벤트
+        generateButton.addEventListener('click', () => {
+            const length = parseInt(lengthSlider.value);
+            const customCharsValue = customChars.value.trim();
+
+            const password = generatePassword(length, customCharsValue);
+            animatePasswordGeneration(password);
+        });
+
+        // 복사 버튼 클릭 이벤트
+        copyButton.addEventListener('click', () => {
+            if (!passwordOutput.value) return;
+
+            navigator.clipboard.writeText(passwordOutput.value).then(() => {
+                const originalHTML = copyButton.innerHTML;
+                copyButton.innerHTML = '<span class="material-icons">check</span> 복사됨!';
+                setTimeout(() => {
+                    copyButton.innerHTML = originalHTML;
+                }, 1500);
+            });
+        });
+
+        /**
+         * 암호학적으로 안전한 난수를 사용하여 문자열에서 무작위 문자를 선택합니다.
+         */
+        function getRandomChar(str) {
+            const randomValues = new Uint32Array(1);
+            window.crypto.getRandomValues(randomValues);
+            return str[randomValues[0] % str.length];
+        }
+
+        /**
+         * 비밀번호 생성 애니메이션을 수행합니다.
+         */
+        function animatePasswordGeneration(finalPassword) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>/?가나다라마바사아자차카타파하';
+            let currentIndex = 0;
+
+            const animationInterval = setInterval(() => {
+                let animatedPassword = '';
+
+                // 현재 인덱스까지는 최종 비밀번호의 문자를 사용
+                for (let i = 0; i < currentIndex; i++) {
+                    animatedPassword += finalPassword[i];
+                }
+
+                // 나머지는 랜덤 문자로 채움
+                for (let i = currentIndex; i < finalPassword.length; i++) {
+                    animatedPassword += chars[Math.floor(Math.random() * chars.length)];
+                }
+
+                passwordOutput.value = animatedPassword;
+
+                currentIndex++;
+
+                // 모든 문자가 최종 비밀번호로 바뀌면 애니메이션 종료
+                if (currentIndex > finalPassword.length) {
+                    clearInterval(animationInterval);
+                    passwordOutput.value = finalPassword;
+                }
+            }, 50);
+        }
+
+        /**
+         * 지정된 조건에 따라 강력한 비밀번호를 생성합니다.
+         */
+        function generatePassword(length, customChars = '') {
+            if (!customChars) {
+                alert('사용자 정의 문자 목록에 문자를 추가해주세요.');
+                return '';
+            }
+
+            let charset = customChars;
+            let guaranteedChars = [];
+
+            // 최소 하나의 문자는 보장
+            guaranteedChars.push(getRandomChar(customChars));
+
+            const remainingLength = length - guaranteedChars.length;
+
+            // 나머지 길이만큼 전체 문자 집합에서 무작위 문자를 추가합니다.
+            for (let i = 0; i < remainingLength; i++) {
+                guaranteedChars.push(getRandomChar(charset));
+            }
+
+            // 피셔-예이츠 알고리즘으로 배열을 섞어 무작위성을 보장합니다.
+            for (let i = guaranteedChars.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [guaranteedChars[i], guaranteedChars[j]] = [guaranteedChars[j], guaranteedChars[i]];
+            }
+
+            return guaranteedChars.join('');
+        }
+
+        // 저장 버튼 클릭 이벤트
+        saveCustomChars.addEventListener('click', () => {
+            const name = prompt('저장할 목록의 이름을 입력하세요:');
+            if (name && name.trim()) {
+                saveCustomCharsList(name.trim(), customChars.value);
+                alert('목록이 저장되었습니다!');
+            }
+        });
+
+        // 내보내기 버튼 클릭 이벤트
+        exportCustomChars.addEventListener('click', () => {
+            const savedLists = JSON.parse(localStorage.getItem('customCharsLists') || '{}');
+            if (Object.keys(savedLists).length === 0) {
+                alert('저장된 목록이 없습니다.');
+                return;
+            }
+
+            const dataStr = JSON.stringify(savedLists, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'custom_chars_lists.json';
+            link.click();
+
+            URL.revokeObjectURL(url);
+        });
+
+        // 가져오기 버튼 클릭 이벤트
+        importCustomChars.addEventListener('click', () => {
+            importFile.click();
+        });
+
+        importFile.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        const currentLists = JSON.parse(localStorage.getItem('customCharsLists') || '{}');
+
+                        // 기존 데이터와 병합
+                        const mergedData = { ...currentLists, ...importedData };
+                        localStorage.setItem('customCharsLists', JSON.stringify(mergedData));
+
+                        updateSavedListsDisplay();
+                        alert('목록이 성공적으로 가져와졌습니다!');
+                    } catch (error) {
+                        alert('파일 형식이 올바르지 않습니다.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+                // PostgreSQL URL 생성 버튼 이벤트
+        generateDbUrl.addEventListener('click', () => {
+            const currentPassword = passwordOutput.value;
+            if (!currentPassword) {
+                alert('먼저 비밀번호를 생성해주세요.');
+                return;
+            }
+
+            const postgresUrl = generatePostgresUrl(currentPassword);
+            dbUrlOutput.textContent = postgresUrl;
+        });
+
+                // PostgreSQL URL 복사 버튼 이벤트
+        copyDbUrl.addEventListener('click', () => {
+            const url = dbUrlOutput.textContent;
+            if (url === 'PostgreSQL URL이 여기에 표시됩니다...') {
+                alert('먼저 URL을 생성해주세요.');
+                return;
+            }
+
+            navigator.clipboard.writeText(url).then(() => {
+                const originalHTML = copyDbUrl.innerHTML;
+                copyDbUrl.innerHTML = '<span class="material-icons">check</span> 복사됨!';
+                setTimeout(() => {
+                    copyDbUrl.innerHTML = originalHTML;
+                }, 1500);
+            });
+        });
+
+                        // 저장된 목록 토글 클릭 이벤트
+        savedListsToggle.addEventListener('click', toggleSavedLists);
+
+                        // 페이지 로드 시 초기화
+        updateSavedListsDisplay();
+        loadLengthFromStorage();
+
+        // 사용자 정의 문자 목록이 비어있으면 기본 문자들 추가
+        if (!customChars.value.trim()) {
+            // 모든 문자 유형을 기본으로 추가
+            const allChars = charSets.uppercase + charSets.lowercase + charSets.numbers + charSets.symbols;
+            customChars.value = allChars;
+        }
+
+        // 페이지 로드 시 초기 비밀번호 생성
+        generateButton.click();
+
+    </script>
+</body>
+</html>
