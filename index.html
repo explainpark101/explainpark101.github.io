@@ -91,6 +91,8 @@
       box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
     }
 
+
+
     .icon {
       width: 64px;
       height: 64px;
@@ -115,14 +117,17 @@
   </style>
 </head>
 <body>
-        <!-- PWA 설치 버튼 -->
-  <div id="pwa-install-container" style="display: flex; justify-content: end; display: none;">
-    <button id="pwa-install-btn" class="pwa-install-button">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-      </svg>
-      앱 설치
-    </button>
+        <!-- 다른 검사하기 버튼과 PWA 설치 버튼 -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin: 0 auto 20px auto; max-width: 900px;">
+    <!-- PWA 설치 버튼 -->
+    <div id="pwa-install-container" style="display: none;">
+      <button id="pwa-install-btn" class="pwa-install-button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+        </svg>
+        앱 설치
+      </button>
+    </div>
   </div>
 
   <h1 style="text-align:center; font-family:'Roboto','Noto Sans KR',Arial,sans-serif; font-size:2.2rem; font-weight:700; color:#222; margin: 0 0 32px 0;">
@@ -197,7 +202,7 @@
         <div class="card-desc">안전한 비밀번호 생성</div>
       </div>
     </a>
-    <a href="/surveys/communication">
+    <a href="/surveys">
       <div class="card">
         <div class="icon">
           <!-- 의사소통 테스트 아이콘 -->
@@ -208,8 +213,8 @@
             <circle cx="28" cy="28" r="2" fill="#fff"/>
           </svg>
         </div>
-        <div class="card-title">의사소통 유형</div>
-        <div class="card-desc">Verginia Satir 버지니아 사티어</div>
+        <div class="card-title">검사 모음</div>
+        <div class="card-desc">각종 검사 모음</div>
       </div>
     </a>
     <!-- 필요에 따라 앱을 더 추가하세요 -->

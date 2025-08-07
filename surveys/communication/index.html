@@ -117,14 +117,45 @@
             border-radius: 5px;
             text-align: center;
         }
+        .back-link {
+            display: inline-block;
+            text-align: left;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .back-link:hover {
+            background-color: #2980b9;
+        }
         form#satir-survey > ol > li {
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        form#satir-survey > ol > li.selected {
+            background: #e3f2fd;
+            border-left: 5px solid #2196f3;
+            box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+            transform: translateX(2px);
+        }
+
+        form#satir-survey > ol > li.selected input[type="checkbox"] {
+            transform: scale(1.5);
+            margin-left: 20px;
+            cursor: pointer;
+            accent-color: #2196f3;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
+        <a href="/surveys" class="back-link">검사 목록으로 가기</a>
         <h1>의사소통 유형 검사</h1>
         <h2>Verginia Satir 버지니아 사티어</h2>
 
@@ -166,7 +197,7 @@
                 <li>30. 나는 다양한 경험에 개방적이다. <input type="checkbox" value="e"></li>
                 <li>31. 나는 자주 근육이 긴장되고 목이 뻣뻣하며 혈압이 오르는 것을 느끼곤 한다. <input type="checkbox" value="a"></li>
                 <li>32. 나는 나의 감정을 표현하는 것이 힘들고, 혼자인 느낌이 들 때가 많다. <input type="checkbox" value="b"></li>
-                <li>33. (※ 원문에 33번 문항이 없어 건너뜁니다.) <input type="checkbox" value="c" style="display:none;"></li>
+                <li>33. (※ 원문에 33번 문항이 없어 건너뜁니다. 자동으로 초이성형 항목이 1개 추가됩니다.) <input type="checkbox" value="c" style="display:none;"></li>
                 <li>34. 나는 분위기가 침체되거나 지루해지면 분위기를 바꾸려 한다. <input type="checkbox" value="d"></li>
                 <li>35. 나는 나만의 독특한 개성을 존중한다. <input type="checkbox" value="e"></li>
                 <li>36. 나는 나 자신이 가치가 없는 것 같아 우울하게 느껴질 때가 많다. <input type="checkbox" value="a"></li>
@@ -216,6 +247,43 @@
     </div>
 
     <script>
+        // 라인 클릭 시 체크박스 토글 및 선택 상태 관리
+        document.addEventListener('DOMContentLoaded', function() {
+            const listItems = document.querySelectorAll('#satir-survey > ol > li');
+
+            // 각 라인에 클릭 이벤트 추가
+            listItems.forEach(li => {
+                li.addEventListener('click', function(e) {
+                    // 체크박스 자체를 클릭한 경우는 이벤트 전파 방지
+                    if (e.target.type === 'checkbox') {
+                        return;
+                    }
+
+                    const checkbox = this.querySelector('input[type="checkbox"]');
+                    checkbox.checked = !checkbox.checked;
+                    updateSelectedState(this, checkbox.checked);
+                });
+
+                // 체크박스 변경 이벤트 리스너
+                const checkbox = li.querySelector('input[type="checkbox"]');
+                checkbox.addEventListener('change', function() {
+                    updateSelectedState(li, this.checked);
+                });
+
+                // 초기 상태 설정
+                updateSelectedState(li, checkbox.checked);
+            });
+
+            // 선택 상태 업데이트 함수
+            function updateSelectedState(li, isChecked) {
+                if (isChecked) {
+                    li.classList.add('selected');
+                } else {
+                    li.classList.remove('selected');
+                }
+            }
+        });
+
         document.getElementById('calculateBtn').addEventListener('click', function() {
             const scores = { a: 0, b: 0, c: 0, d: 0, e: 0 };
             const checkedBoxes = document.querySelectorAll('#satir-survey input[type="checkbox"]:checked');
