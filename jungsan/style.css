@@ -197,3 +197,30 @@ a.md-btn:hover, a.md-btn:focus {
     box-shadow: 0 4px 8px rgba(0,0,0,0.12);
     color: #fff;
 }
+
+.home-button {
+    padding: 10px 20px;
+    background-color: #7B1FA2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: none;
+}
+
+.home-button:hover {
+    background-color: #6A1B9A;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(123, 31, 162, 0.3);
+}
+
+.home-button .material-icons {
+    font-size: 20px;
+}

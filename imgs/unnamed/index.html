@@ -75,9 +75,46 @@
       margin-top: 16px;
       display: block;
     }
+
+    .home-button {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      border: none;
+      border-radius: 50px;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1976d2;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .home-button:hover {
+      background: rgba(255, 255, 255, 1);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .home-button:active {
+      transform: translateY(0);
+    }
   </style>
 </head>
 <body>
+    <!-- 홈으로 돌아가기 버튼 -->
+    <a href="/" class="home-button">
+        <i class="material-icons" style="font-size: 18px;">home</i>
+        앱 목록
+    </a>
+
     <script src="https://cdn.jsdelivr.net/npm/glfx@0.0.4/glfx.min.js"></script>
   <div class="container z-depth-2 white" style="padding:32px 24px 24px 24px;">
     <h1 class="center-align"><i class="material-icons left">layers</i>마작부장 강의장면 만들기</h1>

@@ -31,13 +31,14 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      position: relative;
     }
 
     .container {
       max-width: 900px;
       margin: 0 auto;
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 32px;
       justify-content: center;
     }
@@ -126,17 +127,12 @@
       transform: translateY(0);
       box-shadow: 0 2px 8px rgba(156, 39, 176, 0.3);
     }
-    /* 다른 검사하기 버튼 호버 효과 */
-    a[href="/"]:hover {
-        background: rgba(156, 39, 176, 0.2);
-        transform: translateY(-1px);
-    }
-  </style>
-</head>
-<body>
-  <!-- PWA 설치 버튼 -->
-<div style="display: flex; justify-content: flex-start; margin: 0 auto 20px auto; max-width: 900px;">
-    <a href="/" style="
+    /* 다른 검사하기 버튼 효과 */
+    a[href="/"]{
+      position: fixed;
+      top: 20px;
+      left: calc(50% - 500px + 20px);
+      max-width: 1000px;
       text-decoration: none;
       color: #9C27B0;
       font-weight: 500;
@@ -148,21 +144,22 @@
       border-radius: 6px;
       background: rgba(156, 39, 176, 0.1);
       transition: all 0.2s ease;
-      ">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-      </svg>
-      메인으로
-    </a>
-</div>
-  <div id="pwa-install-container" style="display: flex; justify-content: flex-end; margin: 0 auto 20px auto; max-width: 900px; display: none;">
-    <button id="pwa-install-btn" class="pwa-install-button">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-      </svg>
-      앱 설치
-    </button>
-  </div>
+      z-index: 1000;
+    }
+    a[href="/"]:hover {
+        background: rgba(156, 39, 176, 0.2);
+        transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+  <!-- 좌측 상단 메인으로 버튼 -->
+  <a href="/">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+    </svg>
+    메인으로
+  </a>
 
   <h1 style="text-align:center; font-family:'Roboto','Noto Sans KR',Arial,sans-serif; font-size:2.2rem; font-weight:700; color:#222; margin: 0 0 32px 0;">
     검사 도구 모음
