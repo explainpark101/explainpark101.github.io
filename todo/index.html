@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>임시 할일 리스트</title>
+    <title>임시 할일 리스트 (업데이트)</title>
     <style>
         html, body {
             min-height: 100vh;
@@ -138,6 +138,7 @@
             padding: 10px 0; /* Adjusted padding */
             position: relative; /* Required for connector line */
             border-bottom: 1px solid #f0f0f0; /* Separator line */
+            transition: background-color 0.2s;
         }
         li:last-child {
             border-bottom: none;
@@ -175,6 +176,12 @@
             align-items: center;
             justify-content: space-between;
         }
+        .todo-item-content > div {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 10px;
+        }
         li label {
             flex-grow: 1;
             display: flex;
@@ -192,6 +199,8 @@
             flex-grow: 1;
             font-size: 1.1em;
             word-break: break-word;
+            /* [NEW] Add cursor to indicate it's clickable */
+            cursor: pointer;
         }
         .todo-state {
             padding: 8px 12px;
@@ -222,12 +231,32 @@
             background-color: #f0f0f0;
         }
 
+        /* --- Task State Styles --- */
         .completed .todo-text {
             text-decoration: line-through;
             color: #7f8c8d;
         }
         .completed {
-             opacity: 0.8;
+            opacity: 0.8;
+            background-color: #f8f9fa;
+        }
+        .in-progress {
+            background-color: #e7f3ff; /* Light blue background */
+            border-left: 4px solid #007bff;
+            padding-left: 10px; /* Add padding to not overlap with text */
+        }
+        .in-progress .todo-text {
+            color: #0056b3;
+            font-weight: 500;
+        }
+
+        /* Drag and Drop Styles */
+        li.dragging {
+            opacity: 0.5;
+            background: #cce5ff;
+        }
+        li.drag-over {
+            border-top: 2px dashed #007bff !important;
         }
 
         .empty-list-message {
@@ -534,6 +563,34 @@
                 return;
             }
             currentTodos = await getTodosByTab(currentTabId);
+
+            const todosToUpdate = [];
+            const todosByParent = new Map();
+            currentTodos.forEach(todo => {
+                const parentId = todo.parentId || null;
+                if (!todosByParent.has(parentId)) {
+                    todosByParent.set(parentId, []);
+                }
+                todosByParent.get(parentId).push(todo);
+            });
+
+            todosByParent.forEach(siblings => {
+                siblings.forEach((todo, index) => {
+                    if (todo.order === undefined) {
+                        todo.order = index;
+                        todosToUpdate.push(todo);
+                    }
+                });
+            });
+
+            if (todosToUpdate.length > 0) {
+                console.log(`Migrating ${todosToUpdate.length} todos to include 'order' property.`);
+                const tx = db.transaction(TODO_STORE_NAME, 'readwrite');
+                todosToUpdate.forEach(todo => tx.objectStore(TODO_STORE_NAME).put(todo));
+                await new Promise(resolve => tx.oncomplete = resolve);
+                currentTodos = await getTodosByTab(currentTabId); // Refetch
+            }
+
             todoListElement.innerHTML = '';
             if (currentTodos.length === 0) {
                 todoListElement.innerHTML = `<div class="empty-list-message">할일 목록이 없습니다.<br>'할일 목록 불러오기' 버튼으로 목록을 추가하세요.</div>`;
@@ -553,6 +610,15 @@
                     tree.push(item);
                 }
             }
+
+            const sortTasks = (tasks) => tasks.sort((a, b) => (a.order || 0) - (b.order || 0));
+            for (const item of map.values()) {
+                if (item.subtasks.length > 0) {
+                    sortTasks(item.subtasks);
+                }
+            }
+            sortTasks(tree);
+
             return tree;
         };
 
@@ -560,6 +626,7 @@
             const listItem = document.createElement('li');
             listItem.dataset.id = todo.id;
             listItem.classList.add(todo.state);
+            listItem.setAttribute('draggable', 'true');
             const contentDiv = document.createElement('div');
             contentDiv.className = 'todo-item-content';
             contentDiv.innerHTML = `
@@ -594,18 +661,24 @@
                 e.stopPropagation();
                 deleteTodo(todo.id);
             });
+            // [NEW] Add dblclick event listener to edit todo text
+            contentDiv.querySelector('.todo-text').addEventListener('dblclick', () => {
+                editTodoText(todo.id);
+            });
             return listItem;
         };
 
         const addSubtask = async (parentId) => {
             const text = await customPrompt('새 하위 할일의 내용을 입력하세요:', '');
             if (text && text.trim()) {
+                const siblings = currentTodos.filter(t => t.parentId === parentId);
                 const newTodo = {
                     id: `todo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
                     text: text.trim(),
                     state: 'not-started',
                     parentId: parentId,
-                    tabId: currentTabId
+                    tabId: currentTabId,
+                    order: siblings.length
                 };
                 await putInDb(TODO_STORE_NAME, newTodo);
                 const parentTodo = currentTodos.find(t => t.id === parentId);
@@ -641,6 +714,20 @@
                 await renderCurrentTodos();
             };
             tx.onerror = (event) => console.error("Error deleting todo(s):", event.target.error);
+        };
+
+        // [NEW] Function to edit a todo's text
+        const editTodoText = async (todoId) => {
+            const todo = currentTodos.find(t => t.id === todoId);
+            if (!todo) return;
+
+            const newText = await customPrompt('할일 내용을 수정하세요:', todo.text, '할일 수정');
+
+            if (newText && newText.trim() && newText.trim() !== todo.text) {
+                todo.text = newText.trim();
+                await putInDb(TODO_STORE_NAME, todo);
+                await renderCurrentTodos();
+            }
         };
 
         const handleStateChange = async (id, newState) => {
@@ -689,13 +776,13 @@
                 return;
             }
             const markdownText = modalMarkdownInput.value;
-            const lines = markdownText.split('\n'); // Keep empty lines to preserve structure
+            const lines = markdownText.split('\n');
             const newTodos = [];
             const parentStack = [];
+            const siblingCounters = new Map();
 
             lines.forEach(line => {
                 const trimmedLine = line.trim();
-                // Basic check for list items, allows empty lines to pass through
                 if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ') || trimmedLine.match(/^\d+\.\s/)) {
                     const indent = line.match(/^\s*/)[0].length;
                     const text = trimmedLine.replace(/^(?:[-*+]|\d+\.)\s*/, '').trim();
@@ -707,8 +794,10 @@
 
                     const parentId = parentStack.length > 0 ? parentStack[parentStack.length - 1].id : null;
 
-                    if (text) { // Only add items with actual text
-                        newTodos.push({ id, text, state: 'not-started', parentId, tabId: currentTabId });
+                    if (text) {
+                        const order = siblingCounters.get(parentId) || 0;
+                        newTodos.push({ id, text, state: 'not-started', parentId, tabId: currentTabId, order });
+                        siblingCounters.set(parentId, order + 1);
                         parentStack.push({ id, indent });
                     }
                 }
@@ -724,6 +813,94 @@
             }
         };
 
+        // --- Drag and Drop Logic ---
+        let draggedItemId = null;
+
+        const reorderTodos = async (draggedId, targetId) => {
+            const draggedTodo = currentTodos.find(t => t.id === draggedId);
+            const targetTodo = currentTodos.find(t => t.id === targetId);
+
+            if (!draggedTodo || !targetTodo || draggedTodo.parentId !== targetTodo.parentId) {
+                await customAlert("현재는 동일한 단계의 할 일 사이에서만 순서를 변경할 수 있습니다.");
+                return;
+            }
+
+            const siblings = currentTodos
+                .filter(t => t.parentId === draggedTodo.parentId)
+                .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+            const draggedIndex = siblings.findIndex(t => t.id === draggedId);
+            const [draggedItem] = siblings.splice(draggedIndex, 1);
+            const targetIndexNew = siblings.findIndex(t => t.id === targetId);
+
+            siblings.splice(targetIndexNew, 0, draggedItem);
+
+            const updates = [];
+            siblings.forEach((todo, index) => {
+                if (todo.order !== index) {
+                    todo.order = index;
+                    updates.push(putInDb(TODO_STORE_NAME, todo));
+                }
+            });
+
+            if (updates.length > 0) {
+                await Promise.all(updates);
+                await renderCurrentTodos();
+            }
+        };
+
+        todoListElement.addEventListener('dragstart', (e) => {
+            const targetLi = e.target.closest('li');
+            if (targetLi) {
+                draggedItemId = targetLi.dataset.id;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', draggedItemId);
+                setTimeout(() => {
+                    targetLi.classList.add('dragging');
+                }, 0);
+            }
+        });
+
+        todoListElement.addEventListener('dragend', (e) => {
+            const targetLi = e.target.closest('li');
+            if (targetLi) {
+                targetLi.classList.remove('dragging');
+            }
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            draggedItemId = null;
+        });
+
+        todoListElement.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const targetLi = e.target.closest('li');
+            if (targetLi && targetLi.dataset.id !== draggedItemId) {
+                document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                targetLi.classList.add('drag-over');
+            }
+        });
+
+        todoListElement.addEventListener('dragleave', (e) => {
+            const targetLi = e.target.closest('li');
+            if (targetLi) {
+                targetLi.classList.remove('drag-over');
+            }
+        });
+
+        todoListElement.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            const targetLi = e.target.closest('li');
+            const droppedOnItemId = targetLi ? targetLi.dataset.id : null;
+            const draggedItemIdFromData = e.dataTransfer.getData('text/plain');
+
+            if (!droppedOnItemId || draggedItemIdFromData === droppedOnItemId) {
+                return;
+            }
+
+            await reorderTodos(draggedItemIdFromData, droppedOnItemId);
+        });
+
+        // --- App Initialization ---
         const initializeApp = async () => {
             try {
                 await openDatabase();
