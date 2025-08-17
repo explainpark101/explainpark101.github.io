@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>임시 할일 리스트</title>
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        .controls-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 10px;
+            flex-wrap: wrap; /* 작은 화면에서 줄바꿈 허용 */
+        }
+        .controls-container button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+        }
+        .controls-container button:hover {
+            background-color: #0056b3;
+        }
+        #searchInput {
+            flex-grow: 1; /* 남은 공간 차지 */
+            min-width: 200px; /* 최소 너비 */
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        /* Subtask list styling */
+        ul.subtask-list {
+            padding-left: 30px; /* Indent subtasks */
+            margin-top: 10px;
+            border-left: 2px solid #e0e0e0;
+        }
+        li {
+            display: flex;
+            flex-direction: column; /* Allow subtask list to be below the main item */
+            margin-bottom: 12px;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .todo-item-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        li label {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+        input[type="checkbox"] {
+            margin-right: 15px;
+            transform: scale(1.3);
+            min-width: 20px;
+            min-height: 20px;
+        }
+        .todo-text {
+            flex-grow: 1;
+            font-size: 1.1em;
+            word-break: break-word;
+        }
+        .todo-state {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+        .not-started { background-color: #ecf0f1; border-left: 5px solid #bdc3c7; }
+        .in-progress { background-color: #fefcf2; border-left: 5px solid #f39c12; }
+        .completed { text-decoration: line-through; color: #7f8c8d; background-color: #dce1e3; opacity: 0.8; border-left: 5px solid #27ae60; }
+
+        li:hover:not(.completed) { background-color: #e0e6e7; }
+        li.completed:hover { background-color: #dce1e3; cursor: default; }
+
+        /* 비어있을 때 메시지 스타일 */
+        .empty-list-message {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 40px 20px;
+            font-size: 1.1em;
+        }
+
+        dialog {
+            border: none;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 600px;
+            background-color: #fff;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        dialog[open] {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        dialog h2 { margin-top: 0; color: #2c3e50; text-align: center; }
+        dialog textarea {
+            width: calc(100% - 24px);
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 150px;
+            resize: vertical;
+        }
+        .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .dialog-actions button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+        #confirmLoadBtn { background-color: #28a745; color: white; }
+        #confirmLoadBtn:hover { background-color: #218838; }
+        #closeModalBtn { background-color: #dc3545; color: white; }
+        #closeModalBtn:hover { background-color: #c82333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>임시 할일 리스트</h1>
+
+        <div class="controls-container">
+            <button id="openMarkdownModalBtn">할일 목록 불러오기</button>
+            <input type="text" id="searchInput" placeholder="할일 검색..." aria-label="할일 검색">
+        </div>
+
+        <ul id="todoList">
+            <!-- 할일 목록 또는 메시지가 여기에 표시됩니다. -->
+        </ul>
+    </div>
+
+    <dialog id="markdownModal">
+        <h2>새 할일 목록 불러오기</h2>
+        <textarea id="modalMarkdownInput" placeholder="여기에 할일 목록을 마크다운 형식으로 입력하세요.&#10;들여쓰기를 사용하여 하위 작업을 만들 수 있습니다. (예:&#10;- 상위 작업&#10;  - 하위 작업 1&#10;  - 하위 작업 2)"></textarea>
+        <div class="dialog-actions">
+            <button id="confirmLoadBtn">불러오기</button>
+            <button id="closeModalBtn">취소</button>
+        </div>
+    </dialog>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const todoListElement = document.getElementById('todoList');
+        const searchInput = document.getElementById('searchInput');
+        const markdownModal = document.getElementById('markdownModal');
+        const openMarkdownModalBtn = document.getElementById('openMarkdownModalBtn');
+        const modalMarkdownInput = document.getElementById('modalMarkdownInput');
+        const confirmLoadBtn = document.getElementById('confirmLoadBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        const DB_NAME = 'ABCI_TodoList_Subtasks';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'todos';
+        let db;
+        let allTodos = [];
+
+        const openDatabase = () => new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+            request.onupgradeneeded = event => {
+                db = event.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                }
+            };
+            request.onsuccess = event => { db = event.target.result; resolve(db); };
+            request.onerror = event => reject(event.target.errorCode);
+        });
+
+        const getTodosFromDb = () => new Promise((resolve, reject) => {
+            if (!db) return reject('Database not open');
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.getAll();
+            request.onsuccess = event => resolve(event.target.result);
+            request.onerror = event => reject(event.target.errorCode);
+        });
+
+        const putTodoInDb = (todoItem) => new Promise((resolve, reject) => {
+            if (!db) return reject('Database not open');
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.put(todoItem);
+            request.onsuccess = () => resolve();
+            request.onerror = event => reject(event.target.errorCode);
+        });
+
+        const buildTodoTree = (flatList) => {
+            const map = new Map(flatList.map(item => [item.id, { ...item, subtasks: [] }]));
+            const tree = [];
+            for (const item of map.values()) {
+                if (item.parentId && map.has(item.parentId)) {
+                    map.get(item.parentId).subtasks.push(item);
+                } else {
+                    tree.push(item);
+                }
+            }
+            return tree;
+        };
+
+        const renderTodos = (todos) => {
+            todoListElement.innerHTML = '';
+            const todoTree = buildTodoTree(todos);
+            todoTree.forEach(todo => {
+                todoListElement.appendChild(createTodoElement(todo));
+            });
+        };
+
+        const createTodoElement = (todo) => {
+            const listItem = document.createElement('li');
+            listItem.dataset.id = todo.id;
+            listItem.className = todo.state;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'todo-item-content';
+
+            contentDiv.innerHTML = `
+                <label>
+                    <input type="checkbox" ${todo.state === 'completed' ? 'checked' : ''}>
+                    <span class="todo-text">${todo.text}</span>
+                </label>
+                <select class="todo-state">
+                    <option value="not-started" ${todo.state === 'not-started' ? 'selected' : ''}>시작하지 않음</option>
+                    <option value="in-progress" ${todo.state === 'in-progress' ? 'selected' : ''}>진행중</option>
+                    <option value="completed" ${todo.state === 'completed' ? 'selected' : ''}>완료</option>
+                </select>
+            `;
+
+            listItem.appendChild(contentDiv);
+
+            if (todo.subtasks && todo.subtasks.length > 0) {
+                const sublist = document.createElement('ul');
+                sublist.className = 'subtask-list';
+                todo.subtasks.forEach(subtask => {
+                    sublist.appendChild(createTodoElement(subtask));
+                });
+                listItem.appendChild(sublist);
+            }
+
+            const checkbox = contentDiv.querySelector('input[type="checkbox"]');
+            checkbox.addEventListener('change', (e) => handleStateChange(todo.id, e.target.checked ? 'completed' : 'not-started'));
+
+            const stateSelect = contentDiv.querySelector('.todo-state');
+            stateSelect.addEventListener('change', (e) => handleStateChange(todo.id, e.target.value));
+
+            return listItem;
+        };
+
+        const handleStateChange = async (id, newState) => {
+            const todo = allTodos.find(t => t.id === id);
+            if (todo && todo.state !== newState) {
+                todo.state = newState;
+                await putTodoInDb(todo);
+
+                await syncParentState(todo.parentId);
+                if (newState === 'completed') {
+                    await syncChildStates(id, 'completed');
+                }
+
+                initializeApp();
+            }
+        };
+
+        const syncParentState = async (parentId) => {
+            if (!parentId) return;
+            const parent = allTodos.find(t => t.id === parentId);
+            const siblings = allTodos.filter(t => t.parentId === parentId);
+
+            if (parent && siblings.length > 0) {
+                const allCompleted = siblings.every(s => s.state === 'completed');
+                const anyInProgress = siblings.some(s => s.state === 'in-progress');
+
+                let newParentState = parent.state;
+                if (allCompleted) newParentState = 'completed';
+                else if (anyInProgress || siblings.some(s => s.state === 'completed')) newParentState = 'in-progress';
+                else newParentState = 'not-started';
+
+                if (parent.state !== newParentState) {
+                    parent.state = newParentState;
+                    await putTodoInDb(parent);
+                    await syncParentState(parent.parentId);
+                }
+            }
+        };
+
+        const syncChildStates = async (parentId, state) => {
+            const children = allTodos.filter(t => t.parentId === parentId);
+            for (const child of children) {
+                if (child.state !== state) {
+                    child.state = state;
+                    await putTodoInDb(child);
+                    await syncChildStates(child.id, state);
+                }
+            }
+        };
+
+        const loadTodosFromMarkdown = async () => {
+            const markdownText = modalMarkdownInput.value;
+            const lines = markdownText.split('\n').filter(line => line.trim() !== '');
+            const newTodos = [];
+            const parentStack = [];
+
+            lines.forEach(line => {
+                const indentMatch = line.match(/^\s*/);
+                const indent = indentMatch ? indentMatch[0].length : 0;
+                const trimmedLine = line.trim();
+                const match = trimmedLine.match(/^(?:[-*+]|\d+\.)\s*(.*)$/);
+                if (match && match[1]) {
+                    const text = match[1].trim();
+                    const id = `todo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+                    while (parentStack.length > 0 && parentStack[parentStack.length - 1].indent >= indent) {
+                        parentStack.pop();
+                    }
+                    const parentId = parentStack.length > 0 ? parentStack[parentStack.length - 1].id : null;
+                    newTodos.push({ id, text, state: 'not-started', parentId });
+                    parentStack.push({ id, indent });
+                }
+            });
+
+            if (newTodos.length > 0) {
+                for (const todo of newTodos) {
+                    await putTodoInDb(todo);
+                }
+                modalMarkdownInput.value = '';
+                markdownModal.close();
+                initializeApp();
+            }
+        };
+
+        const initializeApp = async () => {
+            try {
+                if (!db) await openDatabase();
+                allTodos = await getTodosFromDb();
+
+                if (allTodos.length === 0) {
+                    todoListElement.innerHTML = `
+                        <div class="empty-list-message">
+                            할일 목록이 없습니다.<br>
+                            '할일 목록 불러오기' 버튼을 눌러 새 목록을 추가해보세요!
+                        </div>
+                    `;
+                } else {
+                    renderTodos(allTodos);
+                }
+            } catch (error) {
+                console.error('Failed to initialize app:', error);
+            }
+        };
+
+        searchInput.addEventListener('input', () => {
+            if (allTodos.length === 0) return; // 전체 목록이 비어있으면 검색 로직을 실행하지 않음
+
+            const filter = searchInput.value.toLowerCase();
+
+            if (!filter) {
+                renderTodos(allTodos);
+                return;
+            }
+
+            const filteredTodos = allTodos.filter(todo => todo.text.toLowerCase().includes(filter));
+
+            const itemsToShow = new Set();
+            filteredTodos.forEach(item => {
+                let current = item;
+                while(current) {
+                    itemsToShow.add(current.id);
+                    current = allTodos.find(t => t.id === current.parentId);
+                }
+            });
+            const finalFilteredList = allTodos.filter(t => itemsToShow.has(t.id));
+
+            if (finalFilteredList.length === 0) {
+                todoListElement.innerHTML = `
+                    <div class="empty-list-message">
+                        '${filter}'에 대한 검색 결과가 없습니다.
+                    </div>
+                `;
+            } else {
+                renderTodos(finalFilteredList);
+            }
+        });
+
+        openMarkdownModalBtn.addEventListener('click', () => {
+            if (markdownModal.open) {
+                markdownModal.close();
+            } else {
+                markdownModal.showModal();
+            }
+        });
+
+        confirmLoadBtn.addEventListener('click', loadTodosFromMarkdown);
+        closeModalBtn.addEventListener('click', () => markdownModal.close());
+
+        initializeApp();
+    });
+    </script>
+</body>
+</html>
