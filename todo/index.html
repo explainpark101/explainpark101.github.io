@@ -130,7 +130,6 @@
         ul.subtask-list {
             padding-left: 25px;
             margin-top: 10px;
-            border-left: 2px solid #e0e0e0; /* Thicker vertical line */
             position: relative;
         }
         li {
@@ -153,6 +152,22 @@
             width: 15px;
             height: 2px; /* Thicker horizontal line */
             background-color: #e0e0e0;
+        }
+
+        /* Vertical connector line for subtasks */
+        .subtask-list > li::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -25px;
+            width: 2px;
+            height: 100%;
+            background-color: #e0e0e0;
+        }
+
+        /* Shorten the vertical line for the last item in the list */
+        .subtask-list > li:last-child::after {
+            height: 24px;
         }
 
         .todo-item-content {
@@ -187,7 +202,7 @@
             cursor: pointer;
             margin-left: 10px;
         }
-        .delete-todo-btn {
+        .add-subtask-btn, .delete-todo-btn {
             background: none;
             border: none;
             color: #aaa;
@@ -197,6 +212,10 @@
             margin-left: 5px;
             border-radius: 50%;
             line-height: 1;
+        }
+        .add-subtask-btn:hover {
+            color: #28a745;
+            background-color: #f0f0f0;
         }
         .delete-todo-btn:hover {
             color: #dc3545;
@@ -540,7 +559,7 @@
         const createTodoElement = (todo) => {
             const listItem = document.createElement('li');
             listItem.dataset.id = todo.id;
-            listItem.className = todo.state;
+            listItem.classList.add(todo.state);
             const contentDiv = document.createElement('div');
             contentDiv.className = 'todo-item-content';
             contentDiv.innerHTML = `
@@ -554,6 +573,7 @@
                         <option value="in-progress" ${todo.state === 'in-progress' ? 'selected' : ''}>진행중</option>
                         <option value="completed" ${todo.state === 'completed' ? 'selected' : ''}>완료</option>
                     </select>
+                    <button class="add-subtask-btn" title="하위 할일 추가">+</button>
                     <button class="delete-todo-btn" title="할일 삭제">×</button>
                 </div>
             `;
@@ -566,11 +586,36 @@
             }
             contentDiv.querySelector('input[type="checkbox"]').addEventListener('change', (e) => handleStateChange(todo.id, e.target.checked ? 'completed' : 'not-started'));
             contentDiv.querySelector('.todo-state').addEventListener('change', (e) => handleStateChange(todo.id, e.target.value));
+            contentDiv.querySelector('.add-subtask-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                addSubtask(todo.id);
+            });
             contentDiv.querySelector('.delete-todo-btn').addEventListener('click', (e) => {
                 e.stopPropagation();
                 deleteTodo(todo.id);
             });
             return listItem;
+        };
+
+        const addSubtask = async (parentId) => {
+            const text = await customPrompt('새 하위 할일의 내용을 입력하세요:', '');
+            if (text && text.trim()) {
+                const newTodo = {
+                    id: `todo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                    text: text.trim(),
+                    state: 'not-started',
+                    parentId: parentId,
+                    tabId: currentTabId
+                };
+                await putInDb(TODO_STORE_NAME, newTodo);
+                const parentTodo = currentTodos.find(t => t.id === parentId);
+                if (parentTodo && parentTodo.state === 'completed') {
+                    parentTodo.state = 'in-progress';
+                    await putInDb(TODO_STORE_NAME, parentTodo);
+                    await syncParentState(parentTodo.parentId);
+                }
+                await renderCurrentTodos();
+            }
         };
 
         const deleteTodo = async (todoId) => {
