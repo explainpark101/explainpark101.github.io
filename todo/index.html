@@ -33,6 +33,18 @@
             padding-bottom: 15px;
             margin-bottom: 30px;
             font-size: 2em;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        h1:hover {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        h1.editing {
+            background-color: #fff;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            padding: 10px;
         }
         /* --- Tabs Styles --- */
         #tabsContainer {
@@ -354,7 +366,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>임시 할일 리스트</h1>
+        <h1 id="mainTitle">임시 할일 리스트</h1>
         <div id="tabsContainer"></div>
         <div class="controls-container">
             <button id="openMarkdownModalBtn">할일 목록 불러오기</button>
@@ -391,6 +403,7 @@
         const confirmLoadBtn = document.getElementById('confirmLoadBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const tabsContainer = document.getElementById('tabsContainer');
+        const mainTitle = document.getElementById('mainTitle');
 
         const DB_NAME = 'ABCI_TodoList_Tabs';
         const DB_VERSION = 2;
@@ -471,6 +484,19 @@
         const customAlert = (message, title = '알림') => showCustomModal({ title, message, type: 'alert' });
         const customConfirm = (message, title = '확인') => showCustomModal({ title, message, type: 'confirm' });
         const customPrompt = (message, defaultValue, title = '입력') => showCustomModal({ title, message, defaultValue, type: 'prompt' });
+
+        // 제목 편집 함수
+        const editTitle = async () => {
+            const currentTitle = mainTitle.textContent;
+            const newTitle = await customPrompt('새 제목을 입력하세요:', currentTitle, '제목 편집');
+
+            if (newTitle && newTitle.trim() && newTitle.trim() !== currentTitle) {
+                const trimmedTitle = newTitle.trim();
+                mainTitle.textContent = trimmedTitle;
+                document.title = trimmedTitle;
+                localStorage.setItem('todoAppTitle', trimmedTitle);
+            }
+        };
 
         // --- Database Logic ---
         const openDatabase = () => new Promise((resolve, reject) => {
@@ -1038,6 +1064,13 @@
         // --- App Initialization ---
         const initializeApp = async () => {
             try {
+                // 저장된 제목 불러오기
+                const savedTitle = localStorage.getItem('todoAppTitle');
+                if (savedTitle) {
+                    mainTitle.textContent = savedTitle;
+                    document.title = savedTitle;
+                }
+
                 await openDatabase();
                 let tabs = await getFromDb(TAB_STORE_NAME);
                 if (tabs.length === 0) {
@@ -1091,6 +1124,9 @@
         });
         confirmLoadBtn.addEventListener('click', loadTodosFromMarkdown);
         closeModalBtn.addEventListener('click', () => markdownModal.close());
+
+        // 제목 더블클릭 이벤트 리스너
+        mainTitle.addEventListener('dblclick', editTitle);
 
         modalMarkdownInput.addEventListener('keydown', (event) => {
             if (event.key === 'Tab') {
