@@ -384,6 +384,8 @@
         <div id="tabsContainer"></div>
         <div class="controls-container">
             <button id="openMarkdownModalBtn">할일 목록 불러오기</button>
+            <button id="resetAllTodosBtn">모두 시작전으로</button>
+            <button id="deleteCompletedTodosBtn">완료항목 삭제</button>
             <input type="text" id="searchInput" placeholder="할일 검색..." aria-label="할일 검색">
         </div>
         <ul id="todoList"></ul>
@@ -413,6 +415,8 @@
         const searchInput = document.getElementById('searchInput');
         const markdownModal = document.getElementById('markdownModal');
         const openMarkdownModalBtn = document.getElementById('openMarkdownModalBtn');
+        const resetAllTodosBtn = document.getElementById('resetAllTodosBtn');
+        const deleteCompletedTodosBtn = document.getElementById('deleteCompletedTodosBtn');
         const modalMarkdownInput = document.getElementById('modalMarkdownInput');
         const confirmLoadBtn = document.getElementById('confirmLoadBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');
@@ -990,6 +994,66 @@
             }
         };
 
+        // 모든 할일을 '시작하지 않음' 상태로 변경하는 함수
+        const resetAllTodosToNotStarted = async () => {
+            if (!currentTabId || currentTodos.length === 0) {
+                await customAlert('초기화할 할일이 없습니다.');
+                return;
+            }
+
+            const confirmed = await customConfirm('현재 탭의 모든 할일을 "시작하지 않음" 상태로 변경하시겠습니까?');
+            if (!confirmed) return;
+
+            const updates = [];
+            currentTodos.forEach(todo => {
+                if (todo.state !== 'not-started') {
+                    todo.state = 'not-started';
+                    updates.push(putInDb(TODO_STORE_NAME, todo));
+                }
+            });
+
+            if (updates.length > 0) {
+                await Promise.all(updates);
+                await renderCurrentTodos();
+                await customAlert(`${updates.length}개의 할일이 초기화되었습니다.`);
+            } else {
+                await customAlert('이미 모든 할일이 "시작하지 않음" 상태입니다.');
+            }
+        };
+
+        // 완료된 할일들을 삭제하는 함수
+        const deleteCompletedTodos = async () => {
+            if (!currentTabId || currentTodos.length === 0) {
+                await customAlert('삭제할 완료된 할일이 없습니다.');
+                return;
+            }
+
+            const completedTodos = currentTodos.filter(todo => todo.state === 'completed');
+            if (completedTodos.length === 0) {
+                await customAlert('완료된 할일이 없습니다.');
+                return;
+            }
+
+            const confirmed = await customConfirm(`완료된 ${completedTodos.length}개의 할일을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`);
+            if (!confirmed) return;
+
+            const tx = db.transaction(TODO_STORE_NAME, 'readwrite');
+            const store = tx.objectStore(TODO_STORE_NAME);
+
+            completedTodos.forEach(todo => {
+                store.delete(todo.id);
+            });
+
+            tx.oncomplete = async () => {
+                await renderCurrentTodos();
+                await customAlert(`${completedTodos.length}개의 완료된 할일이 삭제되었습니다.`);
+            };
+            tx.onerror = (event) => {
+                console.error("Error deleting completed todos:", event.target.error);
+                customAlert('삭제 중 오류가 발생했습니다.');
+            };
+        };
+
         const loadTodosFromMarkdown = async () => {
             if (!currentTabId) {
                 await customAlert("먼저 탭을 선택하거나 생성해주세요.");
@@ -1261,6 +1325,8 @@
             markdownModal.showModal();
             modalMarkdownInput.focus();
         });
+        resetAllTodosBtn.addEventListener('click', resetAllTodosToNotStarted);
+        deleteCompletedTodosBtn.addEventListener('click', deleteCompletedTodos);
         confirmLoadBtn.addEventListener('click', loadTodosFromMarkdown);
         closeModalBtn.addEventListener('click', () => markdownModal.close());
 
