@@ -180,6 +180,10 @@
             height: 2px; /* Thicker horizontal line */
             background-color: #e0e0e0;
         }
+        .subtask-list > li.in-progress::before,
+        .subtask-list > li.in-progress::after {
+            left: -29px;
+        }
 
         /* Vertical connector line for subtasks */
         .subtask-list > li::after {
