@@ -353,7 +353,7 @@
             margin-bottom: 20px;
         }
 
-        #modalMarkdownInput, #customModalInput {
+        #modalMarkdownInput, #customModalInput, #exportTextarea {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -365,6 +365,13 @@
             min-height: 300px;
             resize: vertical;
             font-family: monospace;
+        }
+        #exportTextarea {
+            min-height: 400px;
+            resize: vertical;
+            font-family: monospace;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
         }
         .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
         .dialog-actions button {
@@ -388,6 +395,7 @@
         <div id="tabsContainer"></div>
         <div class="controls-container">
             <button id="openMarkdownModalBtn">할일 목록 불러오기</button>
+            <button id="exportTodosBtn">할일 목록 내보내기</button>
             <button id="resetAllTodosBtn">모두 시작전으로</button>
             <button id="deleteCompletedTodosBtn">완료항목 삭제</button>
             <input type="text" id="searchInput" placeholder="할일 검색..." aria-label="할일 검색">
@@ -405,6 +413,17 @@
         </div>
     </dialog>
 
+    <!-- Export Todos Modal -->
+    <dialog id="exportModal">
+        <h2>할일 목록 내보내기</h2>
+        <p>현재 탭의 모든 할일을 마크다운 형식으로 내보냅니다.</p>
+        <textarea id="exportTextarea" readonly placeholder="내보낼 할일 목록이 여기에 표시됩니다."></textarea>
+        <div class="dialog-actions">
+            <button id="copyToClipboardBtn">클립보드에 복사</button>
+            <button id="closeExportModalBtn">닫기</button>
+        </div>
+    </dialog>
+
     <!-- Custom Interaction Modal -->
     <dialog id="customModal">
         <h3 id="customModalTitle"></h3>
@@ -418,12 +437,17 @@
         const todoListElement = document.getElementById('todoList');
         const searchInput = document.getElementById('searchInput');
         const markdownModal = document.getElementById('markdownModal');
+        const exportModal = document.getElementById('exportModal');
         const openMarkdownModalBtn = document.getElementById('openMarkdownModalBtn');
+        const exportTodosBtn = document.getElementById('exportTodosBtn');
         const resetAllTodosBtn = document.getElementById('resetAllTodosBtn');
         const deleteCompletedTodosBtn = document.getElementById('deleteCompletedTodosBtn');
         const modalMarkdownInput = document.getElementById('modalMarkdownInput');
+        const exportTextarea = document.getElementById('exportTextarea');
         const confirmLoadBtn = document.getElementById('confirmLoadBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');
+        const copyToClipboardBtn = document.getElementById('copyToClipboardBtn');
+        const closeExportModalBtn = document.getElementById('closeExportModalBtn');
         const tabsContainer = document.getElementById('tabsContainer');
         const mainTitle = document.getElementById('mainTitle');
 
@@ -1058,6 +1082,63 @@
             };
         };
 
+        // 할일을 마크다운 형식으로 변환하는 함수
+        const convertTodosToMarkdown = (todos) => {
+            if (!todos || todos.length === 0) return '';
+
+            const todoTree = buildTodoTree(todos);
+            let markdown = '';
+
+            const addTodoToMarkdown = (todo, level = 0) => {
+                const indent = '  '.repeat(level);
+                const checkbox = "- ";
+                markdown += indent + checkbox + todo.text + '\n';
+
+                if (todo.subtasks && todo.subtasks.length > 0) {
+                    todo.subtasks.forEach(subtask => {
+                        addTodoToMarkdown(subtask, level + 1);
+                    });
+                }
+            };
+
+            todoTree.forEach(todo => {
+                addTodoToMarkdown(todo);
+            });
+
+            return markdown.trim();
+        };
+
+        // 할일 내보내기 함수
+        const exportTodos = async () => {
+            if (!currentTabId) {
+                await customAlert('먼저 탭을 선택해주세요.');
+                return;
+            }
+
+            if (currentTodos.length === 0) {
+                await customAlert('내보낼 할일이 없습니다.');
+                return;
+            }
+
+            const markdown = convertTodosToMarkdown(currentTodos);
+            exportTextarea.value = markdown;
+            exportModal.showModal();
+        };
+
+        // 클립보드에 복사하는 함수
+        const copyToClipboard = async () => {
+            try {
+                await navigator.clipboard.writeText(exportTextarea.value);
+                await customAlert('할일 목록이 클립보드에 복사되었습니다.');
+            } catch (err) {
+                console.error('클립보드 복사 실패:', err);
+                // fallback: 구형 브라우저 지원
+                exportTextarea.select();
+                document.execCommand('copy');
+                await customAlert('할일 목록이 클립보드에 복사되었습니다.');
+            }
+        };
+
         const loadTodosFromMarkdown = async () => {
             if (!currentTabId) {
                 await customAlert("먼저 탭을 선택하거나 생성해주세요.");
@@ -1329,10 +1410,13 @@
             markdownModal.showModal();
             modalMarkdownInput.focus();
         });
+        exportTodosBtn.addEventListener('click', exportTodos);
         resetAllTodosBtn.addEventListener('click', resetAllTodosToNotStarted);
         deleteCompletedTodosBtn.addEventListener('click', deleteCompletedTodos);
         confirmLoadBtn.addEventListener('click', loadTodosFromMarkdown);
         closeModalBtn.addEventListener('click', () => markdownModal.close());
+        copyToClipboardBtn.addEventListener('click', copyToClipboard);
+        closeExportModalBtn.addEventListener('click', () => exportModal.close());
 
         // 제목 더블클릭 이벤트 리스너
         mainTitle.addEventListener('dblclick', editTitle);
