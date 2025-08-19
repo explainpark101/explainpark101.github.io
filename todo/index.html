@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>임시 할일 리스트 (업데이트)</title>
+    <title>임시 할일 리스트</title>
     <style>
         html, body {
             min-height: 100vh;
@@ -182,6 +182,9 @@
             align-items: center;
             gap: 10px;
         }
+        .todo-item-content > div:first-child {
+            flex-grow: 1;
+        }
         li label {
             flex-grow: 1;
             display: flex;
@@ -229,6 +232,29 @@
         .delete-todo-btn:hover {
             color: #dc3545;
             background-color: #f0f0f0;
+        }
+
+        /* --- Collapse/Expand Button Styles --- */
+        .collapse-subtask-btn {
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 0 4px;
+            margin-left: 5px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        .collapse-subtask-btn:hover {
+            color: #007bff;
+            background-color: #f0f0f0;
+        }
+        .collapse-subtask-btn.collapsed {
+            transform: rotate(-90deg);
+        }
+        .subtask-list.collapsed {
+            display: none;
         }
 
         /* --- Task State Styles --- */
@@ -373,6 +399,7 @@
         let db;
         let currentTodos = [];
         let currentTabId = null;
+        let collapsedSubtasks = new Set(); // 접힌 subtask ID들을 추적
 
         // --- Custom Modal Logic ---
         const customModal = document.getElementById('customModal');
@@ -629,11 +656,19 @@
             listItem.setAttribute('draggable', 'true');
             const contentDiv = document.createElement('div');
             contentDiv.className = 'todo-item-content';
+
+            // 접기/펼치기 버튼 추가 (하위 할일이 있을 때만)
+            const collapseBtnHtml = todo.subtasks && todo.subtasks.length > 0 ?
+                `<button class="collapse-subtask-btn ${collapsedSubtasks.has(todo.id) ? 'collapsed' : ''}" title="하위 할일 접기/펼치기">▼</button>` : '';
+
             contentDiv.innerHTML = `
-                <label>
-                    <input type="checkbox" ${todo.state === 'completed' ? 'checked' : ''}>
-                    <span class="todo-text">${todo.text}</span>
-                </label>
+                <div>
+                    ${collapseBtnHtml}
+                    <label>
+                        <input type="checkbox" ${todo.state === 'completed' ? 'checked' : ''}>
+                        <span class="todo-text">${todo.text}</span>
+                    </label>
+                </div>
                 <div>
                     <select class="todo-state">
                         <option value="not-started" ${todo.state === 'not-started' ? 'selected' : ''}>시작하지 않음</option>
@@ -647,7 +682,7 @@
             listItem.appendChild(contentDiv);
             if (todo.subtasks && todo.subtasks.length > 0) {
                 const sublist = document.createElement('ul');
-                sublist.className = 'subtask-list';
+                sublist.className = `subtask-list ${collapsedSubtasks.has(todo.id) ? 'collapsed' : ''}`;
                 todo.subtasks.forEach(subtask => sublist.appendChild(createTodoElement(subtask)));
                 listItem.appendChild(sublist);
             }
@@ -661,6 +696,16 @@
                 e.stopPropagation();
                 deleteTodo(todo.id);
             });
+
+            // 접기/펼치기 버튼 이벤트 리스너 추가
+            const collapseBtn = contentDiv.querySelector('.collapse-subtask-btn');
+            if (collapseBtn) {
+                collapseBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleSubtaskCollapse(todo.id);
+                });
+            }
+
             // [NEW] Add dblclick event listener to edit todo text
             contentDiv.querySelector('.todo-text').addEventListener('dblclick', () => {
                 editTodoText(todo.id);
@@ -728,6 +773,16 @@
                 await putInDb(TODO_STORE_NAME, todo);
                 await renderCurrentTodos();
             }
+        };
+
+        // 접기/펼치기 토글 함수
+        const toggleSubtaskCollapse = (todoId) => {
+            if (collapsedSubtasks.has(todoId)) {
+                collapsedSubtasks.delete(todoId);
+            } else {
+                collapsedSubtasks.add(todoId);
+            }
+            renderCurrentTodos();
         };
 
         const handleStateChange = async (id, newState) => {
@@ -820,32 +875,106 @@
             const draggedTodo = currentTodos.find(t => t.id === draggedId);
             const targetTodo = currentTodos.find(t => t.id === targetId);
 
-            if (!draggedTodo || !targetTodo || draggedTodo.parentId !== targetTodo.parentId) {
-                await customAlert("현재는 동일한 단계의 할 일 사이에서만 순서를 변경할 수 있습니다.");
+            if (!draggedTodo || !targetTodo) {
                 return;
             }
 
-            const siblings = currentTodos
-                .filter(t => t.parentId === draggedTodo.parentId)
-                .sort((a, b) => (a.order || 0) - (b.order || 0));
+            // 같은 부모를 가진 경우: 순서만 변경
+            if (draggedTodo.parentId === targetTodo.parentId) {
+                const siblings = currentTodos
+                    .filter(t => t.parentId === draggedTodo.parentId)
+                    .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-            const draggedIndex = siblings.findIndex(t => t.id === draggedId);
-            const [draggedItem] = siblings.splice(draggedIndex, 1);
-            const targetIndexNew = siblings.findIndex(t => t.id === targetId);
+                const draggedIndex = siblings.findIndex(t => t.id === draggedId);
+                const [draggedItem] = siblings.splice(draggedIndex, 1);
+                const targetIndexNew = siblings.findIndex(t => t.id === targetId);
 
-            siblings.splice(targetIndexNew, 0, draggedItem);
+                siblings.splice(targetIndexNew, 0, draggedItem);
 
-            const updates = [];
-            siblings.forEach((todo, index) => {
-                if (todo.order !== index) {
-                    todo.order = index;
-                    updates.push(putInDb(TODO_STORE_NAME, todo));
+                const updates = [];
+                siblings.forEach((todo, index) => {
+                    if (todo.order !== index) {
+                        todo.order = index;
+                        updates.push(putInDb(TODO_STORE_NAME, todo));
+                    }
+                });
+
+                if (updates.length > 0) {
+                    await Promise.all(updates);
+                    await renderCurrentTodos();
+                }
+            } else {
+                // 다른 부모를 가진 경우: 계층 구조 변경
+                await changeHierarchy(draggedId, targetId);
+            }
+        };
+
+        // 계층 구조 변경 함수
+        const changeHierarchy = async (draggedId, targetId) => {
+            const draggedTodo = currentTodos.find(t => t.id === draggedId);
+            const targetTodo = currentTodos.find(t => t.id === targetId);
+
+            if (!draggedTodo || !targetTodo) return;
+
+            // 자기 자신을 하위로 만들 수 없도록 체크
+            if (draggedId === targetId) return;
+
+            // 순환 참조 방지: 드래그된 할일의 하위를 상위로 만들 수 없음
+            const isDescendant = (parentId, childId) => {
+                const children = currentTodos.filter(t => t.parentId === parentId);
+                for (const child of children) {
+                    if (child.id === childId) return true;
+                    if (isDescendant(child.id, childId)) return true;
+                }
+                return false;
+            };
+
+            if (isDescendant(draggedId, targetId)) {
+                await customAlert("하위 할일을 상위 할일로 만들 수 없습니다.");
+                return;
+            }
+
+            // 계층 구조 변경 확인
+            const draggedText = draggedTodo.text.length > 30 ? draggedTodo.text.substring(0, 30) + '...' : draggedTodo.text;
+            const targetText = targetTodo.text.length > 30 ? targetTodo.text.substring(0, 30) + '...' : targetTodo.text;
+
+            const confirmMessage = `"${draggedText}"을(를) "${targetText}"의 하위 할일로 만들겠습니까?`;
+            const confirmed = await customConfirm(confirmMessage, '계층 구조 변경');
+
+            if (!confirmed) return;
+
+            // 기존 순서 저장
+            const oldParentId = draggedTodo.parentId;
+            const oldSiblings = currentTodos.filter(t => t.parentId === oldParentId);
+
+            // 새로운 부모 설정
+            draggedTodo.parentId = targetId;
+
+            // 새로운 순서 설정 (타겟의 하위 할일들 중 마지막 순서)
+            const newSiblings = currentTodos.filter(t => t.parentId === targetId);
+            draggedTodo.order = newSiblings.length;
+
+            // 업데이트 실행
+            const updates = [putInDb(TODO_STORE_NAME, draggedTodo)];
+
+            // 기존 형제들의 순서 재정렬
+            oldSiblings.forEach((sibling, index) => {
+                if (sibling.order !== index) {
+                    sibling.order = index;
+                    updates.push(putInDb(TODO_STORE_NAME, sibling));
                 }
             });
 
-            if (updates.length > 0) {
-                await Promise.all(updates);
-                await renderCurrentTodos();
+            await Promise.all(updates);
+            await renderCurrentTodos();
+        };
+
+        // 드래그 중 휠 스크롤 핸들러
+        const handleWheelScroll = (e) => {
+            if (draggedItemId) {
+                // 드래그 중일 때만 휠 스크롤 허용
+                // preventDefault를 호출하지 않아서 기본 스크롤 동작이 실행됨
+                return;
             }
         };
 
@@ -858,6 +987,9 @@
                 setTimeout(() => {
                     targetLi.classList.add('dragging');
                 }, 0);
+
+                // 드래그 시작 시 휠 스크롤 이벤트 리스너 추가
+                document.addEventListener('wheel', handleWheelScroll, { passive: false });
             }
         });
 
@@ -868,6 +1000,9 @@
             }
             document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
             draggedItemId = null;
+
+            // 드래그 종료 시 휠 스크롤 이벤트 리스너 제거
+            document.removeEventListener('wheel', handleWheelScroll);
         });
 
         todoListElement.addEventListener('dragover', (e) => {
