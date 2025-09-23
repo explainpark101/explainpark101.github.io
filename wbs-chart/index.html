@@ -111,7 +111,23 @@
         // 전역 변수
         let hierarchicalData;
         let selectedNode = null;
-        const svg = d3.select("#chart-container").append("svg").attr("width", "100%").attr("height", "100%");
+        const svg = d3.select("#chart-container").append("svg")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .style("cursor", "grab") // Set initial grab cursor
+            .on('mousedown', (event) => {
+                if (event.button === 1) { // Middle mouse button
+                    svg.style('cursor', 'grabbing');
+                }
+            });
+
+        // Add mouseup listener to the window to catch events outside the SVG
+        d3.select(window).on('mouseup', (event) => {
+            if (event.button === 1) { // Middle mouse button
+                svg.style('cursor', 'grab');
+            }
+        });
+
         const g = svg.append("g");
         const LOCAL_STORAGE_KEY = 'wbsChartData';
 
@@ -351,8 +367,19 @@
         });
 
         // 5. 유틸리티 함수들 (줌/패닝, PNG/JSON 저장, 모달)
-        const zoom = d3.zoom().scaleExtent([0.1, 3]).on("zoom", (event) => g.attr("transform", event.transform));
-        svg.call(zoom);
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 3])
+            .on("zoom", (event) => g.attr("transform", event.transform))
+            .filter(event => {
+                // Allows panning with the primary (0) and middle (1) mouse buttons,
+                // and wheel-based zooming.
+                // Disallows panning when ctrl is pressed (to allow for other interactions if needed).
+                const isPanButton = event.button === 0 || event.button === 1;
+                return (!event.ctrlKey || event.type === 'wheel') && isPanButton;
+            });
+
+        svg.call(zoom)
+            .on("dblclick.zoom", null); // Disable double-click zoom behavior
 
         document.getElementById('export-png-btn').addEventListener('click', () => {
             const wasToolbarVisible = !toolbarEl.classList.contains('hidden');
