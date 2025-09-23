@@ -242,6 +242,7 @@
             parentSelect.disabled = isRoot;
 
             toolbarEl.classList.remove('hidden', '-translate-x-full');
+            nameInput.focus();
         }
 
         function hideEditToolbar() {
@@ -296,6 +297,14 @@
             }
             updateChart();
             saveDataToLocalStorage();
+        });
+        document.getElementById('node-name-input').addEventListener('keydown', (event) => {
+            if (event.ctrlKey && event.key === 'Enter') {
+                document.getElementById('save-changes-btn').click();
+            }
+            if (event.key === 'Escape') {
+                document.getElementById('close-toolbar-btn').click();
+            }
         });
 
         document.getElementById('add-child-btn').addEventListener('click', async () => {
