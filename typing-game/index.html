@@ -168,6 +168,7 @@
             #elapsedTime;
             #updateTypingSpeedInterval;
             #onGameOver;
+            #lastSpawnedItem = null; // Property to track the last spawned item
 
             constructor(elements, words, syntaxPhrases, onGameOver) {
                 this.elements = elements;
@@ -202,6 +203,7 @@
                 this.#activeItems = [];
                 this.#isGameOver = false;
                 this.#elapsedTime = 0;
+                this.#lastSpawnedItem = null;
                 this.#updateUI();
                 this.elements.gameScreen.innerHTML = '';
                 this.elements.inputBox.disabled = false;
@@ -248,7 +250,17 @@
 
             #spawnItem() {
                 if (this.#isGameOver) return;
-                if (this.#activeItems.length >= 4) return; // MODIFIED: Limit total items on screen
+
+                // --- MODIFIED: Spawn based on last item's position ---
+                if (this.#lastSpawnedItem) {
+                    const lastItemExists = this.#activeItems.includes(this.#lastSpawnedItem);
+                    // y starts at -40. After moving 50px, it reaches y=10.
+                    // Only spawn a new item if the last one has moved at least 50px.
+                    if (lastItemExists && this.#lastSpawnedItem.y < 0) {
+                        return;
+                    }
+                }
+                // --- End of modification ---
 
                 const hasWords = this.words.length > 0;
                 const hasSyntax = this.syntaxPhrases.length > 0;
@@ -286,16 +298,43 @@
 
                 const screenWidth = this.elements.gameScreen.offsetWidth;
                 const itemWidth = itemElement.offsetWidth;
-                const randomX = Math.random() * (screenWidth - itemWidth);
+                
+                let randomX;
+                let isOverlapping = false;
+                const maxAttempts = 20; 
+                let attempts = 0;
+
+                do {
+                    isOverlapping = false;
+                    randomX = Math.random() * (screenWidth - itemWidth);
+                    
+                    for (const activeItem of this.#activeItems) {
+                        if (activeItem.y < itemElement.offsetHeight) {
+                            const existingElement = activeItem.element;
+                            const existingX = parseFloat(existingElement.style.left);
+                            const existingWidth = existingElement.offsetWidth;
+
+                            if (randomX < existingX + existingWidth && randomX + itemWidth > existingX) {
+                                isOverlapping = true;
+                                break; 
+                            }
+                        }
+                    }
+                    attempts++;
+                } while (isOverlapping && attempts < maxAttempts);
+
                 itemElement.style.left = `${randomX}px`;
                 itemElement.style.top = `-40px`;
 
-                this.#activeItems.push({
+                const newItem = {
                     text: itemText,
                     element: itemElement,
                     y: -40,
                     speedMultiplier: speedMultiplier * (5 / itemText.length)
-                });
+                };
+                
+                this.#activeItems.push(newItem);
+                this.#lastSpawnedItem = newItem; // --- MODIFIED: Track the newly created item ---
             }
 
             #loseLife() {
@@ -376,7 +415,6 @@
                         sourceText = item.text.replace(/\s/g, '');
                         targetText = typedText.replace(/\s/g, '');
                     } else {
-                        // MODIFIED: For words, trim both the source and the input for a robust comparison.
                         sourceText = item.text.trim();
                         targetText = typedText.trim();
                     }
@@ -590,4 +628,5 @@
 </body>
 
 </html>
+
 
