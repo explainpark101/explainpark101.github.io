@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <title>앱 바로가기</title>
@@ -32,6 +33,7 @@
       justify-content: center;
       align-items: center;
     }
+
     .container {
       max-width: 900px;
       margin: 0 auto;
@@ -40,14 +42,16 @@
       gap: 32px;
       justify-content: center;
     }
+
     a {
       text-decoration: none;
       color: inherit;
     }
+
     .card {
       background: #fff;
       border-radius: 16px;
-      box-shadow: 0 2px 8px rgba(60,60,60,0.08), 0 1.5px 4px rgba(60,60,60,0.06);
+      box-shadow: 0 2px 8px rgba(60, 60, 60, 0.08), 0 1.5px 4px rgba(60, 60, 60, 0.06);
       width: 200px;
       height: 220px;
       display: flex;
@@ -58,12 +62,13 @@
       cursor: pointer;
       position: relative;
     }
+
     .card:hover {
-      box-shadow: 0 6px 24px rgba(60,60,60,0.16), 0 3px 8px rgba(60,60,60,0.10);
+      box-shadow: 0 6px 24px rgba(60, 60, 60, 0.16), 0 3px 8px rgba(60, 60, 60, 0.10);
       transform: translateY(-4px) scale(1.03);
     }
 
-        /* PWA 설치 버튼 스타일 */
+    /* PWA 설치 버튼 스타일 */
     .pwa-install-button {
       background: #1976D2;
       color: white;
@@ -101,6 +106,7 @@
       align-items: center;
       justify-content: center;
     }
+
     .card-title {
       font-size: 1.2rem;
       font-weight: 500;
@@ -108,29 +114,33 @@
       margin-bottom: 6px;
       word-break: keep-all !important;
     }
+
     .card-desc {
-        font-size: 0.95rem;
-        color: #666;
-        text-align: center;
-        word-break: keep-all !important;
+      font-size: 0.95rem;
+      color: #666;
+      text-align: center;
+      word-break: keep-all !important;
     }
   </style>
 </head>
+
 <body>
-        <!-- 다른 검사하기 버튼과 PWA 설치 버튼 -->
-  <div style="display: flex; justify-content: space-between; align-items: center; margin: 0 auto 20px auto; max-width: 900px;">
+  <!-- 다른 검사하기 버튼과 PWA 설치 버튼 -->
+  <div
+    style="display: flex; justify-content: space-between; align-items: center; margin: 0 auto 20px auto; max-width: 900px;">
     <!-- PWA 설치 버튼 -->
     <div id="pwa-install-container" style="display: none;">
       <button id="pwa-install-btn" class="pwa-install-button">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
         </svg>
         앱 설치
       </button>
     </div>
   </div>
 
-  <h1 style="text-align:center; font-family:'Roboto','Noto Sans KR',Arial,sans-serif; font-size:2.2rem; font-weight:700; color:#222; margin: 0 0 32px 0;">
+  <h1
+    style="text-align:center; font-family:'Roboto','Noto Sans KR',Arial,sans-serif; font-size:2.2rem; font-weight:700; color:#222; margin: 0 0 32px 0;">
     explainpark101 Apps
   </h1>
 
@@ -140,8 +150,8 @@
         <div class="icon">
           <!-- 예시 SVG 아이콘 (앱1) -->
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <rect x="8" y="8" width="32" height="32" rx="8" fill="#1976D2"/>
-            <path d="M24 16v16M16 24h16" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+            <rect x="8" y="8" width="32" height="32" rx="8" fill="#1976D2" />
+            <path d="M24 16v16M16 24h16" stroke="#fff" stroke-width="3" stroke-linecap="round" />
           </svg>
         </div>
         <div class="card-title">건설 그래픽 커뮤니케이션</div>
@@ -153,8 +163,8 @@
         <div class="icon">
           <!-- 예시 SVG 아이콘 (앱2) -->
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <circle cx="24" cy="24" r="16" fill="#43A047"/>
-            <path d="M24 16v8l6 6" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="24" cy="24" r="16" fill="#43A047" />
+            <path d="M24 16v8l6 6" stroke="#fff" stroke-width="3" stroke-linecap="round" />
           </svg>
         </div>
         <div class="card-title">다익스트라 알고리즘</div>
@@ -166,8 +176,8 @@
         <div class="icon">
           <!-- 예시 SVG 아이콘 (앱3) -->
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <polygon points="24,12 36,36 12,36" fill="#FBC02D"/>
-            <circle cx="24" cy="24" r="4" fill="#fff"/>
+            <polygon points="24,12 36,36 12,36" fill="#FBC02D" />
+            <circle cx="24" cy="24" r="4" fill="#fff" />
           </svg>
         </div>
         <div class="card-title">마작부장 강의장면 만들기</div>
@@ -179,9 +189,9 @@
         <div class="icon">
           <!-- 회식 정산 계산기 아이콘 -->
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <rect x="8" y="8" width="32" height="32" rx="8" fill="#7B1FA2"/>
-            <path d="M24 16v16M16 24h16" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="24" cy="24" r="4" fill="#fff"/>
+            <rect x="8" y="8" width="32" height="32" rx="8" fill="#7B1FA2" />
+            <path d="M24 16v16M16 24h16" stroke="#fff" stroke-width="3" stroke-linecap="round" />
+            <circle cx="24" cy="24" r="4" fill="#fff" />
           </svg>
         </div>
         <div class="card-title">회식 정산 계산기</div>
@@ -193,9 +203,9 @@
         <div class="icon">
           <!-- 강력한 비밀번호 생성기 아이콘 -->
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <rect x="8" y="8" width="32" height="32" rx="8" fill="#FF5722"/>
-            <path d="M16 20h16M16 24h16M16 28h8" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="24" cy="16" r="2" fill="#fff"/>
+            <rect x="8" y="8" width="32" height="32" rx="8" fill="#FF5722" />
+            <path d="M16 20h16M16 24h16M16 28h8" stroke="#fff" stroke-width="3" stroke-linecap="round" />
+            <circle cx="24" cy="16" r="2" fill="#fff" />
           </svg>
         </div>
         <div class="card-title">강력한 비밀번호 생성기</div>
@@ -207,10 +217,10 @@
         <div class="icon">
           <!-- 의사소통 테스트 아이콘 -->
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <rect x="8" y="8" width="32" height="32" rx="8" fill="#9C27B0"/>
-            <path d="M16 16h16M16 20h16M16 24h12" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-            <circle cx="20" cy="28" r="2" fill="#fff"/>
-            <circle cx="28" cy="28" r="2" fill="#fff"/>
+            <rect x="8" y="8" width="32" height="32" rx="8" fill="#9C27B0" />
+            <path d="M16 16h16M16 20h16M16 24h12" stroke="#fff" stroke-width="3" stroke-linecap="round" />
+            <circle cx="20" cy="28" r="2" fill="#fff" />
+            <circle cx="28" cy="28" r="2" fill="#fff" />
           </svg>
         </div>
         <div class="card-title">검사 모음</div>
@@ -222,12 +232,12 @@
         <div class="icon">
           <!-- 클립보드 이미지 저장기 아이콘 -->
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <rect x="8" y="6" width="24" height="32" rx="4" fill="#00BCD4" stroke="#00BCD4" stroke-width="2"/>
-            <rect x="12" y="2" width="16" height="6" rx="2" fill="#fff"/>
-            <rect x="14" y="14" width="12" height="8" rx="2" fill="#fff" opacity="0.9"/>
-            <circle cx="20" cy="18" r="2" fill="#00BCD4"/>
-            <path d="M14 26h12M14 30h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-            <path d="M32 24l8 8-8 8" stroke="#00BCD4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="8" y="6" width="24" height="32" rx="4" fill="#00BCD4" stroke="#00BCD4" stroke-width="2" />
+            <rect x="12" y="2" width="16" height="6" rx="2" fill="#fff" />
+            <rect x="14" y="14" width="12" height="8" rx="2" fill="#fff" opacity="0.9" />
+            <circle cx="20" cy="18" r="2" fill="#00BCD4" />
+            <path d="M14 26h12M14 30h8" stroke="#fff" stroke-width="2" stroke-linecap="round" />
+            <path d="M32 24l8 8-8 8" stroke="#00BCD4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
         <div class="card-title">클립보드 이미지 저장기</div>
@@ -239,18 +249,20 @@
         <div class="icon">
           <!-- 할 일 관리 앱 아이콘 -->
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <rect x="8" y="8" width="32" height="32" rx="6" fill="#FF9800"/>
+            <rect x="8" y="8" width="32" height="32" rx="6" fill="#FF9800" />
             <!-- 체크박스들 -->
-            <rect x="14" y="14" width="4" height="4" fill="#fff" stroke="#fff" stroke-width="1"/>
-            <rect x="14" y="22" width="4" height="4" fill="#fff" stroke="#fff" stroke-width="1"/>
-            <rect x="14" y="30" width="4" height="4" fill="#fff" stroke="#fff" stroke-width="1"/>
+            <rect x="14" y="14" width="4" height="4" fill="#fff" stroke="#fff" stroke-width="1" />
+            <rect x="14" y="22" width="4" height="4" fill="#fff" stroke="#fff" stroke-width="1" />
+            <rect x="14" y="30" width="4" height="4" fill="#fff" stroke="#fff" stroke-width="1" />
             <!-- 체크마크들 -->
-            <path d="M16 16l1 1 1-1" stroke="#FF9800" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M16 24l1 1 1-1" stroke="#FF9800" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16 16l1 1 1-1" stroke="#FF9800" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M16 24l1 1 1-1" stroke="#FF9800" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
             <!-- 할 일 텍스트 라인들 -->
-            <rect x="22" y="15" width="12" height="2" fill="#fff" rx="1"/>
-            <rect x="22" y="23" width="10" height="2" fill="#fff" rx="1"/>
-            <rect x="22" y="31" width="8" height="2" fill="#fff" rx="1"/>
+            <rect x="22" y="15" width="12" height="2" fill="#fff" rx="1" />
+            <rect x="22" y="23" width="10" height="2" fill="#fff" rx="1" />
+            <rect x="22" y="31" width="8" height="2" fill="#fff" rx="1" />
           </svg>
         </div>
         <div class="card-title">할 일 관리</div>
@@ -259,32 +271,54 @@
     </a>
     <a href="/wbs-chart">
       <div class="card">
-          <div class="icon">
-              <!-- WBS 차트 앱 아이콘 -->
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="8" y="8" width="32" height="32" rx="6" fill="#4A90E2"/>
-                  <!-- 상위 노드 -->
-                  <rect x="18" y="14" width="12" height="6" rx="2" fill="white"/>
-                  <!-- 연결선 -->
-                  <path d="M24 20V26" stroke="#FFFFFF" stroke-width="2"/>
-                  <path d="M16 26H32" stroke="#FFFFFF" stroke-width="2"/>
-                  <!-- 하위 노드들 -->
-                  <rect x="13" y="32" width="8" height="5" rx="1.5" fill="white"/>
-                  <rect x="22" y="32" width="8" height="5" rx="1.5" fill="white"/>
-                  <rect x="31" y="32" width="8" height="5" rx="1.5" fill="white"/>
-                  <path d="M17 26V32" stroke="#FFFFFF" stroke-width="2"/>
-                  <path d="M31 26V32" stroke="#FFFFFF" stroke-width="2"/>
-              </svg>
-          </div>
-          <div class="card-title">WBS 차트 편집기</div>
-          <div class="card-desc">프로젝트 구조를 시각적으로 계획하고 편집하세요.</div>
+        <div class="icon">
+          <!-- WBS 차트 앱 아이콘 -->
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="8" width="32" height="32" rx="6" fill="#4A90E2" />
+            <!-- 상위 노드 -->
+            <rect x="18" y="14" width="12" height="6" rx="2" fill="white" />
+            <!-- 연결선 -->
+            <path d="M24 20V26" stroke="#FFFFFF" stroke-width="2" />
+            <path d="M16 26H32" stroke="#FFFFFF" stroke-width="2" />
+            <!-- 하위 노드들 -->
+            <rect x="13" y="32" width="8" height="5" rx="1.5" fill="white" />
+            <rect x="22" y="32" width="8" height="5" rx="1.5" fill="white" />
+            <rect x="31" y="32" width="8" height="5" rx="1.5" fill="white" />
+            <path d="M17 26V32" stroke="#FFFFFF" stroke-width="2" />
+            <path d="M31 26V32" stroke="#FFFFFF" stroke-width="2" />
+          </svg>
+        </div>
+        <div class="card-title">WBS 차트 편집기</div>
+        <div class="card-desc">프로젝트 구조를 시각적으로 계획하고 편집하세요.</div>
       </div>
-  </a>
+    </a>
+    <a href="/typing-game">
+      <div class="card">
+        <div class="icon">
+          <!-- typing game 앱 아이콘 -->
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- 배경 -->
+            <rect x="8" y="8" width="32" height="32" rx="6" fill="#263386"/>
+            <!-- 떨어지는 단어 블록들 -->
+            <rect x="13" y="12" width="14" height="5" rx="2.5" fill="white" fill-opacity="0.95"/>
+            <rect x="25" y="19" width="10" height="5" rx="2.5" fill="white" fill-opacity="0.95"/>
+            <rect x="16" y="26" width="16" height="5" rx="2.5" fill="white" fill-opacity="0.95"/>
+            <!-- 키보드 형상 -->
+            <path d="M12 39L14 35L34 35L36 39L12 39Z" fill="#FFFFFF"/>
+            <path d="M14 35L34 35L36 39L35 40L13 40L12 39L14 35Z" fill="#E0E0E0"/>
+            <rect x="19" y="36" width="10" height="1.5" rx="0.75" fill="#4A90E2" fill-opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="card-title">타자 게임</div>
+        <div class="card-desc">한컴 타자 연습 소나기 비슷한거</div>
+      </div>
+    </a>
 
     <!-- 필요에 따라 앱을 더 추가하세요 -->
   </div>
-  <hr/>
-  <h3 style="text-align:center; font-family:'Roboto','Noto Sans KR',Arial,sans-serif; font-size:1.5rem; font-weight:700; color:#222; margin: 0 0 32px 0;">
+  <hr />
+  <h3
+    style="text-align:center; font-family:'Roboto','Noto Sans KR',Arial,sans-serif; font-size:1.5rem; font-weight:700; color:#222; margin: 0 0 32px 0;">
     External Apps
   </h3>
   <div class="container">
@@ -293,33 +327,33 @@
         <div class="icon">
           <!-- QR 스캐너 아이콘 -->
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <rect x="8" y="8" width="32" height="32" rx="4" fill="#2E7D32"/>
+            <rect x="8" y="8" width="32" height="32" rx="4" fill="#2E7D32" />
             <!-- QR 코드 패턴 -->
-            <rect x="12" y="12" width="6" height="6" fill="#fff"/>
-            <rect x="14" y="14" width="2" height="2" fill="#2E7D32"/>
-            <rect x="30" y="12" width="6" height="6" fill="#fff"/>
-            <rect x="32" y="14" width="2" height="2" fill="#2E7D32"/>
-            <rect x="12" y="30" width="6" height="6" fill="#fff"/>
-            <rect x="14" y="32" width="2" height="2" fill="#2E7D32"/>
+            <rect x="12" y="12" width="6" height="6" fill="#fff" />
+            <rect x="14" y="14" width="2" height="2" fill="#2E7D32" />
+            <rect x="30" y="12" width="6" height="6" fill="#fff" />
+            <rect x="32" y="14" width="2" height="2" fill="#2E7D32" />
+            <rect x="12" y="30" width="6" height="6" fill="#fff" />
+            <rect x="14" y="32" width="2" height="2" fill="#2E7D32" />
             <!-- 중앙 및 기타 패턴 -->
-            <rect x="20" y="12" width="2" height="2" fill="#fff"/>
-            <rect x="24" y="12" width="2" height="2" fill="#fff"/>
-            <rect x="20" y="16" width="2" height="2" fill="#fff"/>
-            <rect x="24" y="16" width="2" height="2" fill="#fff"/>
-            <rect x="20" y="20" width="8" height="8" fill="#fff"/>
-            <rect x="22" y="22" width="4" height="4" fill="#2E7D32"/>
-            <rect x="30" y="20" width="2" height="2" fill="#fff"/>
-            <rect x="34" y="20" width="2" height="2" fill="#fff"/>
-            <rect x="30" y="24" width="2" height="2" fill="#fff"/>
-            <rect x="34" y="24" width="2" height="2" fill="#fff"/>
-            <rect x="20" y="30" width="2" height="2" fill="#fff"/>
-            <rect x="24" y="30" width="2" height="2" fill="#fff"/>
-            <rect x="30" y="30" width="2" height="2" fill="#fff"/>
-            <rect x="34" y="30" width="2" height="2" fill="#fff"/>
-            <rect x="20" y="34" width="2" height="2" fill="#fff"/>
-            <rect x="24" y="34" width="2" height="2" fill="#fff"/>
-            <rect x="30" y="34" width="2" height="2" fill="#fff"/>
-            <rect x="34" y="34" width="2" height="2" fill="#fff"/>
+            <rect x="20" y="12" width="2" height="2" fill="#fff" />
+            <rect x="24" y="12" width="2" height="2" fill="#fff" />
+            <rect x="20" y="16" width="2" height="2" fill="#fff" />
+            <rect x="24" y="16" width="2" height="2" fill="#fff" />
+            <rect x="20" y="20" width="8" height="8" fill="#fff" />
+            <rect x="22" y="22" width="4" height="4" fill="#2E7D32" />
+            <rect x="30" y="20" width="2" height="2" fill="#fff" />
+            <rect x="34" y="20" width="2" height="2" fill="#fff" />
+            <rect x="30" y="24" width="2" height="2" fill="#fff" />
+            <rect x="34" y="24" width="2" height="2" fill="#fff" />
+            <rect x="20" y="30" width="2" height="2" fill="#fff" />
+            <rect x="24" y="30" width="2" height="2" fill="#fff" />
+            <rect x="30" y="30" width="2" height="2" fill="#fff" />
+            <rect x="34" y="30" width="2" height="2" fill="#fff" />
+            <rect x="20" y="34" width="2" height="2" fill="#fff" />
+            <rect x="24" y="34" width="2" height="2" fill="#fff" />
+            <rect x="30" y="34" width="2" height="2" fill="#fff" />
+            <rect x="34" y="34" width="2" height="2" fill="#fff" />
           </svg>
         </div>
         <div class="card-title">QR Scanner</div>
@@ -391,10 +425,11 @@
     window.addEventListener('load', () => {
       // 이미 설치된 경우 버튼 숨기기
       if (window.matchMedia('(display-mode: standalone)').matches ||
-          window.navigator.standalone === true) {
+        window.navigator.standalone === true) {
         pwaInstallContainer.style.display = 'none';
       }
     });
   </script>
 </body>
+
 </html>

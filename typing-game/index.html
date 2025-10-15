@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Typing Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            user-select: none
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            overflow: hidden;
+            background: linear-gradient(135deg, #1e3a8a, #312e81, #111827);
+        }
+
+        .flash-red {
+            animation: flash-red 0.3s ease-out;
+        }
+
+        @keyframes flash-red {
+
+            0%,
+            100% {
+                background-color: transparent;
+            }
+
+            50% {
+                background-color: #991b1b;
+            }
+        }
+
+        .flash-input-red {
+            animation: flash-input-red 0.4s ease-out;
+        }
+
+        @keyframes flash-input-red {
+
+            from,
+            to {
+                border-color: #10b981;
+            }
+
+            50% {
+                border-color: #ef4444;
+            }
+        }
+
+        .item {
+            position: absolute;
+            color: #e5e7eb;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            white-space: nowrap;
+            transition: transform 50ms ease-out;
+            will-change: transform;
+        }
+
+        .word {
+            background-color: rgba(30, 41, 59, 0.8);
+            border: 1px solid #4b5563;
+        }
+
+        .syntax {
+            background-color: rgba(59, 17, 107, 0.8);
+            border: 1px solid #c084fc;
+            font-size: 1rem;
+        }
+
+        input:focus,
+        textarea:focus {
+            caret-color: #34d399;
+        }
+
+        /* 커스텀 텍스트 영역 스타일 */
+        textarea {
+            background-color: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            color: #e2e8f0;
+            resize: vertical;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-200 flex items-center justify-center h-screen">
+
+    <div id="game-container" class="relative w-full max-w-4xl mx-auto p-4 md:p-6 flex flex-col items-center gap-4">
+        <!-- 게임 UI (초기에는 숨김) -->
+        <div id="game-ui" class="w-full flex-col items-center gap-4 hidden">
+            <button id="fullscreen-btn" class="absolute top-6 right-6 text-gray-400 hover:text-white transition z-30" title="Toggle Fullscreen">
+                <svg id="fullscreen-open-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                </svg>
+                <svg id="fullscreen-close-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+                    <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path>
+                </svg>
+            </button>
+            <h1 class="text-3xl md:text-4xl font-bold text-emerald-400">Typing Master</h1>
+            <div class="w-full flex justify-between items-center bg-slate-800 p-3 rounded-lg shadow-lg">
+                <div class="text-lg">SCORE: <span id="score" class="font-bold text-2xl text-yellow-300">0</span></div>
+                <div class="text-lg">분당타수: <span id="typing-speed" class="font-bold text-1xl text-yellow-300">0</span> 타</div>
+                <div class="text-lg">LIVES: <span id="lives" class="font-bold text-2xl text-red-500">5</span></div>
+            </div>
+            <div id="game-screen" class="w-full h-[50vh] md:h-[60vh] bg-gray-900/80 border-2 border-slate-700 rounded-lg shadow-inner relative overflow-hidden"></div>
+            <input type="text" id="input-box" class="w-full p-4 bg-slate-900 border-2 border-emerald-500 rounded-lg text-xl text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 transition" placeholder="Type here and press Enter..." disabled>
+        </div>
+
+        <!-- 설정 페이지 모달 (초기에 보임) -->
+        <div id="settings-modal" class="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-20">
+            <div class="bg-slate-800 p-8 rounded-xl shadow-2xl w-full max-w-2xl text-center">
+                <h2 class="text-4xl font-extrabold text-white mb-6">Game Settings</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-left">
+                    <div>
+                        <label for="custom-words" class="block mb-2 font-bold text-emerald-400">키워드 (한 줄에 하나씩)</label>
+                        <textarea id="custom-words" rows="8" class="w-full focus:outline-none focus:ring-2 focus:ring-emerald-400"></textarea>
+                    </div>
+                    <div>
+                        <label for="custom-syntax" class="block mb-2 font-bold text-purple-400">구문 (한 줄에 하나씩)</label>
+                        <textarea id="custom-syntax" rows="8" class="w-full focus:outline-none focus:ring-2 focus:ring-purple-400"></textarea>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+                    <button id="import-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition transform hover:scale-105">Import JSON</button>
+                    <input type="file" id="import-file" class="hidden" accept=".json">
+                    <button id="export-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition transform hover:scale-105">Export JSON</button>
+                </div>
+                <button id="start-button" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-2xl py-4 px-10 rounded-lg transition transform hover:scale-105">
+                    Start Game
+                </button>
+            </div>
+        </div>
+
+        <!-- 게임 종료 모달 (초기에는 숨김) -->
+        <div id="game-over-modal" class="hidden absolute inset-0 bg-black bg-opacity-80 flex-col items-center justify-center z-20">
+            <div class="text-center">
+                <h2 class="text-5xl font-extrabold text-white mb-4">Game Over</h2>
+                <p id="modal-score" class="text-2xl text-yellow-400 mb-2"></p>
+                <p id="modal-typing-speed" class="text-xl text-yellow-400 mb-8"></p>
+                <button id="restart-button" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-2xl py-4 px-10 rounded-lg transition transform hover:scale-105">
+                    Back to Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class Game {
+            #score;
+            #lives;
+            #activeItems;
+            #gameSpeed;
+            #spawnRate;
+            #gameLoopInterval;
+            #itemSpawnerInterval;
+            #isGameOver;
+            #lastSpawnIsSyntax;
+            #lastWordIndex;
+            #lastSyntaxIndex;
+            #elapsedTime;
+            #updateTypingSpeedInterval;
+            #onGameOver;
+
+            constructor(elements, words, syntaxPhrases, onGameOver) {
+                this.elements = elements;
+                this.words = words;
+                this.syntaxPhrases = syntaxPhrases;
+                this.#onGameOver = onGameOver; // Callback function for when the game ends
+
+                this.#isGameOver = true;
+                this.#activeItems = [];
+                this.#lastSpawnIsSyntax = false;
+            }
+
+            // Public getter to check game state from outside
+            get isGameOver() {
+                return this.#isGameOver;
+            }
+
+            get currentScore() {
+                return this.#score;
+            }
+
+            get typingSpeed() {
+                if (!this.#elapsedTime || this.#elapsedTime === 0) return 0;
+                return this.#score / this.#elapsedTime * 60;
+            }
+
+            start() {
+                this.#score = 0;
+                this.#lives = 5;
+                this.#gameSpeed = 1;
+                this.#spawnRate = 2500;
+                this.#activeItems = [];
+                this.#isGameOver = false;
+                this.#elapsedTime = 0;
+                this.#updateUI();
+                this.elements.gameScreen.innerHTML = '';
+                this.elements.inputBox.disabled = false;
+                this.elements.inputBox.value = '';
+                this.elements.inputBox.focus();
+
+                this.stop(); // Clear any existing intervals before starting new ones
+
+                this.#gameLoopInterval = setInterval(() => this.#gameLoop(), 16);
+                this.#itemSpawnerInterval = setInterval(() => this.#spawnItem(), this.#spawnRate);
+                this.#updateTypingSpeedInterval = setInterval(() => this.#updateTypingSpeed(), 100);
+            }
+
+            stop() {
+                clearInterval(this.#gameLoopInterval);
+                clearInterval(this.#itemSpawnerInterval);
+                clearInterval(this.#updateTypingSpeedInterval);
+            }
+
+            #updateTypingSpeed() {
+                this.#elapsedTime += 0.1;
+                this.elements.typingSpeedEl.innerText = this.typingSpeed.toFixed(0);
+            }
+
+            #increaseScore(amount) {
+                if (amount > 0) this.#score += amount;
+            }
+
+            #decreaseLife() {
+                if (this.#lives > 0) this.#lives--;
+            }
+
+            #gameLoop() {
+                if (this.#isGameOver) return;
+                this.#activeItems.forEach((item, index) => {
+                    item.y += this.#gameSpeed * item.speedMultiplier;
+                    item.element.style.top = `${item.y}px`;
+                    if (item.y + item.element.offsetHeight >= this.elements.gameScreen.offsetHeight) {
+                        this.#removeItem(item.element, index);
+                        this.#loseLife();
+                    }
+                });
+            }
+
+            #spawnItem() {
+                if (this.#isGameOver) return;
+                if (this.#activeItems.length >= 4) return; // MODIFIED: Limit total items on screen
+
+                const hasWords = this.words.length > 0;
+                const hasSyntax = this.syntaxPhrases.length > 0;
+                if (!hasWords && !hasSyntax) return;
+
+                const shouldSpawnWord = (Math.random() < 0.75 && hasWords) || !hasSyntax;
+
+                if (shouldSpawnWord) {
+                    if (this.#lastSpawnIsSyntax) {
+                        this.#lastSpawnIsSyntax = false;
+                        return;
+                    }
+                    this.#spawnEntity(this.words, 'word', 1);
+                } else {
+                    this.#spawnEntity(this.syntaxPhrases, 'syntax', 0.5);
+                    this.#lastSpawnIsSyntax = true;
+                }
+            }
+
+            #spawnEntity(sourceArray, type, speedMultiplier) {
+                let randomIndex;
+                const lastIndex = type === 'word' ? this.#lastWordIndex : this.#lastSyntaxIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * sourceArray.length);
+                } while (sourceArray.length > 1 && randomIndex === lastIndex);
+
+                if (type === 'word') this.#lastWordIndex = randomIndex;
+                else this.#lastSyntaxIndex = randomIndex;
+
+                const itemText = sourceArray[randomIndex];
+                const itemElement = document.createElement('div');
+                itemElement.className = `item ${type}`;
+                itemElement.innerText = itemText;
+                this.elements.gameScreen.appendChild(itemElement);
+
+                const screenWidth = this.elements.gameScreen.offsetWidth;
+                const itemWidth = itemElement.offsetWidth;
+                const randomX = Math.random() * (screenWidth - itemWidth);
+                itemElement.style.left = `${randomX}px`;
+                itemElement.style.top = `-40px`;
+
+                this.#activeItems.push({
+                    text: itemText,
+                    element: itemElement,
+                    y: -40,
+                    speedMultiplier: speedMultiplier * (5 / itemText.length)
+                });
+            }
+
+            #loseLife() {
+                if (this.#isGameOver) return;
+                this.#decreaseLife();
+                this.#updateUI();
+                this.elements.gameScreen.classList.add('flash-red');
+                setTimeout(() => this.elements.gameScreen.classList.remove('flash-red'), 300);
+                if (this.#lives <= 0) {
+                    this.endGame();
+                }
+            }
+
+            endGame() {
+                if (this.#isGameOver) return;
+                this.#isGameOver = true;
+                this.stop();
+                this.elements.inputBox.disabled = true;
+                if (this.#onGameOver) {
+                    this.#onGameOver(); // Call the callback
+                }
+            }
+
+
+            #removeItem(element, index) {
+                element.remove();
+                this.#activeItems.splice(index, 1);
+            }
+
+            #updateUI() {
+                this.elements.scoreEl.innerText = this.#score;
+                this.elements.livesEl.innerText = this.#lives;
+            }
+
+            #adjustDifficulty() {
+                if (this.#score > 0 && this.#score % 50 === 0) {
+                    this.#gameSpeed += 0.2;
+                }
+                if (this.#score > 0 && this.#score % 100 === 0 && this.#spawnRate >= 200) {
+                    this.#spawnRate -= 50;
+                    this.stop(); // Stop current intervals
+                    // Restart intervals with new rate
+                    this.#itemSpawnerInterval = setInterval(() => this.#spawnItem(), this.#spawnRate);
+                    this.#gameLoopInterval = setInterval(() => this.#gameLoop(), 16);
+                    this.#updateTypingSpeedInterval = setInterval(() => this.#updateTypingSpeed(), 100);
+                }
+            }
+
+            static calculateHangulToScore(hangul) {
+                if (typeof hangul !== 'string') return 0;
+                let score = 0;
+                for (let i = 0; i < hangul.length; i++) {
+                    const char = hangul[i];
+                    const charCode = char.charCodeAt(0);
+                    if (char === ' ') {
+                        score += 1;
+                    } else if (charCode >= 44032 && charCode <= 55203) {
+                        score += ((charCode - 44032) % 28 === 0) ? 2 : 3;
+                    } else {
+                        score += 1;
+                    }
+                }
+                return score;
+            }
+
+            handleInput(typedText) {
+                if (!typedText) return;
+
+                let matchedIndex = -1;
+                for (let i = 0; i < this.#activeItems.length; i++) {
+                    const item = this.#activeItems[i];
+                    const isSyntax = item.element.classList.contains('syntax');
+                    
+                    let sourceText;
+                    let targetText;
+                    
+                    if (isSyntax) {
+                        sourceText = item.text.replace(/\s/g, '');
+                        targetText = typedText.replace(/\s/g, '');
+                    } else {
+                        // MODIFIED: For words, trim both the source and the input for a robust comparison.
+                        sourceText = item.text.trim();
+                        targetText = typedText.trim();
+                    }
+
+                    if (sourceText === targetText) {
+                        matchedIndex = i;
+                        break;
+                    }
+                }
+
+                if (matchedIndex !== -1) {
+                    this.#increaseScore(Game.calculateHangulToScore(this.#activeItems[matchedIndex].text));
+                    this.#removeItem(this.#activeItems[matchedIndex].element, matchedIndex);
+                    this.#updateUI();
+                    this.#adjustDifficulty();
+                } else {
+                    this.elements.inputBox.classList.add('flash-input-red');
+                    setTimeout(() => this.elements.inputBox.classList.remove('flash-input-red'), 400);
+                }
+                this.elements.inputBox.value = '';
+            }
+        }
+
+        // --- Application Initialization and Management ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const gameElements = {
+                gameUI: document.getElementById('game-ui'),
+                scoreEl: document.getElementById('score'),
+                livesEl: document.getElementById('lives'),
+                typingSpeedEl: document.getElementById('typing-speed'),
+                gameScreen: document.getElementById('game-screen'),
+                inputBox: document.getElementById('input-box'),
+                settingsModal: document.getElementById('settings-modal'),
+                gameOverModal: document.getElementById('game-over-modal'),
+                modalScore: document.getElementById('modal-score'),
+                modalTypingSpeed: document.getElementById('modal-typing-speed'),
+                startButton: document.getElementById('start-button'),
+                restartButton: document.getElementById('restart-button'),
+                fullscreenBtn: document.getElementById('fullscreen-btn'),
+                fullscreenOpenIcon: document.getElementById('fullscreen-open-icon'),
+                fullscreenCloseIcon: document.getElementById('fullscreen-close-icon'),
+                customWords: document.getElementById('custom-words'),
+                customSyntax: document.getElementById('custom-syntax'),
+                importBtn: document.getElementById('import-btn'),
+                exportBtn: document.getElementById('export-btn'),
+                importFile: document.getElementById('import-file'),
+            };
+
+            let typingGame = null;
+
+            // --- LocalStorage Functions ---
+            const saveDataToLocalStorage = () => {
+                const data = {
+                    words: gameElements.customWords.value,
+                    syntax: gameElements.customSyntax.value,
+                };
+                localStorage.setItem('typingGameSettings', JSON.stringify(data));
+            };
+
+            const loadDataFromLocalStorage = () => {
+                const savedSettings = localStorage.getItem('typingGameSettings');
+                if (savedSettings) {
+                    try {
+                        const data = JSON.parse(savedSettings);
+                        // Ensure loaded data is a string
+                        gameElements.customWords.value = typeof data.words === 'string' ? data.words : '';
+                        gameElements.customSyntax.value = typeof data.syntax === 'string' ? data.syntax : '';
+                    } catch (e) {
+                        console.error('Failed to parse settings from localStorage', e);
+                        loadDefaultData();
+                    }
+                } else {
+                    loadDefaultData();
+                }
+            };
+
+            const loadDefaultData = () => {
+                const defaultWords = ["네트워크", "프로토콜", "알고리즘", "데이터베이스", "서버", "클라이언트", "프레임워크", "라이브러리"];
+                const defaultSyntax = ["public static void main", "System.out.println()", "document.getElementById", "addEventListener('click', () => {})"];
+                gameElements.customWords.value = defaultWords.join('\n');
+                gameElements.customSyntax.value = defaultSyntax.join('\n');
+            };
+
+            // Initial data load
+            loadDataFromLocalStorage();
+            // --- End LocalStorage Functions ---
+
+            const processTextarea = (textarea) => {
+                return textarea.value.split('\n').map(line => line.trim()).filter(line => line);
+            };
+
+            const startGame = () => {
+                saveDataToLocalStorage(); // Save current settings when game starts
+
+                const words = processTextarea(gameElements.customWords);
+                const syntaxPhrases = processTextarea(gameElements.customSyntax);
+
+                if (words.length === 0 && syntaxPhrases.length === 0) {
+                    alert('Please enter at least one word or syntax phrase to start the game.');
+                    return;
+                }
+
+                gameElements.settingsModal.style.display = 'none';
+                gameElements.gameUI.classList.remove('hidden');
+                gameElements.gameUI.classList.add('flex');
+
+
+                typingGame = new Game(gameElements, words, syntaxPhrases, endGame);
+                typingGame.start();
+            };
+
+            const endGame = () => {
+                if (!typingGame) return;
+                gameElements.modalScore.innerText = `Final Score: ${typingGame.currentScore}`;
+                gameElements.modalTypingSpeed.innerText = `분당타수: ${typingGame.typingSpeed.toFixed(0)} 타`;
+                gameElements.gameOverModal.classList.remove('hidden');
+                gameElements.gameOverModal.classList.add('flex');
+            };
+
+            const resetToSettings = () => {
+                gameElements.gameOverModal.classList.add('hidden');
+                gameElements.gameOverModal.classList.remove('flex');
+                gameElements.gameUI.classList.add('hidden');
+                gameElements.gameUI.classList.remove('flex');
+                gameElements.settingsModal.style.display = 'flex';
+            };
+
+            const handleExport = () => {
+                saveDataToLocalStorage(); // Also save to local storage on export
+                const data = {
+                    words: processTextarea(gameElements.customWords),
+                    syntax: processTextarea(gameElements.customSyntax),
+                };
+                const jsonString = JSON.stringify(data, null, 2);
+                const blob = new Blob([jsonString], {
+                    type: 'application/json'
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'typing_settings.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+
+            const handleImport = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (Array.isArray(data.words) && Array.isArray(data.syntax)) {
+                            // Import and immediately save to local storage
+                            gameElements.customWords.value = data.words.join('\n');
+                            gameElements.customSyntax.value = data.syntax.join('\n');
+                            saveDataToLocalStorage();
+                        } else {
+                            alert('Invalid JSON format. The file must contain "words" and "syntax" arrays.');
+                        }
+                    } catch (error) {
+                        alert('Error parsing JSON file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = '';
+            };
+
+            const toggleFullscreen = () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => console.error(`Fullscreen Error: ${err.message}`));
+                } else {
+                    document.exitFullscreen();
+                }
+            };
+
+            const onFullscreenChange = () => {
+                const {
+                    fullscreenOpenIcon,
+                    fullscreenCloseIcon
+                } = gameElements;
+                if (document.fullscreenElement) {
+                    fullscreenOpenIcon.classList.add('hidden');
+                    fullscreenCloseIcon.classList.remove('hidden');
+                } else {
+                    fullscreenOpenIcon.classList.remove('hidden');
+                    fullscreenCloseIcon.classList.add('hidden');
+                }
+            }
+
+            // Event Listeners
+            gameElements.startButton.addEventListener('click', startGame);
+            gameElements.restartButton.addEventListener('click', resetToSettings);
+            gameElements.exportBtn.addEventListener('click', handleExport);
+            gameElements.importBtn.addEventListener('click', () => gameElements.importFile.click());
+            gameElements.importFile.addEventListener('change', handleImport);
+            gameElements.fullscreenBtn.addEventListener('click', toggleFullscreen);
+            document.addEventListener('fullscreenchange', onFullscreenChange);
+
+            gameElements.inputBox.addEventListener('keydown', (event) => {
+                if (typingGame && !typingGame.isGameOver && event.key === 'Enter') {
+                    event.preventDefault();
+                    typingGame.handleInput(gameElements.inputBox.value);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
+
