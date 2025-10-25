@@ -1,0 +1,35 @@
+/* 다크 모드 기본 적용 */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #111827; /* gray-900 */
+    color: #f3f4f6; /* gray-100 */
+}
+/* 스크롤바 스타일링 */
+#messages::-webkit-scrollbar,
+#sidebar::-webkit-scrollbar,
+#guest-list::-webkit-scrollbar {
+    width: 8px;
+}
+#messages::-webkit-scrollbar-track,
+#sidebar::-webkit-scrollbar-track,
+#guest-list::-webkit-scrollbar-track {
+    background: #374151; /* gray-700 */
+}
+#messages::-webkit-scrollbar-thumb,
+#sidebar::-webkit-scrollbar-thumb,
+#guest-list::-webkit-scrollbar-thumb {
+    background: #4b5563; /* gray-600 */
+    border-radius: 4px;
+}
+/* (신규) 참여자 목록 고정 높이 및 스크롤 */
+#guest-list {
+    max-height: 200px; /* 목록 최대 높이 지정 */
+    overflow-y: auto;  /* 높이 초과 시 스크롤 */
+    padding-right: 4px; /* 스크롤바 공간 확보 */
+}
+
+@media (min-width: 768px) {
+    #sidebar {
+        display: flex;
+    }
+}
