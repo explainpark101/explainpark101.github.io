@@ -1,0 +1,86 @@
+* {
+    user-select: none
+}
+
+body {
+    font-family: 'Fira Code', monospace;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1e3a8a, #312e81, #111827);
+}
+
+.flash-red {
+    animation: flash-red 0.3s ease-out;
+}
+
+@keyframes flash-red {
+
+    0%,
+    100% {
+        background-color: transparent;
+    }
+
+    50% {
+        background-color: #991b1b;
+    }
+}
+
+.input-error {
+    animation: input-error-animation 0.2s ease-in-out;
+}
+
+@keyframes input-error-animation {
+    from, to {
+        transform: translate3d(0, 0, 0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translate3d(-5px, 0, 0);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translate3d(5px, 0, 0);
+    }
+    50% {
+        background-color: #991b1b;
+        border-color: #ef4444;
+    }
+}
+
+.item {
+    position: absolute;
+    color: #e5e7eb;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    white-space: nowrap;
+    transition: transform 50ms ease-out;
+    will-change: transform;
+}
+
+.word {
+    background-color: rgba(30, 41, 59, 0.8);
+    border: 1px solid #4b5563;
+}
+
+.syntax {
+    background-color: rgba(59, 17, 107, 0.8);
+    border: 1px solid #c084fc;
+    font-size: 1rem;
+}
+
+input:focus,
+textarea:focus {
+    caret-color: #34d399;
+}
+
+/* 커스텀 텍스트 영역 스타일 */
+textarea {
+    background-color: #1e293b;
+    border: 1px solid #475569;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    color: #e2e8f0;
+    resize: vertical;
+}
+
+#settings-modal, #game-over-modal {
+    z-index: 20000;
+}

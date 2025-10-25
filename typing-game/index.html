@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Typing Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-gray-900 text-gray-200 flex items-center justify-center h-screen">
+
+    <div id="game-container" class="relative w-full max-w-4xl mx-auto p-4 md:p-6 flex flex-col items-center gap-4">
+        <!-- 게임 UI (초기에는 숨김) -->
+        <div id="game-ui" class="w-full flex-col items-center gap-4 hidden">
+            <button id="fullscreen-btn" class="absolute top-6 right-6 text-gray-400 hover:text-white transition z-30" title="Toggle Fullscreen">
+                <svg id="fullscreen-open-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                </svg>
+                <svg id="fullscreen-close-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden">
+                    <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path>
+                </svg>
+            </button>
+            <h1 class="text-3xl md:text-4xl font-bold text-emerald-400">Typing Master</h1>
+            <div class="w-full flex justify-between items-center bg-slate-800 p-3 rounded-lg shadow-lg">
+                <div class="text-lg">SCORE: <span id="score" class="font-bold text-2xl text-yellow-300">0</span></div>
+                <div class="text-lg">분당타수: <span id="typing-speed" class="font-bold text-1xl text-yellow-300">0</span> 타</div>
+                <div class="text-lg">LIVES: <span id="lives" class="font-bold text-2xl text-red-500">5</span></div>
+            </div>
+            <div id="game-screen" class="w-full h-[50vh] md:h-[60vh] bg-gray-900/80 border-2 border-slate-700 rounded-lg shadow-inner relative overflow-hidden"></div>
+            <input type="text" id="input-box" class="w-full p-4 bg-slate-900 border-2 border-emerald-500 rounded-lg text-xl text-center focus:outline-none focus:ring-2 focus:ring-emerald-400 transition" placeholder="Type here and press Enter..." disabled>
+        </div>
+
+        <!-- 설정 페이지 모달 (초기에 보임) -->
+        <div id="settings-modal" class="absolute inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center z-20">
+            <div class="bg-slate-800 p-8 rounded-xl shadow-2xl w-full max-w-2xl text-center">
+                <h2 class="text-4xl font-extrabold text-white mb-6">Game Settings</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-left">
+                    <div>
+                        <label for="custom-words" class="block mb-2 font-bold text-emerald-400">키워드 (한 줄에 하나씩)</label>
+                        <textarea id="custom-words" rows="8" class="w-full focus:outline-none focus:ring-2 focus:ring-emerald-400"></textarea>
+                    </div>
+                    <div>
+                        <label for="custom-syntax" class="block mb-2 font-bold text-purple-400">구문 (한 줄에 하나씩)</label>
+                        <textarea id="custom-syntax" rows="8" class="w-full focus:outline-none focus:ring-2 focus:ring-purple-400"></textarea>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+                    <button id="import-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition transform hover:scale-105">Import JSON</button>
+                    <input type="file" id="import-file" class="hidden" accept=".json">
+                    <button id="export-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition transform hover:scale-105">Export JSON</button>
+                </div>
+                <button id="start-button" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-2xl py-4 px-10 rounded-lg transition transform hover:scale-105">
+                    Start Game
+                </button>
+            </div>
+        </div>
+
+        <!-- 게임 종료 모달 (초기에는 숨김) -->
+        <div id="game-over-modal" class="hidden absolute inset-0 bg-black bg-opacity-80 flex-col items-center justify-center z-20">
+            <div class="text-center">
+                <h2 class="text-5xl font-extrabold text-white mb-4">Game Over</h2>
+                <p id="modal-score" class="text-2xl text-yellow-400 mb-2"></p>
+                <p id="modal-typing-speed" class="text-xl text-yellow-400 mb-8"></p>
+                <button id="restart-button" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-2xl py-4 px-10 rounded-lg transition transform hover:scale-105">
+                    Back to Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
+
+
