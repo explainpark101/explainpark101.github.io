@@ -33,3 +33,7 @@ body {
         display: flex;
     }
 }
+
+[type="submit"] > svg {
+    transform: rotate(.25turn);
+}
