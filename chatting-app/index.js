@@ -627,7 +627,12 @@ function initializeHost() {
 
     statusText.textContent = 'Peer 서버에 연결 중...';
 
-    peer = new Peer(null, { debug: 2 });
+    peer = new Peer(null, {
+        debug: 2,
+        host: "peerjs.jaehyung101.synology.me",
+        secure: true,
+        proxied: true,
+    });
 
     peer.on('open', (id) => {
         myPeerId = id;
@@ -686,7 +691,7 @@ function initializeGuest(hostId) {
 
     statusText.textContent = '호스트에 연결 중...';
 
-    peer = new Peer(null, { debug: 2 });
+    peer = new Peer(null, { debug: 3, host: "peerjs.jaehyung101.synology.me", secure: true, proxied: true    });
 
     peer.on('open', (id) => {
         myPeerId = id;
