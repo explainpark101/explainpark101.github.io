@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA 아이콘 생성기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .icon-container {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        canvas {
+            border: 1px solid #ccc;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            background: #1976D2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #1565C0;
+        }
+    </style>
+</head>
+<body>
+    <h1>PWA 아이콘 생성기</h1>
+    <p>아래 버튼을 클릭하여 다양한 크기의 아이콘을 생성하세요.</p>
+
+    <button onclick="generateAllIcons()">모든 아이콘 생성</button>
+    <button onclick="downloadAllIcons()">모든 아이콘 다운로드</button>
+
+    <div id="icons"></div>
+
+    <script>
+        const sizes = [16, 32, 72, 96, 128, 144, 152, 192, 384, 512];
+
+        function generateIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // 배경
+            ctx.fillStyle = '#1976D2';
+            ctx.fillRect(0, 0, size, size);
+
+            // 둥근 모서리
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, size * 0.2);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+
+            // 중앙 원
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(size * 0.5, size * 0.5, size * 0.3, 0, 2 * Math.PI);
+            ctx.fill();
+
+            // 앱 아이콘들
+            ctx.fillStyle = '#1976D2';
+            const iconSize = size * 0.15;
+            const positions = [
+                [size * 0.3, size * 0.3],
+                [size * 0.7, size * 0.3],
+                [size * 0.3, size * 0.7],
+                [size * 0.7, size * 0.7]
+            ];
+
+            positions.forEach(([x, y]) => {
+                ctx.fillRect(x - iconSize/2, y - iconSize/2, iconSize, iconSize);
+            });
+
+            return canvas;
+        }
+
+        function generateAllIcons() {
+            const container = document.getElementById('icons');
+            container.innerHTML = '';
+
+            sizes.forEach(size => {
+                const div = document.createElement('div');
+                div.className = 'icon-container';
+
+                const canvas = generateIcon(size);
+                canvas.id = `icon-${size}`;
+
+                const label = document.createElement('p');
+                label.textContent = `${size}x${size}`;
+
+                div.appendChild(canvas);
+                div.appendChild(label);
+                container.appendChild(div);
+            });
+        }
+
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function downloadAllIcons() {
+            sizes.forEach(size => {
+                const canvas = document.getElementById(`icon-${size}`);
+                if (canvas) {
+                    downloadCanvas(canvas, `icon-${size}x${size}.png`);
+                }
+            });
+        }
+
+        // 페이지 로드 시 아이콘 생성
+        window.addEventListener('load', generateAllIcons);
+    </script>
+</body>
+</html>
