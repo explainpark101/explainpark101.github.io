@@ -260,8 +260,8 @@ const handleInstallClick = async () => {
 };
 
 onMounted(() => {
-    // Service Worker 등록
-    if ('serviceWorker' in navigator) {
+    // Service Worker 등록 해제
+    if ('serviceWorker' in navigator && false) {
         navigator.serviceWorker
             .register('/sw.js')
             .then((registration) => {
@@ -270,6 +270,15 @@ onMounted(() => {
             .catch((registrationError) => {
                 console.log('SW registration failed: ', registrationError);
             });
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+            for (const registration of registrations) {
+                registration.unregister().then((success) => {
+                    if (success) {
+                        console.log('Service Worker unregistered successfully');
+                    }
+                });
+            }
+        });
     }
 
     // PWA 설치 이벤트 감지

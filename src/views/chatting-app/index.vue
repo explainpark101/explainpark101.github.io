@@ -1,9 +1,5 @@
 <template>
   <div class="chatting-app" @beforeunload="handleBeforeUnload">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
     <div class="main-container">
       <!-- 1. 홈 뷰 (초기 화면 - 이름 입력) -->
       <div id="home-view" class="home-view" :class="{ hidden: currentView !== 'home' }">
@@ -186,6 +182,8 @@ const messagesContainer = ref(null);
 const sidebar = ref(null);
 const qrcodeContainer = ref(null);
 const qrcodeChatContainer = ref(null);
+const qrcodeImg = ref(null);
+const qrcodeChatImg = ref(null);
 
 let peer = null;
 let guestConnections = new Map();
@@ -460,10 +458,34 @@ function handleData(data, fromPeerId) {
       case 'roomInfo':
         hostRoomUrl.value = data.payload.roomUrl;
         if (qrcodeChatContainer.value && window.QRCode) {
+          // 기존 QR 코드 완전히 제거
           if (qrcodeChatInstance) {
             qrcodeChatInstance.clear();
+            qrcodeChatInstance = null;
           }
+          // 기존 img 요소 제거
+          if (qrcodeChatImg.value) {
+            qrcodeChatImg.value.remove();
+            qrcodeChatImg.value = null;
+          }
+          // 컨테이너 완전히 비우기 (모든 자식 요소 제거)
+          qrcodeChatContainer.value.innerHTML = '';
+          // 새 QR 코드 생성
           qrcodeChatInstance = new window.QRCode(qrcodeChatContainer.value, { text: data.payload.roomUrl, width: 160, height: 160 });
+          // 생성된 img 요소를 ref에 할당 (마지막 요소만)
+          nextTick(() => {
+            const imgs = qrcodeChatContainer.value.querySelectorAll('img');
+            // 모든 img 제거하고 마지막 것만 남기기
+            if (imgs.length > 1) {
+              for (let i = 0; i < imgs.length - 1; i++) {
+                imgs[i].remove();
+              }
+            }
+            const lastImg = qrcodeChatContainer.value.querySelector('img');
+            if (lastImg) {
+              qrcodeChatImg.value = lastImg;
+            }
+          });
         }
         break;
 
@@ -580,16 +602,64 @@ function initializeHost() {
     statusText.value = '상대방의 연결을 기다리는 중...';
 
     if (qrcodeContainer.value && window.QRCode) {
+      // 기존 QR 코드 완전히 제거
       if (qrcodeInstance) {
         qrcodeInstance.clear();
+        qrcodeInstance = null;
       }
+      // 기존 img 요소 제거
+      if (qrcodeImg.value) {
+        qrcodeImg.value.remove();
+        qrcodeImg.value = null;
+      }
+      // 컨테이너 완전히 비우기 (모든 자식 요소 제거)
+      qrcodeContainer.value.innerHTML = '';
+      // 새 QR 코드 생성
       qrcodeInstance = new window.QRCode(qrcodeContainer.value, { text: roomUrl, width: 256, height: 256 });
+      // 생성된 img 요소를 ref에 할당 (마지막 요소만)
+      nextTick(() => {
+        const imgs = qrcodeContainer.value.querySelectorAll('img');
+        // 모든 img 제거하고 마지막 것만 남기기
+        if (imgs.length > 1) {
+          for (let i = 0; i < imgs.length - 1; i++) {
+            imgs[i].remove();
+          }
+        }
+        const lastImg = qrcodeContainer.value.querySelector('img');
+        if (lastImg) {
+          qrcodeImg.value = lastImg;
+        }
+      });
     }
     if (qrcodeChatContainer.value && window.QRCode) {
+      // 기존 QR 코드 완전히 제거
       if (qrcodeChatInstance) {
         qrcodeChatInstance.clear();
+        qrcodeChatInstance = null;
       }
+      // 기존 img 요소 제거
+      if (qrcodeChatImg.value) {
+        qrcodeChatImg.value.remove();
+        qrcodeChatImg.value = null;
+      }
+      // 컨테이너 완전히 비우기 (모든 자식 요소 제거)
+      qrcodeChatContainer.value.innerHTML = '';
+      // 새 QR 코드 생성
       qrcodeChatInstance = new window.QRCode(qrcodeChatContainer.value, { text: roomUrl, width: 160, height: 160 });
+      // 생성된 img 요소를 ref에 할당 (마지막 요소만)
+      nextTick(() => {
+        const imgs = qrcodeChatContainer.value.querySelectorAll('img');
+        // 모든 img 제거하고 마지막 것만 남기기
+        if (imgs.length > 1) {
+          for (let i = 0; i < imgs.length - 1; i++) {
+            imgs[i].remove();
+          }
+        }
+        const lastImg = qrcodeChatContainer.value.querySelector('img');
+        if (lastImg) {
+          qrcodeChatImg.value = lastImg;
+        }
+      });
     }
   });
 
@@ -721,6 +791,23 @@ function handleBeforeUnload(event) {
   return '정말 나가시겠습니까?';
 }
 
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    // 이미 로드되어 있는지 확인
+    const existingScript = document.querySelector(`script[src="${src}"]`);
+    if (existingScript) {
+      resolve();
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
 watch(allMessages, () => {
   nextTick(() => {
     if (messagesContainer.value) {
@@ -729,7 +816,19 @@ watch(allMessages, () => {
   });
 });
 
-onMounted(() => {
+onMounted(async () => {
+  // 외부 스크립트 로드
+  try {
+    await Promise.all([
+      loadScript('https://cdn.tailwindcss.com'),
+      loadScript('https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js'),
+      loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js')
+    ]);
+  } catch (error) {
+    console.error('스크립트 로드 실패:', error);
+    showModalDialog('로드 오류', '필수 라이브러리를 로드하는 중 오류가 발생했습니다.');
+  }
+
   localShortId.value = sessionStorage.getItem('chat-shortId');
 
   if (window.location.hash) {
@@ -750,9 +849,18 @@ onUnmounted(() => {
   }
   if (qrcodeInstance) {
     qrcodeInstance.clear();
+    qrcodeInstance = null;
   }
   if (qrcodeChatInstance) {
     qrcodeChatInstance.clear();
+    qrcodeChatInstance = null;
+  }
+  // ref 정리
+  if (qrcodeImg.value) {
+    qrcodeImg.value = null;
+  }
+  if (qrcodeChatImg.value) {
+    qrcodeChatImg.value = null;
   }
 });
 </script>

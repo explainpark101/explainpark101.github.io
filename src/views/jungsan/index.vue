@@ -71,68 +71,77 @@
       정산 계산하기
     </button>
 
-    <div id="result" class="result" v-html="resultHtml"></div>
-    
+    <div id="result" ref="resultRef" class="result"
+      v-if="formattedResults && formattedResults.formattedResults && formattedResults.formattedResults.length > 0">
+      <h2>정산 결과</h2>
+      <div class="support-per-person">인당 지원금: {{ formattedResults.formattedSupportPerMember }}원</div>
+      <div v-if="formattedResults.formattedRemainingSupportSum" class="remaining-support" style="font-size: 1.2rem;">
+        <strong>총 남은 지원금: </strong> {{ formattedResults.formattedRemainingSupportSum }}원
+      </div>
+      <div v-for="(result, index) in formattedResults.formattedResults" :key="index" class="table-container">
+        <h3>테이블 {{ result.tableNumber }} {{ result.hasAlcohol ? '🍺' : '' }}</h3>
+        <p><strong>메모:</strong> {{ result.memo || '없음' }}</p>
+        <p><strong>부원({{ result.memberCount }}명) 정산금액:</strong> {{ result.formattedMemberPayment }}원</p>
+        <p><strong>난입({{ result.guestCount }}명) 정산금액:</strong> {{ result.formattedGuestPayment }}원</p>
+        <p v-if="result.hasAlcohol"><strong>술 섭취:</strong> 예</p>
+        <p v-if="result.formattedRemainingSupport" class="remaining-support">
+          <strong>남은 지원금:</strong> {{ result.formattedRemainingSupport }}원
+        </p>
+      </div>
+    </div>
+
     <!-- Hidden download link -->
-    <a
-      ref="downloadLink"
-      :href="downloadUrl"
-      :download="downloadFilename"
-      style="display: none"
-    ></a>
-    
+    <a ref="downloadLink" :href="downloadUrl" :download="downloadFilename" style="display: none"></a>
+
     <!-- Hidden file input -->
-    <input
-      ref="fileInput"
-      type="file"
-      accept="application/json"
-      style="display: none"
-      @change="handleFileImport"
-    />
+    <input ref="fileInput" type="file" accept="application/json" style="display: none" @change="handleFileImport" />
+
+    <!-- Confirm/Alert Dialog -->
+    <dialog ref="dialogRef" class="confirm-dialog" @click="handleDialogClick">
+      <div class="dialog-content" @click.stop>
+        <h3 class="dialog-title">{{ dialogTitle }}</h3>
+        <p class="dialog-message">{{ dialogMessage }}</p>
+        <div class="dialog-actions">
+          <button v-if="!isAlert" @click="handleCancel" class="dialog-btn dialog-btn-cancel">취소</button>
+          <button ref="confirmButtonRef" @click="handleConfirm" class="dialog-btn dialog-btn-confirm"
+            autofocus>확인</button>
+        </div>
+      </div>
+    </dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted, nextTick } from 'vue';
-import { useRoute } from 'vue-router';
-import pako from 'pako';
-import msgpack from 'msgpack-lite';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import { useJungsanStorage } from '../../composables/useJungsanStorage.js';
+import { calculateTableBased } from '../../composables/useJungsanCalculation.js';
+import { useFileExport } from '../../composables/useFileExport.js';
+import { useConfirmDialog } from '../../composables/useConfirmDialog.js';
+import { validateTableBasedData } from '../../utils/jungsanValidation.js';
 
 const STORAGE_KEY = 'jungsanFormData';
 
-const route = useRoute();
+// 반응형 데이터
 const tableCount = ref(1);
 const totalSupport = ref(0);
 const tables = ref([]);
-const resultHtml = ref('');
-const downloadLink = ref(null);
-const downloadUrl = ref('');
-const downloadFilename = ref('');
-const fileInput = ref(null);
+const resultData = ref(null);
+const resultRef = ref(null);
 
-// msgpack + pako + base64url 조합 인코딩/디코딩 함수
-function base64UrlEncode(uint8arr) {
-  let b64 = btoa(String.fromCharCode(...uint8arr));
-  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-function base64UrlDecode(str) {
-  str = str.replace(/-/g, '+').replace(/_/g, '/');
-  while (str.length % 4) str += '=';
-  return Uint8Array.from(atob(str), c => c.charCodeAt(0));
-}
-
-function encodeForShare(data) {
-  const raw = msgpack.encode(data);
-  const deflated = pako.deflate(raw);
-  return base64UrlEncode(deflated);
-}
-
-function decodeFromShare(b64url) {
-  const deflated = base64UrlDecode(b64url);
-  const raw = pako.inflate(deflated);
-  return msgpack.decode(raw);
-}
+// Confirm Dialog composable
+const {
+  showDialog,
+  dialogTitle,
+  dialogMessage,
+  dialogRef,
+  confirmButtonRef,
+  isAlert,
+  showConfirm,
+  showAlert,
+  handleConfirm,
+  handleCancel,
+  handleDialogClick
+} = useConfirmDialog();
 
 // 테이블 데이터 수집 함수
 const collectTableData = (table) => {
@@ -145,80 +154,91 @@ const collectTableData = (table) => {
   };
 };
 
-// 계산 함수
-const calculate = () => {
-  resultHtml.value = '';
-  
-  // 총 부원 수 계산
-  const totalMembers = tables.value.reduce((sum, table) => {
-    return sum + (table.memberCount || 0);
-  }, 0);
+// 폼 데이터 가져오기
+const getFormData = () => {
+  if (tables.value.length === 0) return null;
+  return {
+    tableCount: tableCount.value,
+    totalSupport: totalSupport.value,
+    tableData: tables.value.map(table => collectTableData(table))
+  };
+};
 
-  if (totalMembers === 0) {
-    alert('부원 수가 0명입니다.');
+// 데이터 로드 함수
+const loadData = (data) => {
+  tableCount.value = data.tableCount || 1;
+  totalSupport.value = data.totalSupport || 0;
+  createTables();
+  // 테이블 입력값 세팅
+  if (data.tableData) {
+    data.tableData.forEach((tableData, i) => {
+      if (tables.value[i]) {
+        tables.value[i].memberCount = tableData.memberCount || 0;
+        tables.value[i].guestCount = tableData.guestCount || 0;
+        tables.value[i].foodPrice = tableData.foodPrice || 0;
+        tables.value[i].memo = tableData.memo || '';
+        tables.value[i].hasAlcohol = tableData.hasAlcohol || false;
+      }
+    });
+  }
+};
+
+// Storage composable
+const { saveToLocalStorage, loadFromLocalStorage, tryRestoreFromQuery, shareLink, clearStorage, isRestoring } =
+  useJungsanStorage(STORAGE_KEY, getFormData, loadData, showConfirm, showAlert);
+
+// File export composable
+const { downloadLink, downloadUrl, downloadFilename, fileInput, exportJson, importJson, handleFileImport } =
+  useFileExport(STORAGE_KEY, loadData, validateTableBasedData, showAlert);
+
+// 계산 함수
+const calculate = async () => {
+  resultData.value = null;
+
+  const calculationResult = calculateTableBased(tables.value, totalSupport.value);
+
+  if (calculationResult.error) {
+    await showAlert(calculationResult.error, '오류');
     return;
   }
 
-  // 부원당 지원금 계산
-  const supportPerMember = totalSupport.value / totalMembers;
+  resultData.value = calculationResult;
 
-  // 각 테이블별 계산
-  const results = tables.value.map((table, index) => {
-    const data = collectTableData(table);
-    const totalPeople = data.memberCount + data.guestCount;
-
-    if (totalPeople === 0) return null;
-
-    const pricePerPerson = data.foodPrice / totalPeople;
-    let remainingSupport = 0;
-    const memberPayment = Math.max(pricePerPerson - supportPerMember, 0);
-    const guestPayment = pricePerPerson;
-
-    if (!memberPayment) {
-      remainingSupport = supportPerMember * data.memberCount - (pricePerPerson * data.memberCount);
-    }
-
-    return {
-      tableNumber: index + 1,
-      memo: data.memo,
-      memberPayment,
-      memberCount: data.memberCount,
-      guestPayment,
-      guestCount: data.guestCount,
-      hasAlcohol: data.hasAlcohol,
-      remainingSupport
-    };
-  }).filter(Boolean);
-
-  displayResults({ results, supportPerMember });
+  // 결과 영역으로 스크롤
+  await nextTick();
+  if (resultRef.value) {
+    resultRef.value.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 };
 
-const sum = array => array.reduce((acc, cur) => acc + cur, 0);
+// 포맷팅된 결과 (computed)
+const formattedResults = computed(() => {
+  if (!resultData.value) return null;
 
-// 결과 표시 함수
-const displayResults = ({ results, supportPerMember }) => {
-  const remainingSupportSum = sum(results.map(el => el.remainingSupport ?? 0)) > 0
-    ? `<div class="remaining-support" style="font-size: 1.2rem;"><strong>총 남은 지원금: </strong> ${sum(results.map(el => el.remainingSupport)).toLocaleString()}원 </div>`
-    : '';
-  
-  const resultHTML = results.map(result => `
-    <div class="table-container">
-      <h3>테이블 ${result.tableNumber} ${result.hasAlcohol ? '🍺' : ''}</h3>
-      <p><strong>메모:</strong> ${result.memo || '없음'}</p>
-      <p><strong>부원(${result.memberCount}명) 정산금액:</strong> ${Math.round(result.memberPayment).toLocaleString()}원</p>
-      <p><strong>난입(${result.guestCount}명) 정산금액:</strong> ${Math.round(result.guestPayment).toLocaleString()}원</p>
-      ${result.hasAlcohol ? '<p><strong>술 섭취:</strong> 예</p>' : ''}
-      ${result.remainingSupport > 0 ? `<p class="remaining-support"><strong>남은 지원금:</strong> ${Math.round(result.remainingSupport).toLocaleString()}원</p>` : ''}
-    </div>
-  `).join('');
-  
-  resultHtml.value = `
-    <h2>정산 결과</h2>
-    <div class="support-per-person">인당 지원금: ${supportPerMember.toLocaleString()}원 </div>
-    ${remainingSupportSum}
-    ${resultHTML}
-  `;
-};
+  const format = (value) => {
+    if (value === null || value === undefined || isNaN(value)) return '0';
+    return Math.round(value).toLocaleString();
+  };
+
+  // results 배열이 없거나 비어있으면 null 반환
+  if (!resultData.value.results || !Array.isArray(resultData.value.results) || resultData.value.results.length === 0) {
+    return null;
+  }
+
+  return {
+    ...resultData.value,
+    formattedSupportPerMember: format(resultData.value.supportPerMember),
+    formattedRemainingSupportSum: resultData.value.remainingSupportSum
+      ? format(resultData.value.remainingSupportSum)
+      : null,
+    formattedResults: resultData.value.results.map(r => ({
+      ...r,
+      formattedMemberPayment: format(r.memberPayment),
+      formattedGuestPayment: format(r.guestPayment),
+      formattedRemainingSupport: r.remainingSupport ? format(r.remainingSupport) : null
+    }))
+  };
+});
 
 // 테이블 생성 함수
 const createTables = () => {
@@ -237,166 +257,35 @@ const handleTableCountChange = () => {
   createTables();
 };
 
-// 링크로 공유 함수
-const shareLink = () => {
-  const data = getFormData();
-  if (!data) {
-    alert('공유할 데이터가 없습니다.');
-    return;
-  }
-  const b64url = encodeForShare(data);
-  const url = `${window.location.origin}${route.path}?data=${encodeURIComponent(b64url)}`;
-  window.history.replaceState(null, '', url);
-  navigator.clipboard.writeText(url).then(() => {
-    alert('공유 링크가 클립보드에 복사되었습니다!');
-  });
-};
-
-// 쿼리에서 data 있으면 복원 (복원 성공 시 true 반환)
-function tryRestoreFromQuery() {
-  const params = new URLSearchParams(window.location.search);
-  const b64url = params.get('data');
-  if (b64url) {
-    try {
-      const parsed = decodeFromShare(b64url);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-      loadFromLocalStorage(parsed);
-      alert('공유된 데이터를 불러왔습니다.');
-      return true;
-    } catch {
-      alert('공유 데이터 복원에 실패했습니다.');
-    }
-  }
-  return false;
-}
-
-// 폼 데이터 가져오기
-const getFormData = () => {
-  if (tables.value.length === 0) return null;
-  return {
-    tableCount: tableCount.value,
-    totalSupport: totalSupport.value,
-    tableData: tables.value.map(table => collectTableData(table))
-  };
-};
-
-// 폼 데이터 저장 함수
-const saveToLocalStorage = () => {
-  const data = getFormData();
-  if (!data) return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  // 쿼리스트링에 data가 있을 경우, 최신 데이터로 갱신
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('data')) {
-    const b64url = encodeForShare(data);
-    const url = `${window.location.origin}${route.path}?data=${encodeURIComponent(b64url)}`;
-    window.history.replaceState(null, '', url);
-  }
-};
-
-// 폼 데이터 불러오기 함수
-const loadFromLocalStorage = (dataObj) => {
-  let data = dataObj;
-  if (!data) {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    if (!confirm('기존에 작성중이던 데이터를 불러올까요?')) return;
-    data = JSON.parse(raw);
-  }
-  tableCount.value = data.tableCount || 1;
-  totalSupport.value = data.totalSupport || 0;
-  createTables();
-  // 테이블 입력값 세팅
-  if (data.tableData) {
-    data.tableData.forEach((tableData, i) => {
-      if (tables.value[i]) {
-        tables.value[i].memberCount = tableData.memberCount || 0;
-        tables.value[i].guestCount = tableData.guestCount || 0;
-        tables.value[i].foodPrice = tableData.foodPrice || 0;
-        tables.value[i].memo = tableData.memo || '';
-        tables.value[i].hasAlcohol = tableData.hasAlcohol || false;
-      }
-    });
-  }
-};
-
 // 폼 전체 초기화 함수
-const resetForm = () => {
-  if (!confirm(`정말 초기화 하시겠습니까? 초기화시 임시저장된 데이터는 삭제되고 되돌릴 수 없습니다.`)) return;
+const resetForm = async () => {
+  const confirmed = await showConfirm(
+    '초기화 확인',
+    '정말 초기화 하시겠습니까? 초기화시 임시저장된 데이터는 삭제되고 되돌릴 수 없습니다.'
+  );
+  if (!confirmed) return;
 
-  localStorage.removeItem(STORAGE_KEY);
+  clearStorage();
   tableCount.value = 1;
   totalSupport.value = 0;
   createTables();
-  resultHtml.value = '';
-};
-
-// JSON 내보내기 함수
-const exportJson = () => {
-  const data = localStorage.getItem(STORAGE_KEY);
-  if (!data) {
-    alert('내보낼 데이터가 없습니다.');
-    return;
-  }
-  const blob = new Blob([data], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  downloadUrl.value = url;
-  downloadFilename.value = 'jungsan_data.json';
-  nextTick(() => {
-    if (downloadLink.value) {
-      downloadLink.value.click();
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-        downloadUrl.value = '';
-        downloadFilename.value = '';
-      }, 100);
-    }
-  });
-};
-
-// JSON 가져오기 함수
-const handleFileImport = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    try {
-      const json = JSON.parse(event.target.result);
-      // 데이터 유효성 간단 체크
-      if (!json.tableCount || !Array.isArray(json.tableData)) {
-        alert('올바르지 않은 파일입니다.');
-        return;
-      }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(json));
-      loadFromLocalStorage(json);
-      alert('데이터를 성공적으로 불러왔습니다.');
-    } catch {
-      alert('올바르지 않은 JSON 파일입니다.');
-    }
-  };
-  reader.readAsText(file);
-  // Reset input
-  if (fileInput.value) {
-    fileInput.value.value = '';
-  }
-};
-
-const importJson = () => {
-  fileInput.value?.click();
+  resultData.value = null;
 };
 
 // 입력값 변경 감지하여 자동 저장
 watch([tableCount, totalSupport, tables], () => {
-  saveToLocalStorage();
+  if (!isRestoring.value) {
+    saveToLocalStorage();
+  }
 }, { deep: true });
 
 // 초기화
-onMounted(() => {
-  if (tryRestoreFromQuery()) {
+onMounted(async () => {
+  if (await tryRestoreFromQuery()) {
     return;
   }
   if (localStorage.getItem(STORAGE_KEY)) {
-    loadFromLocalStorage();
+    await loadFromLocalStorage();
   } else {
     createTables();
   }
@@ -404,26 +293,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
-:root {
-  --primary-color: #1976d2;
-  --primary-light: #4791db;
-  --primary-dark: #115293;
-  --error-color: #d32f2f;
-  --text-primary: rgba(0, 0, 0, 0.87);
-  --text-secondary: rgba(0, 0, 0, 0.6);
-  --background-color: #f5f5f5;
-  --green-color: #43A047;
-  --green-light: #66BB6A;
-  --green-dark: #2E7D32;
-}
-
 .jungsan-container {
   font-family: 'Roboto', sans-serif;
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  background-color: var(--background-color);
+  background-color: var(--background);
   color: var(--text-primary);
+  transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
 }
 
 h1 {
@@ -435,14 +312,14 @@ h1 {
 .table-container {
   margin-bottom: 20px;
   padding: 20px;
-  background: white;
+  background: var(--surface);
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: box-shadow 0.3s ease;
+  box-shadow: 0 2px 4px var(--shadow-color);
+  transition: box-shadow 0.3s ease, background-color 500ms ease-in-out;
 }
 
 .table-container:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px var(--shadow-color);
 }
 
 .input-group {
@@ -459,24 +336,25 @@ h1 {
 .result {
   margin-top: 24px;
   padding: 20px;
-  background: white;
+  background: var(--surface);
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px var(--shadow-color);
   display: grid;
   gap: .5rem;
+  transition: background-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
 }
 
 button {
   padding: 10px 20px;
   background-color: var(--primary-color);
-  color: white;
+  color: var(--surface);
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
   text-transform: uppercase;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, color 500ms ease-in-out;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -490,18 +368,22 @@ button .material-icons {
   font-size: 20px;
 }
 
-input, textarea {
+input,
+textarea {
   width: 100%;
   padding: 12px;
   margin: 4px 0;
-  border: 1px solid rgba(0,0,0,0.12);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   font-size: 16px;
-  transition: border-color 0.3s ease;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  transition: border-color 0.3s ease, background-color 500ms ease-in-out, color 500ms ease-in-out;
   box-sizing: border-box;
 }
 
-input:focus, textarea:focus {
+input:focus,
+textarea:focus {
   outline: none;
   border-color: var(--primary-color);
 }
@@ -522,7 +404,7 @@ input[type="number"] {
 }
 
 .result .table-container {
-  background: var(--background-color);
+  background: var(--background);
 }
 
 .result .table-container h3 {
@@ -537,19 +419,45 @@ input[type="number"] {
   padding: 8px;
   background-color: rgba(25, 118, 210, 0.1);
   border-radius: 4px;
+  transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
+}
+
+/* 다크모드에서 remaining-support 배경색 조정 */
+@media (prefers-color-scheme: dark) {
+  .remaining-support {
+    background-color: rgba(144, 202, 249, 0.1);
+  }
+}
+
+[data-theme="dark"] .remaining-support,
+body[data-theme="dark"] .remaining-support {
+  background-color: rgba(144, 202, 249, 0.1);
 }
 
 .support-per-person {
-  color: var(--green-color);
+  color: var(--success);
   font-weight: 500;
   margin-top: 12px;
   padding: 8px;
-  background-color: rgba(25, 118, 210, 0.1);
+  background-color: rgba(67, 160, 71, 0.1);
   border-radius: 4px;
+  transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
+}
+
+/* 다크모드에서 support-per-person 배경색 조정 */
+@media (prefers-color-scheme: dark) {
+  .support-per-person {
+    background-color: rgba(102, 187, 106, 0.1);
+  }
+}
+
+[data-theme="dark"] .support-per-person,
+body[data-theme="dark"] .support-per-person {
+  background-color: rgba(102, 187, 106, 0.1);
 }
 
 .error {
-  color: var(--error-color);
+  color: var(--error);
   font-size: 14px;
   margin-top: 4px;
 }
@@ -582,36 +490,37 @@ a.md-btn {
   gap: 8px;
   padding: 10px 20px;
   background-color: var(--primary-color);
-  color: #fff;
+  color: var(--surface);
   border: none;
   border-radius: 4px;
   font-size: 14px;
   font-weight: 500;
   text-transform: uppercase;
   text-decoration: none;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 4px var(--shadow-color);
   cursor: pointer;
-  transition: background-color 0.3s, box-shadow 0.3s;
+  transition: background-color 0.3s, box-shadow 0.3s, color 500ms ease-in-out;
 }
 
-a.md-btn:hover, a.md-btn:focus {
+a.md-btn:hover,
+a.md-btn:focus {
   background-color: var(--primary-dark);
   text-decoration: none;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.12);
-  color: #fff;
+  box-shadow: 0 4px 8px var(--shadow-color);
+  color: var(--surface);
 }
 
 .home-button {
   padding: 10px 20px;
   background-color: #7B1FA2;
-  color: white;
+  color: var(--surface);
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease, color 500ms ease-in-out;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -621,10 +530,87 @@ a.md-btn:hover, a.md-btn:focus {
 .home-button:hover {
   background-color: #6A1B9A;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(123, 31, 162, 0.3);
+  box-shadow: 0 4px 8px var(--shadow-color);
 }
 
 .home-button .material-icons {
   font-size: 20px;
+}
+
+/* Confirm Dialog Styles */
+.confirm-dialog {
+  border: none;
+  border-radius: 8px;
+  padding: 0;
+  max-width: 400px;
+  width: 90%;
+  background: var(--surface);
+  box-shadow: 0 8px 32px var(--shadow-color);
+  transition: background-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+}
+
+.confirm-dialog::backdrop {
+  background: var(--overlay-color);
+  backdrop-filter: blur(2px);
+}
+
+.dialog-content {
+  padding: 24px;
+}
+
+.dialog-title {
+  margin: 0 0 16px 0;
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 500;
+  transition: color 500ms ease-in-out;
+}
+
+.dialog-message {
+  margin: 0 0 24px 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+  transition: color 500ms ease-in-out;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.dialog-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 500ms ease-in-out;
+}
+
+.dialog-btn-cancel {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.dialog-btn-cancel:hover {
+  background-color: var(--background);
+}
+
+.dialog-btn-confirm {
+  background-color: var(--primary-color);
+  color: var(--surface);
+}
+
+.dialog-btn-confirm:hover {
+  background-color: var(--primary-dark);
 }
 </style>

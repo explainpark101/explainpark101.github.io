@@ -257,6 +257,14 @@ const handlePaste = async (e) => {
 // CDN 라이브러리 로드
 const loadLibraries = () => {
   return new Promise((resolve) => {
+    // Material Icons 폰트
+    if (!document.querySelector('link[href*="material-icons"]')) {
+      const materialIcons = document.createElement('link');
+      materialIcons.rel = 'stylesheet';
+      materialIcons.href = 'https://fonts.googleapis.com/icon?family=Material+Icons';
+      document.head.appendChild(materialIcons);
+    }
+
     // Materialize CSS
     if (!document.querySelector('link[href*="materialize"]')) {
       const materializeCSS = document.createElement('link');

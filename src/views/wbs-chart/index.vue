@@ -1,15 +1,8 @@
 <template>
   <div class="wbs-chart-app">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-
     <!-- 편집 툴바 -->
-    <div
-      id="edit-toolbar"
-      class="edit-toolbar"
-      :class="{ hidden: !isToolbarVisible, '-translate-x-full': !isToolbarVisible }"
-    >
+    <div id="edit-toolbar" class="edit-toolbar"
+      :class="{ hidden: !isToolbarVisible, '-translate-x-full': !isToolbarVisible }">
       <div class="toolbar-header">
         <h2>노드 편집</h2>
         <button @click="hideEditToolbar" class="close-btn">×</button>
@@ -17,20 +10,11 @@
       <div class="toolbar-content">
         <div>
           <label for="node-name-input">노드 이름</label>
-          <textarea
-            id="node-name-input"
-            v-model="nodeNameInput"
-            rows="3"
-            @keydown="handleNameInputKeydown"
-          ></textarea>
+          <textarea id="node-name-input" v-model="nodeNameInput" rows="3" @keydown="handleNameInputKeydown"></textarea>
         </div>
         <div>
           <label for="node-parent-select">부모 노드 변경</label>
-          <select
-            id="node-parent-select"
-            v-model="selectedParentId"
-            :disabled="isRootNode"
-          >
+          <select id="node-parent-select" v-model="selectedParentId" :disabled="isRootNode">
             <option v-for="option in parentOptions" :key="option.id" :value="option.id">
               {{ option.label }}
             </option>
@@ -39,25 +23,13 @@
       </div>
       <div class="toolbar-actions">
         <button @click="saveChanges" class="btn-save">변경 사항 저장</button>
-        <button
-          v-if="!isTaskOrLower"
-          @click="addChild"
-          class="btn-add-child"
-        >
+        <button v-if="!isTaskOrLower" @click="addChild" class="btn-add-child">
           자식 노드 추가
         </button>
-        <button
-          v-if="!isRootNode"
-          @click="addSibling"
-          class="btn-add-sibling"
-        >
+        <button v-if="!isRootNode" @click="addSibling" class="btn-add-sibling">
           형제 노드 추가
         </button>
-        <button
-          @click="deleteNode"
-          class="btn-delete"
-          :disabled="isRootNode"
-        >
+        <button @click="deleteNode" class="btn-delete" :disabled="isRootNode">
           노드 삭제
         </button>
       </div>
@@ -67,19 +39,23 @@
     <div id="toolbar" class="toolbar">
       <button @click="importJSON" class="toolbar-btn">
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
         </svg>
         <span>불러오기</span>
       </button>
       <button @click="exportJSON" class="toolbar-btn">
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
         </svg>
         <span>내보내기</span>
       </button>
       <button @click="exportPNG" class="toolbar-btn">
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+          </path>
         </svg>
         <span>PNG로 저장</span>
       </button>
@@ -89,45 +65,25 @@
     <div id="chart-container" ref="chartContainer"></div>
 
     <!-- Custom Modal -->
-    <div
-      v-if="showModal"
-      class="modal-overlay"
-      @click.self="closeModal"
-    >
+    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal">
         <h3>{{ modalTitle }}</h3>
         <p>{{ modalMessage }}</p>
-        <input
-          v-if="modalShowInput"
-          ref="modalInput"
-          type="text"
-          v-model="modalInputValue"
-          @keydown.enter="handleModalOk"
-          @keydown.escape="handleModalCancel"
-        />
+        <input v-if="modalShowInput" ref="modalInput" type="text" v-model="modalInputValue"
+          @keydown.enter="handleModalOk" @keydown.escape="handleModalCancel" />
         <div class="modal-actions">
           <button @click="handleModalCancel" class="btn-cancel">취소</button>
           <button @click="handleModalOk" class="btn-ok">확인</button>
         </div>
       </div>
     </div>
-    
+
     <!-- Hidden download link -->
-    <a
-      ref="downloadLink"
-      :href="downloadUrl"
-      :download="downloadFilename"
-      style="display: none"
-    ></a>
-    
+    <a ref="downloadLink" :href="downloadUrl" :download="downloadFilename" style="display: none"></a>
+
     <!-- Hidden file input -->
-    <input
-      ref="fileInput"
-      type="file"
-      accept=".json,application/json"
-      style="display: none"
-      @change="handleFileImport"
-    />
+    <input ref="fileInput" type="file" accept=".json,application/json" style="display: none"
+      @change="handleFileImport" />
   </div>
 </template>
 
@@ -182,7 +138,7 @@ function loadDataFromLocalStorage() {
 
 function updateChart() {
   if (!g || !hierarchicalData.value) return;
-  
+
   g.selectAll('*').remove();
 
   const nodeWidth = 200;
@@ -223,7 +179,7 @@ function updateChart() {
     .attr("d", d => {
       if (d.source.depth === 0) {
         return `M ${d.source.x},${d.source.y + nodeHeight / 2}` +
-               `L ${d.target.x},${d.target.y - nodeHeight / 2}`;
+          `L ${d.target.x},${d.target.y - nodeHeight / 2}`;
       }
       const sourceX = d.source.x;
       const sourceY = d.source.y + nodeHeight / 2;
@@ -396,7 +352,7 @@ function exportPNG() {
     canvas.height = height;
     const ctx = canvas.getContext('2d');
     const img = new Image();
-    img.onload = function() {
+    img.onload = function () {
       ctx.fillStyle = '#f7fafc';
       ctx.fillRect(0, 0, width, height);
       ctx.drawImage(img, 0, 0);
@@ -444,18 +400,17 @@ function handleFileImport(e) {
         hierarchicalData.value = jsonData;
         hideEditToolbar();
         updateChart();
-          saveDataToLocalStorage();
-          await showModalAlert("성공", "JSON 데이터를 성공적으로 불러왔습니다.");
-        } else {
-          throw new Error("Invalid JSON format. Missing 'name' or 'id' property.");
-        }
-      } catch (error) {
-        console.error("Error parsing JSON:", error);
-        await showModalAlert("오류", "JSON 파일을 불러오는 중 오류가 발생했습니다. 파일 형식을 확인해주세요.");
+        saveDataToLocalStorage();
+        await showModalAlert("성공", "JSON 데이터를 성공적으로 불러왔습니다.");
+      } else {
+        throw new Error("Invalid JSON format. Missing 'name' or 'id' property.");
       }
-    };
-    reader.readAsText(file);
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+      await showModalAlert("오류", "JSON 파일을 불러오는 중 오류가 발생했습니다. 파일 형식을 확인해주세요.");
+    }
   };
+  reader.readAsText(file);
   // Reset input
   if (fileInput.value) {
     fileInput.value.value = '';
@@ -562,7 +517,7 @@ function getSVGString(svgNode, bounds, padding) {
 }
 
 function wrap(text, width) {
-  text.each(function() {
+  text.each(function () {
     const textElement = window.d3.select(this);
     const words = textElement.text().split(/\s+/).reverse();
     textElement.text(null);
@@ -590,7 +545,30 @@ function wrap(text, width) {
   });
 }
 
-onMounted(() => {
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) {
+      resolve();
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+onMounted(async () => {
+  // 외부 스크립트 동적 로드
+  try {
+    await loadScript('https://cdn.tailwindcss.com');
+    await loadScript('https://d3js.org/d3.v7.min.js');
+  } catch (error) {
+    console.error('스크립트 로드 실패:', error);
+    return;
+  }
+
   if (!window.d3) {
     console.error('D3.js가 로드되지 않았습니다.');
     return;
@@ -632,7 +610,7 @@ onMounted(() => {
   }
 
   updateChart();
-  
+
   nextTick(() => {
     const bounds = g.node().getBBox();
     const parent = chartContainer.value;

@@ -2,6 +2,8 @@ import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import { createPinia } from 'pinia';
 import App from './App.vue';
+import "material-icons";
+import './styles/style.scss';
 
 // 페이지 로드 시 즉시 테마 초기화 (깜빡임 방지)
 (function initializeThemeSync() {

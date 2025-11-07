@@ -1,15 +1,8 @@
 <template>
   <div class="password-app">
-    <link href="http://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css" rel="stylesheet" type="text/css">
-    <style>
-      @import url('https://cdn.jsdelivr.net/gh/toss/tossface/dist/tossface.css');
-      @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-      @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Noto+Color+Emoji&display=swap');
-    </style>
-
     <div class="container">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <router-link to="/" style="text-decoration: none; color: #007bff; font-weight: 500; display: inline-flex; align-items: center;">
+      <div class="header-controls">
+        <router-link to="/" class="back-link">
           ← 앱 목록
         </router-link>
 
@@ -414,6 +407,13 @@ function checkPWAMode() {
 }
 
 onMounted(() => {
+  // 동적으로 스타시트 링크 추가
+  const linkElement = document.createElement('link');
+  linkElement.href = 'http://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css';
+  linkElement.rel = 'stylesheet';
+  linkElement.type = 'text/css';
+  document.head.appendChild(linkElement);
+
   const savedLength = localStorage.getItem('passwordLength');
   if (savedLength) {
     const lengthValue = parseInt(savedLength);
@@ -446,10 +446,64 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import url('https://cdn.jsdelivr.net/gh/toss/tossface/dist/tossface.css');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Noto+Color+Emoji&display=swap');
+
+:root {
+  --bg-primary: #f0f2f5;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f8f9fa;
+  --bg-quaternary: #f9f9f9;
+  --bg-input: #f8f8f8;
+  --bg-card: #ffffff;
+  --text-primary: #333;
+  --text-secondary: #1a1a1a;
+  --text-tertiary: #495057;
+  --text-quaternary: #666;
+  --text-muted: #6c757d;
+  --border-color: #ccc;
+  --border-light: #ced4da;
+  --border-lighter: #dee2e6;
+  --border-section: #e9ecef;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --shadow-card: rgba(0, 0, 0, 0.08);
+  --shadow-toast: rgba(0, 0, 0, 0.15);
+  --db-section-bg: #e8f4fd;
+  --db-section-border: #bee5eb;
+  --db-section-text: #0c5460;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #252525;
+    --bg-quaternary: #2a2a2a;
+    --bg-input: #333333;
+    --bg-card: #2d2d2d;
+    --text-primary: #e0e0e0;
+    --text-secondary: #ffffff;
+    --text-tertiary: #b0b0b0;
+    --text-quaternary: #a0a0a0;
+    --text-muted: #888888;
+    --border-color: #444444;
+    --border-light: #3a3a3a;
+    --border-lighter: #3a3a3a;
+    --border-section: #3a3a3a;
+    --shadow: rgba(0, 0, 0, 0.3);
+    --shadow-card: rgba(0, 0, 0, 0.4);
+    --shadow-toast: rgba(0, 0, 0, 0.4);
+    --db-section-bg: #1e3a4a;
+    --db-section-border: #2a5a6a;
+    --db-section-text: #a0d0e0;
+  }
+}
+
 .password-app {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: #f0f2f5;
-  color: #333;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -458,10 +512,10 @@ onMounted(() => {
 }
 
 .container {
-  background-color: #ffffff;
+  background-color: var(--bg-secondary);
   padding: 30px;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px var(--shadow);
   width: 100%;
   max-width: 1200px;
   display: flex;
@@ -494,21 +548,27 @@ onMounted(() => {
 
 h1 {
   text-align: center;
-  color: #1a1a1a;
+  color: var(--text-secondary);
 }
 
 .password-display {
   display: flex;
   align-items: center;
+  background-color: var(--bg-card);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--shadow-card);
+  border: 1px solid var(--border-lighter);
 }
 
 .password-display input {
   flex-grow: 1;
   padding: 12px;
   font-size: 1.1em;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 5px;
-  background-color: #f8f8f8;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
   font-family: 'Courier New', Courier, monospace;
   font-weight: bold;
 }
@@ -532,6 +592,11 @@ h1 {
   display: flex;
   align-items: center;
   gap: 10px;
+  background-color: var(--bg-card);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--shadow-card);
+  border: 1px solid var(--border-lighter);
 }
 
 .length-option input[type="range"] {
@@ -542,9 +607,11 @@ h1 {
 .length-option input[type="number"] {
   width: 60px;
   padding: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 5px;
   text-align: center;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 #generateButton {
@@ -555,21 +622,24 @@ h1 {
   background-color: #28a745;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px var(--shadow-card);
 }
 
 #generateButton:hover {
   background-color: #218838;
+  box-shadow: 0 4px 12px var(--shadow-card);
 }
 
 .custom-chars-section {
   margin-top: 20px;
-  padding: 15px;
-  background-color: #f8f9fa;
+  padding: 20px;
+  background-color: var(--bg-card);
   border-radius: 8px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--border-section);
+  box-shadow: 0 2px 8px var(--shadow-card);
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -578,7 +648,7 @@ h1 {
 .custom-chars-section h3 {
   margin: 0 0 10px 0;
   font-size: 1.1em;
-  color: #495057;
+  color: var(--text-tertiary);
 }
 
 .custom-chars-section textarea {
@@ -586,8 +656,10 @@ h1 {
   min-height: 60px;
   max-height: 200px;
   padding: 10px;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--border-light);
   border-radius: 5px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   font-family: "JetBrains Mono", 'D2 coding', monospace;
   resize: vertical;
   box-sizing: border-box;
@@ -598,14 +670,14 @@ h1 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 15px;
-  background: #fff !important;
+  background: var(--bg-secondary) !important;
   padding: 10px;
 }
 
 .option {
   display: flex;
   align-items: center;
-  background-color: #f9f9f9;
+  background-color: var(--bg-quaternary);
   padding: 10px;
   border-radius: 5px;
   justify-content: space-between;
@@ -661,6 +733,17 @@ h1 {
   background-color: #e0a800;
 }
 
+@media (prefers-color-scheme: dark) {
+  .export-btn {
+    background-color: #d4a017;
+    color: #ffffff;
+  }
+  
+  .export-btn:hover {
+    background-color: #b89015;
+  }
+}
+
 .import-btn {
   background-color: #6f42c1;
   color: white;
@@ -672,13 +755,13 @@ h1 {
 
 .saved-lists-header {
   padding: 8px 0;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--border-lighter);
 }
 
 .saved-lists-header h4 {
   margin: 0;
   font-size: 1em;
-  color: #495057;
+  color: var(--text-tertiary);
 }
 
 .saved-lists-toggle {
@@ -686,17 +769,17 @@ h1 {
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  color: #6c757d;
+  color: var(--text-muted);
   font-size: 0.9em;
   padding: 4px 0;
 }
 
 .saved-lists-toggle:hover {
-  color: #495057;
+  color: var(--text-tertiary);
 }
 
 .saved-lists-empty {
-  color: #6c757d;
+  color: var(--text-muted);
   font-style: italic;
   font-size: 0.9em;
   padding: 10px 0;
@@ -705,7 +788,7 @@ h1 {
 .toggle-icon {
   transition: transform 0.3s ease;
   font-size: 1.2em;
-  color: #6c757d;
+  color: var(--text-muted);
 }
 
 .toggle-icon.rotated {
@@ -727,8 +810,8 @@ h1 {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-lighter);
   border-radius: 4px;
   margin-top: 8px;
 }
@@ -767,10 +850,11 @@ h1 {
 }
 
 .db-url-section {
-  padding: 15px;
-  background-color: #e8f4fd;
+  padding: 20px;
+  background-color: var(--db-section-bg);
   border-radius: 8px;
-  border: 1px solid #bee5eb;
+  border: 1px solid var(--db-section-border);
+  box-shadow: 0 2px 8px var(--shadow-card);
   width: 100%;
   box-sizing: border-box;
   display: flex;
@@ -781,7 +865,7 @@ h1 {
 .db-url-section h3 {
   margin: 0;
   font-size: 1.1em;
-  color: #0c5460;
+  color: var(--db-section-text);
 }
 
 .db-url-inputs {
@@ -801,26 +885,29 @@ h1 {
 .db-url-input-group label {
   font-size: 0.9em;
   font-weight: 500;
-  color: #495057;
+  color: var(--text-tertiary);
 }
 
 .db-url-inputs input {
   padding: 8px;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--border-light);
   border-radius: 4px;
   font-size: 0.9em;
   width: 100%;
   box-sizing: border-box;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .db-url-output {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-lighter);
   border-radius: 4px;
   padding: 10px;
   font-family: "JetBrains Mono", 'D2 coding', monospace;
   font-size: 0.9em;
   word-break: break-all;
+  color: var(--text-primary);
 }
 
 .db-url-controls {
@@ -863,8 +950,38 @@ h1 {
   gap: .5rem;
 }
 
+.header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.back-link {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: #0056b3;
+}
+
+@media (prefers-color-scheme: dark) {
+  .back-link {
+    color: #4da6ff;
+  }
+  
+  .back-link:hover {
+    color: #66b3ff;
+  }
+}
+
 .description {
-  color: #666;
+  color: var(--text-quaternary);
   font-size: 0.9em;
   text-align: center;
   margin-bottom: 1rem;
@@ -879,7 +996,7 @@ h1 {
   color: white;
   padding: 12px 20px;
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--shadow-toast);
   z-index: 1000;
   opacity: 0;
   transform: translateX(100%);

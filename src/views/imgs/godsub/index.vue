@@ -33,7 +33,8 @@
       <!-- 슬라이더 추가 -->
       <div class="range-field" style="margin-bottom:24px;">
         <label for="humanPosition" style="color:#1976d2;font-weight:500;">인물 X 위치</label>
-        <input type="range" id="humanPosition" min="0" max="1000" step="0.1" :value="humanX" @input="handleSliderChange">
+        <input type="range" id="humanPosition" min="0" max="1000" step="0.1" :value="humanX"
+          @input="handleSliderChange">
         <span id="humanPositionValue" style="margin-left:8px;color:#1976d2;font-weight:500;">{{ humanX }}</span>
       </div>
       <a id="download-link" class="download-link btn blue" style="display:none;" ref="downloadLink">
@@ -93,7 +94,7 @@ async function perspectiveTransform(img) {
     alert("glfx.js가 정상적으로 로드되지 않았습니다.");
     return null;
   }
-  
+
   // 1. 이미지 크기 체크 및 리사이즈
   let w = img.width, h = img.height;
   let resizedImg = img;
@@ -116,8 +117,8 @@ async function perspectiveTransform(img) {
 
   const fxCanvas = fx.canvas();
   const texture = fxCanvas.texture(resizedImg);
-  const before = [0,0, w,0, w,h, 0,h];
-  const after  = [93,132, 458,69, 523,517, 150,586];
+  const before = [0, 0, w, 0, w, h, 0, h];
+  const after = [93, 132, 458, 69, 523, 517, 150, 586];
   fxCanvas.draw(texture).perspective(before, after).update();
 
   // 변환된 이미지를 임시 캔버스에 복사
@@ -157,7 +158,7 @@ async function updateBaseComposite() {
     img.onload = () => resolve(img);
     img.src = dataUrl;
   });
-  
+
   // baseCompositeImg를 결과 캔버스에 그리기 (godsub는 manImg가 없음)
   const canvas = resultCanvas.value;
   if (canvas && baseCompositeImg) {
@@ -187,7 +188,7 @@ const handleSliderChange = async (event) => {
 const makeImage = async () => {
   await updateBaseComposite();
   if (M) {
-    M.toast({html: '합성이 완료되었습니다!', classes: 'blue'});
+    M.toast({ html: '합성이 완료되었습니다!', classes: 'blue' });
   }
 };
 
@@ -197,8 +198,8 @@ const saveImage = () => {
   if (!canvas) return;
   const link = downloadLink.value;
   if (!link) return;
-  
-  canvas.toBlob(function(blob) {
+
+  canvas.toBlob(function (blob) {
     const url = URL.createObjectURL(blob);
     link.href = url;
     link.download = 'result.png';
@@ -235,7 +236,7 @@ const handlePaste = async (e) => {
           input.dispatchEvent(event);
 
           if (M) {
-            M.toast({html: '클립보드 이미지를 붙여넣었습니다.', classes: 'blue'});
+            M.toast({ html: '클립보드 이미지를 붙여넣었습니다.', classes: 'blue' });
           }
           return;
         }
@@ -243,7 +244,7 @@ const handlePaste = async (e) => {
     }
   } catch (err) {
     if (M) {
-      M.toast({html: '클립보드에서 이미지를 읽을 수 없습니다.', classes: 'red'});
+      M.toast({ html: '클립보드에서 이미지를 읽을 수 없습니다.', classes: 'red' });
     }
   }
 };
@@ -251,6 +252,14 @@ const handlePaste = async (e) => {
 // CDN 라이브러리 로드
 const loadLibraries = () => {
   return new Promise((resolve) => {
+    // Material Icons 폰트
+    if (!document.querySelector('link[href*="material-icons"]')) {
+      const materialIcons = document.createElement('link');
+      materialIcons.rel = 'stylesheet';
+      materialIcons.href = 'https://fonts.googleapis.com/icon?family=Material+Icons';
+      document.head.appendChild(materialIcons);
+    }
+
     // Materialize CSS
     if (!document.querySelector('link[href*="materialize"]')) {
       const materializeCSS = document.createElement('link');
@@ -299,10 +308,10 @@ const loadGlfx = () => {
 onMounted(async () => {
   await loadLibraries();
   await loadGlfx();
-  
+
   // 이미지 로드
   boardImg = await fetchImageToImageObj('/imgs/godsub/board.jpg');
-  
+
   // 슬라이더 max값 설정
   const slider = document.getElementById('humanPosition');
   if (slider && boardImg) {
@@ -310,7 +319,7 @@ onMounted(async () => {
     slider.value = 0;
     humanX.value = 0;
   }
-  
+
   // 클립보드 이벤트 리스너
   window.addEventListener('paste', handlePaste);
 });
@@ -336,7 +345,7 @@ onUnmounted(() => {
 canvas {
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   margin-bottom: 24px;
   width: 100%;
   height: auto;
@@ -347,11 +356,13 @@ canvas {
   background: #1976d2;
 }
 
-.btn, .btn-large {
+.btn,
+.btn-large {
   background: #1976d2;
 }
 
-.btn:focus, .btn-large:focus {
+.btn:focus,
+.btn-large:focus {
   background: #1565c0;
 }
 

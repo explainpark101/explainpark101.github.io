@@ -1,4 +1,5 @@
-const CACHE_NAME = 'explainpark101-v3';
+const CACHE_DEACTIVATED = false;
+const CACHE_NAME = 'explainpark101-v4';
 const urlsToCache = [
   '/manifest.json',
   '/browserconfig.xml',
@@ -13,6 +14,9 @@ const urlsToCache = [
 
 // Service Worker 설치
 self.addEventListener('install', (event) => {
+  if (CACHE_DEACTIVATED) {
+    return;
+  }
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
@@ -24,6 +28,9 @@ self.addEventListener('install', (event) => {
 
 // Service Worker 활성화
 self.addEventListener('activate', (event) => {
+  if (CACHE_DEACTIVATED) {
+    return;
+  }
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -43,6 +50,9 @@ self.addEventListener('activate', (event) => {
 
 // 네트워크 요청 가로채기
 self.addEventListener('fetch', (event) => {
+  if (CACHE_DEACTIVATED) {
+    return;
+  }
   const url = new URL(event.request.url);
   
   // index.html과 루트 경로는 항상 네트워크 우선 (캐시 무시)

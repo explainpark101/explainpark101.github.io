@@ -1,8 +1,5 @@
 <template>
   <div class="dijkstra-app">
-    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
-    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-    
     <nav class="container-fluid">
       <ul>
         <li>
@@ -238,14 +235,42 @@ watch([nodes, edges, startNode, endNode, isUndirected], () => {
 });
 
 onMounted(() => {
-  const params = route.query;
-  if (params.nodes && params.edges && params.start && params.end) {
-    nodes.value = params.nodes;
-    edges.value = params.edges;
-    startNode.value = params.start;
-    endNode.value = params.end;
-    isUndirected.value = params.undirected === 'true' || params.undirected === true;
-    runDijkstra();
+  // CSS 로드
+  if (!document.querySelector('link[href*="picocss"]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/@picocss/pico@latest/css/pico.min.css';
+    document.head.appendChild(link);
+  }
+
+  // vis-network 스크립트 로드
+  if (!window.vis) {
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/vis-network/standalone/umd/vis-network.min.js';
+    script.onload = () => {
+      // 스크립트 로드 후 URL 파라미터 확인
+      const params = route.query;
+      if (params.nodes && params.edges && params.start && params.end) {
+        nodes.value = params.nodes;
+        edges.value = params.edges;
+        startNode.value = params.start;
+        endNode.value = params.end;
+        isUndirected.value = params.undirected === 'true' || params.undirected === true;
+        runDijkstra();
+      }
+    };
+    document.head.appendChild(script);
+  } else {
+    // 이미 로드된 경우
+    const params = route.query;
+    if (params.nodes && params.edges && params.start && params.end) {
+      nodes.value = params.nodes;
+      edges.value = params.edges;
+      startNode.value = params.start;
+      endNode.value = params.end;
+      isUndirected.value = params.undirected === 'true' || params.undirected === true;
+      runDijkstra();
+    }
   }
 });
 </script>

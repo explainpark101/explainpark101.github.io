@@ -2,21 +2,12 @@
   <div class="todo-app">
     <div class="container">
       <h1 @dblclick="editTitle" id="mainTitle">{{ appTitle }}</h1>
-      
+
       <div id="tabsContainer" class="tabs-container">
-        <div
-          v-for="tab in sortedTabs"
-          :key="tab.id"
-          class="tab-item"
-          :class="{ active: tab.id === currentTabId }"
-          :draggable="true"
-          @dragstart="handleTabDragStart($event, tab.id)"
-          @dragend="handleTabDragEnd"
-          @dragover.prevent="handleTabDragOver($event, tab.id)"
-          @dragleave="handleTabDragLeave($event, tab.id)"
-          @drop.prevent="handleTabDrop($event, tab.id)"
-          @click="switchTab(tab.id)"
-        >
+        <div v-for="tab in sortedTabs" :key="tab.id" class="tab-item" :class="{ active: tab.id === currentTabId }"
+          :draggable="true" @dragstart="handleTabDragStart($event, tab.id)" @dragend="handleTabDragEnd"
+          @dragover.prevent="handleTabDragOver($event, tab.id)" @dragleave="handleTabDragLeave($event, tab.id)"
+          @drop.prevent="handleTabDrop($event, tab.id)" @click="switchTab(tab.id)">
           <span @dblclick.stop="renameTab(tab)">{{ tab.name }}</span>
           <button class="delete-tab-btn" @click.stop="deleteTab(tab.id)">×</button>
         </div>
@@ -28,46 +19,35 @@
         <button @click="exportTodos">할일 목록 내보내기</button>
         <button @click="resetAllTodosToNotStarted">모두 시작전으로</button>
         <button @click="deleteCompletedTodos">완료항목 삭제</button>
-        <input
-          type="text"
-          v-model="searchQuery"
-          placeholder="할일 검색..."
-          aria-label="할일 검색"
-        />
+        <input type="text" v-model="searchQuery" placeholder="할일 검색..." aria-label="할일 검색" />
       </div>
 
       <ul id="todoList" v-if="displayedTodos.length > 0">
-        <TodoItem
-          v-for="todo in displayedTodoTree"
-          :key="todo.id"
-          :todo="todo"
-          :collapsed-subtasks="collapsedSubtasks"
-          @toggle-state="handleStateChange"
-          @add-subtask="addSubtask"
-          @delete-todo="deleteTodo"
-          @edit-text="editTodoText"
-          @toggle-collapse="toggleSubtaskCollapse"
-          @drag-start="handleTodoDragStart"
-          @drag-end="handleTodoDragEnd"
-          @drag-over="handleTodoDragOver"
-          @drag-leave="handleTodoDragLeave"
-          @drop="handleTodoDrop"
-        />
+        <TodoItem v-for="todo in displayedTodoTree" :key="todo.id" :todo="todo" :collapsed-subtasks="collapsedSubtasks"
+          @toggle-state="handleStateChange" @add-subtask="addSubtask" @delete-todo="deleteTodo"
+          @edit-text="editTodoText" @toggle-collapse="toggleSubtaskCollapse" @drag-start="handleTodoDragStart"
+          @drag-end="handleTodoDragEnd" @drag-over="handleTodoDragOver" @drag-leave="handleTodoDragLeave"
+          @drop="handleTodoDrop" />
       </ul>
       <div v-else class="empty-list-message">
-        {{ searchQuery ? `'${searchQuery}'에 대한 검색 결과가 없습니다.` : (currentTabId ? '할일 목록이 없습니다.<br>\'할일 목록 불러오기\' 버튼으로 목록을 추가하세요.' : '탭을 선택하거나 \'+\' 버튼을 눌러 새 탭을 만드세요.') }}
+        <template v-if="searchQuery">
+          '{{ searchQuery }}'에 대한 검색 결과가 없습니다.
+        </template>
+        <template v-else-if="currentTabId">
+          할일 목록이 없습니다.<br />'할일 목록 불러오기' 버튼으로 목록을추가하세요.
+        </template>
+        <template v-else>
+          탭을 선택하거나 '+' 버튼을 눌러 새 탭을 만드세요.
+        </template>
       </div>
     </div>
 
     <!-- Markdown Import Modal -->
     <dialog ref="markdownModal" class="modal">
       <h2>새 할일 목록 불러오기</h2>
-      <textarea
-        ref="modalMarkdownInput"
-        v-model="markdownInput"
+      <textarea ref="modalMarkdownInput" v-model="markdownInput"
         placeholder="여기에 할일 목록을 마크다운 형식으로 입력하세요.&#10;들여쓰기를 사용하여 하위 작업을 만들 수 있습니다."
-        @keydown="handleMarkdownKeydown"
-      ></textarea>
+        @keydown="handleMarkdownKeydown"></textarea>
       <div class="dialog-actions">
         <button @click="loadTodosFromMarkdown" id="confirmLoadBtn">불러오기</button>
         <button @click="closeMarkdownModal" id="closeModalBtn">취소</button>
@@ -89,14 +69,16 @@
     <dialog ref="customModal" class="modal">
       <h3>{{ customModalTitle }}</h3>
       <p>{{ customModalMessage }}</p>
-      <input
-        v-if="customModalType === 'prompt'"
-        type="text"
-        ref="customModalInput"
-        v-model="customModalInputValue"
-        @keydown.enter="handleCustomModalOk"
-      />
-      <div class="dialog-actions" ref="customModalActions"></div>
+      <input v-if="customModalType === 'prompt'" type="text" ref="customModalInput" v-model="customModalInputValue"
+        @keydown.enter="handleCustomModalOk" />
+      <div class="dialog-actions">
+        <button v-if="showCustomModalOk" ref="customModalOkBtn" class="custom-modal-ok" @click="handleCustomModalOk">
+          {{ customModalOkText }}
+        </button>
+        <button v-if="showCustomModalCancel" class="custom-modal-cancel" @click="handleCustomModalCancel">
+          {{ customModalCancelText }}
+        </button>
+      </div>
     </dialog>
   </div>
 </template>
@@ -123,7 +105,7 @@ const customModal = ref(null);
 const modalMarkdownInput = ref(null);
 const exportTextarea = ref(null);
 const customModalInput = ref(null);
-const customModalActions = ref(null);
+const customModalOkBtn = ref(null);
 const markdownInput = ref('');
 const exportText = ref('');
 const customModalTitle = ref('');
@@ -131,6 +113,10 @@ const customModalMessage = ref('');
 const customModalType = ref('alert');
 const customModalInputValue = ref('');
 const customModalResolve = ref(null);
+const showCustomModalOk = ref(false);
+const showCustomModalCancel = ref(false);
+const customModalOkText = ref('확인');
+const customModalCancelText = ref('취소');
 const draggedTabId = ref(null);
 const draggedTodoId = ref(null);
 
@@ -233,14 +219,22 @@ const showCustomModal = (options) => {
     customModalType.value = options.type || 'alert';
     customModalInputValue.value = options.defaultValue || '';
     customModalResolve.value = resolve;
-    
+    customModalOkText.value = options.okText || '확인';
+    customModalCancelText.value = options.cancelText || '취소';
+
+    // 버튼 표시/숨김 제어
+    showCustomModalOk.value = true;
+    showCustomModalCancel.value = options.type === 'confirm' || options.type === 'prompt';
+
     if (customModal.value) {
       customModal.value.showModal();
-      if (options.type === 'prompt' && customModalInput.value) {
-        nextTick(() => {
+      nextTick(() => {
+        if (options.type === 'prompt' && customModalInput.value) {
           customModalInput.value.focus();
-        });
-      }
+        } else if (customModalOkBtn.value) {
+          customModalOkBtn.value.focus();
+        }
+      });
     }
   });
 };
@@ -274,7 +268,7 @@ const customPrompt = (message, defaultValue, title = '입력') => showCustomModa
 // Tab Management
 const renderTabs = async () => {
   const allTabs = await getFromDb(TAB_STORE_NAME);
-  
+
   const tabsToUpdate = [];
   allTabs.forEach((tab, index) => {
     if (tab.order === undefined) {
@@ -423,7 +417,7 @@ const renderCurrentTodos = async () => {
     return;
   }
   let todos = await getTodosByTab(currentTabId.value);
-  
+
   const todosToUpdate = [];
   const todosByParent = new Map();
   todos.forEach(todo => {
@@ -730,7 +724,7 @@ const handleMarkdownKeydown = (e) => {
     }
 
     let lineEndIndex = end;
-    if (end > start && value[end-1] === '\n') {
+    if (end > start && value[end - 1] === '\n') {
       lineEndIndex = end - 1;
     }
     while (lineEndIndex < value.length && value[lineEndIndex] !== '\n') {
@@ -756,7 +750,7 @@ const handleMarkdownKeydown = (e) => {
       textarea.selectionEnd = end + (newLines.length * indent.length);
     }
   }
-  if (e.ctrlKey && e.key === 'Enter') {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
     e.preventDefault();
     loadTodosFromMarkdown();
   }
@@ -1081,6 +1075,11 @@ ul {
   background-color: #fff;
   max-height: 80vh;
   overflow-y: auto;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
 }
 
 .modal[open] {
@@ -1144,6 +1143,24 @@ ul {
 }
 
 #closeModalBtn:hover {
+  background-color: #c82333;
+}
+
+.custom-modal-ok {
+  background-color: #28a745;
+  color: white;
+}
+
+.custom-modal-ok:hover {
+  background-color: #218838;
+}
+
+.custom-modal-cancel {
+  background-color: #dc3545;
+  color: white;
+}
+
+.custom-modal-cancel:hover {
   background-color: #c82333;
 }
 </style>
