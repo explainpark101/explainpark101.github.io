@@ -4,6 +4,7 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [vue()],
+  base: '/',
   root: '.',
   publicDir: 'public',
   build: {
