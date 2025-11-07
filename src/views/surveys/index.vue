@@ -1,0 +1,138 @@
+<template>
+  <div class="surveys-app">
+    <router-link to="/" style="position: fixed; top: 20px; left: calc(50% - 500px + 20px); max-width: 1000px; text-decoration: none; color: #9C27B0; font-weight: 500; font-size: 1rem; display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 6px; background: rgba(156, 39, 176, 0.1); transition: all 0.2s ease; z-index: 1000;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+      </svg>
+      메인으로
+    </router-link>
+
+    <h1>검사 도구 모음</h1>
+
+    <div class="container">
+      <router-link to="/surveys/communication">
+        <div class="card">
+          <div class="icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <rect x="8" y="8" width="32" height="32" rx="8" fill="#9C27B0"/>
+              <path d="M16 16h16M16 20h16M16 24h12" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="20" cy="28" r="2" fill="#fff"/>
+              <circle cx="28" cy="28" r="2" fill="#fff"/>
+            </svg>
+          </div>
+          <div class="card-title">의사소통 유형</div>
+          <div class="card-desc">Verginia Satir 버지니아 사티어</div>
+        </div>
+      </router-link>
+
+      <router-link to="/surveys/love-lang">
+        <div class="card">
+          <div class="icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <rect x="8" y="8" width="32" height="32" rx="8" fill="#E91E63"/>
+              <path d="M24 12c-6.6 0-12 5.4-12 12s5.4 12 12 12 12-5.4 12-12-5.4-12-12-12z" stroke="#fff" stroke-width="3"/>
+              <path d="M20 20l4 4 4-4" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="24" cy="28" r="2" fill="#fff"/>
+            </svg>
+          </div>
+          <div class="card-title">사랑의 언어</div>
+          <div class="card-desc">5가지 사랑의 언어 진단</div>
+        </div>
+      </router-link>
+    </div>
+  </div>
+</template>
+
+<script setup>
+</script>
+
+<style scoped>
+.surveys-app {
+  background: #f5f5f5;
+  font-family: 'Roboto', 'Noto Sans KR', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+h1 {
+  text-align: center;
+  font-family: 'Roboto', 'Noto Sans KR', Arial, sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #222;
+  margin: 0 0 32px 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+  justify-content: center;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(60,60,60,0.08), 0 1.5px 4px rgba(60,60,60,0.06);
+  width: 300px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+  position: relative;
+  border: 2px solid transparent;
+}
+
+.card:hover {
+  box-shadow: 0 6px 24px rgba(60,60,60,0.16), 0 3px 8px rgba(60,60,60,0.10);
+  transform: translateY(-4px) scale(1.03);
+  border-color: #9C27B0;
+}
+
+.card.selected {
+  border-color: #9C27B0;
+  background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+  box-shadow: 0 8px 32px rgba(156, 39, 176, 0.2);
+}
+
+.icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 6px;
+  word-break: keep-all !important;
+}
+
+.card-desc {
+  font-size: 0.95rem;
+  color: #666;
+  text-align: center;
+  word-break: keep-all !important;
+}
+</style>

@@ -50,7 +50,8 @@ body {
     padding: 4px 12px;
     border-radius: 6px;
     font-size: 1.1rem;
-    white-space: nowrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     transition: transform 50ms ease-out;
     will-change: transform;
 }
