@@ -64,7 +64,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
-import QuestionItem from '../../../components/QuestionItem.vue';
+import QuestionItem from '@/components/QuestionItem.vue';
 
 const answers = {
   "ABV": "Above", "AB": "Anchor Bolt", "A/C": "Air Conditioner", "AD": "Access Door",

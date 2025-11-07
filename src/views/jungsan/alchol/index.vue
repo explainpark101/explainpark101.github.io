@@ -115,12 +115,12 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, nextTick } from 'vue';
-import { useJungsanStorage } from '../../../composables/useJungsanStorage.js';
-import { calculateAlcoholBased } from '../../../composables/useJungsanCalculation.js';
-import { useFileExport } from '../../../composables/useFileExport.js';
-import { useAutoGrowTextarea } from '../../../composables/useAutoGrowTextarea.js';
-import { useConfirmDialog } from '../../../composables/useConfirmDialog.js';
-import { validateAlcoholBasedData } from '../../../utils/jungsanValidation.js';
+import { useJungsanStorage } from '@/composables/useJungsanStorage.js';
+import { calculateAlcoholBased } from '@/composables/useJungsanCalculation.js';
+import { useFileExport } from '@/composables/useFileExport.js';
+import { useAutoGrowTextarea } from '@/composables/useAutoGrowTextarea.js';
+import { useConfirmDialog } from '@/composables/useConfirmDialog.js';
+import { validateAlcoholBasedData } from '@/utils/jungsanValidation.js';
 
 const STORAGE_KEY = 'jungsanFormData-alchol';
 

@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { sum } from '../utils/jungsanValidation.js';
+import { sum } from '@/utils/jungsanValidation.js';
 
 /**
  * 테이블 기반 정산 계산

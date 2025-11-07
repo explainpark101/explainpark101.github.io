@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { encodeForShare, decodeFromShare } from '../utils/jungsanEncryption.js';
+import { encodeForShare, decodeFromShare } from '@/utils/jungsanEncryption.js';
 
 /**
  * localStorage 및 URL 공유 기능을 제공하는 composable

@@ -113,11 +113,11 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, nextTick } from 'vue';
-import { useJungsanStorage } from '../../composables/useJungsanStorage.js';
-import { calculateTableBased } from '../../composables/useJungsanCalculation.js';
-import { useFileExport } from '../../composables/useFileExport.js';
-import { useConfirmDialog } from '../../composables/useConfirmDialog.js';
-import { validateTableBasedData } from '../../utils/jungsanValidation.js';
+import { useJungsanStorage } from '@/composables/useJungsanStorage.js';
+import { calculateTableBased } from '@/composables/useJungsanCalculation.js';
+import { useFileExport } from '@/composables/useFileExport.js';
+import { useConfirmDialog } from '@/composables/useConfirmDialog.js';
+import { validateTableBasedData } from '@/utils/jungsanValidation.js';
 
 const STORAGE_KEY = 'jungsanFormData';
 

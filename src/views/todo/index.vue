@@ -85,7 +85,7 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue';
-import TodoItem from './TodoItem.vue';
+import TodoItem from '@/views/todo/TodoItem.vue';
 
 const DB_NAME = 'ABCI_TodoList_Tabs';
 const DB_VERSION = 2;

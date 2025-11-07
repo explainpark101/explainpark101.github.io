@@ -7,6 +7,11 @@ export default defineConfig({
   base: '/',
   root: '.',
   publicDir: 'public',
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
+    },
+  },
   build: {
     outDir: 'dist',
     rollupOptions: {

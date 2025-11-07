@@ -1,6 +1,6 @@
 import { ref, computed, watch, nextTick } from 'vue';
 import * as d3 from 'd3';
-import { findNodeById, findParentOfNode } from '../utils/wbsUtils.js';
+import { findNodeById, findParentOfNode } from '@/utils/wbsUtils.js';
 
 const LOCAL_STORAGE_KEY = 'wbsChartData';
 const THEME_STORAGE_KEY = 'wbsChartTheme';

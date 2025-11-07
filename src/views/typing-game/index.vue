@@ -98,7 +98,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
-import GameItem from './GameItem.vue';
+import GameItem from '@/views/typing-game/GameItem.vue';
 
 // UI 상태
 const showSettingsModal = ref(true);

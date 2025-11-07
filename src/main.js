@@ -1,9 +1,9 @@
 import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import { createPinia } from 'pinia';
-import App from './App.vue';
+import App from '@/App.vue';
 import "material-icons";
-import './styles/style.scss';
+import '@/styles/style.scss';
 
 // 페이지 로드 시 즉시 테마 초기화 (깜빡임 방지)
 (function initializeThemeSync() {
@@ -23,14 +23,14 @@ import './styles/style.scss';
 
 // import.meta.glob을 사용하여 views 폴더의 모든 index.vue 파일을 자동으로 가져오기
 // Home.vue는 제외 (별도 처리)
-const modules = import.meta.glob('./views/**/index.vue', { eager: false });
+const modules = import.meta.glob('@/views/**/index.vue', { eager: false });
 
 // 파일 경로를 라우트 경로로 변환하는 함수
 function getRoutePath(filePath) {
-  // './views/arch-graphic/index.vue' -> '/arch-graphic'
-  // './views/jungsan/alchol/index.vue' -> '/jungsan/alchol'
+  // '@/views/arch-graphic/index.vue' -> '/arch-graphic'
+  // '@/views/jungsan/alchol/index.vue' -> '/jungsan/alchol'
   let path = filePath
-    .replace(/^\.\/views\//, '') // './views/' 제거
+    .replace(/^@\/views\//, '') // '@/views/' 제거
     .replace(/\/index\.vue$/, '') // '/index.vue' 제거
     .replace(/^index$/, ''); // 루트 index는 빈 문자열
 
@@ -44,10 +44,10 @@ function getRoutePath(filePath) {
 
 // 라우트 이름 생성 함수
 function getRouteName(filePath) {
-  // './views/arch-graphic/index.vue' -> 'ArchGraphic'
-  // './views/jungsan/alchol/index.vue' -> 'JungsanAlchol'
+  // '@/views/arch-graphic/index.vue' -> 'ArchGraphic'
+  // '@/views/jungsan/alchol/index.vue' -> 'JungsanAlchol'
   let name = filePath
-    .replace(/^\.\/views\//, '')
+    .replace(/^@\/views\//, '')
     .replace(/\/index\.vue$/, '')
     .replace(/^index$/, 'Home')
     .split('/')
@@ -74,7 +74,7 @@ const routes = Object.keys(modules).map((filePath) => {
 routes.unshift({
   path: '/',
   name: 'Home',
-  component: () => import('./views/Home.vue'),
+  component: () => import('@/views/Home.vue'),
 });
 
 // 중복 경로 확인 (디버깅용)

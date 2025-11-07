@@ -30,11 +30,11 @@
 
 <script setup>
 import { onMounted, nextTick } from 'vue';
-import WbsChart from './components/WbsChart.vue';
-import EditToolbar from './components/EditToolbar.vue';
-import Toolbar from './components/Toolbar.vue';
-import WbsModal from './components/WbsModal.vue';
-import { useWBS } from '../../composables/useWBS.js';
+import WbsChart from '@/views/wbs-chart/components/WbsChart.vue';
+import EditToolbar from '@/views/wbs-chart/components/EditToolbar.vue';
+import Toolbar from '@/views/wbs-chart/components/Toolbar.vue';
+import WbsModal from '@/views/wbs-chart/components/WbsModal.vue';
+import { useWBS } from '@/composables/useWBS.js';
 
 const wbs = useWBS();
 const {
