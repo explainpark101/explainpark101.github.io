@@ -6,6 +6,8 @@ export default defineConfig({
   plugins: [vue()],
   base: '/',
   root: '.',
+  outputDir: 'dist',
+  publicPath: '/',
   publicDir: 'public',
   resolve: {
     alias: {
