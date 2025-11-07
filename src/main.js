@@ -30,6 +30,7 @@ function getRoutePath(filePath) {
   // '@/views/arch-graphic/index.vue' -> '/arch-graphic'
   // '@/views/jungsan/alchol/index.vue' -> '/jungsan/alchol'
   let path = filePath
+    .replace(/^\/src\/views/g, '')
     .replace(/^@\/views\//, '') // '@/views/' 제거
     .replace(/\/index\.vue$/, '') // '/index.vue' 제거
     .replace(/^index$/, ''); // 루트 index는 빈 문자열
@@ -59,7 +60,7 @@ function getRouteName(filePath) {
 
 // 동적으로 라우트 생성
 const routes = Object.keys(modules).map((filePath) => {
-  const path = getRoutePath(filePath);
+  const path = getRoutePath(filePath).replaceAll('//', '/');
   const name = getRouteName(filePath);
 
   return {
