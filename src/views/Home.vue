@@ -270,15 +270,6 @@ onMounted(() => {
             .catch((registrationError) => {
                 console.log('SW registration failed: ', registrationError);
             });
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-            for (const registration of registrations) {
-                registration.unregister().then((success) => {
-                    if (success) {
-                        console.log('Service Worker unregistered successfully');
-                    }
-                });
-            }
-        });
     }
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then((registrations) => {
