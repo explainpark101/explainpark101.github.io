@@ -280,6 +280,17 @@ onMounted(() => {
             }
         });
     }
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+            for (const registration of registrations) {
+                registration.unregister().then((success) => {
+                    if (success) {
+                        console.log('Service Worker unregistered successfully');
+                    }
+                });
+            }
+        });
+    }
 
     // PWA 설치 이벤트 감지
     const beforeInstallHandler = (e) => {
