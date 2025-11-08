@@ -1,341 +1,76 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>마작부장 강의장면 만들기</title>
-  <!-- Materialize CSS & Google Fonts -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-  <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background: #f5f5f5;
-      padding-bottom: 40px;
-    }
-    .container {
-      margin-top: 40px;
-      max-width: 600px;
-    }
-    canvas {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      margin-bottom: 24px;
-      width: 100%;
-      height: auto;
-      max-width: 100%;
-    }
-    .file-field .btn {
-      background: #1976d2;
-    }
-    .btn, .btn-large {
-      background: #1976d2;
-    }
-    .btn:focus, .btn-large:focus {
-      background: #1565c0;
-    }
-    h1 {
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: #1976d2;
-      margin-bottom: 32px;
-    }
-    .input-field label {
-      color: #1976d2 !important;
-    }
-    .input-field input[type=file]::file-selector-button {
-      background: #1976d2;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 16px;
-      cursor: pointer;
-    }
-    .input-field input[type=file] {
-      color: #1976d2;
-    }
-    .download-link {
-      margin-top: 16px;
-      display: block;
-    }
+    <head>
+        <meta charset="UTF-8" />
+    <title>explainpark101 Apps</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    .home-button {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background: rgba(255, 255, 255, 0.95);
-      border: none;
-      border-radius: 50px;
-      padding: 12px 20px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      color: #1976d2;
-      text-decoration: none;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-    }
+        <!-- PWA 관련 메타 태그 -->
+        <meta name="theme-color" content="#1976D2" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="explainpark101" />
+        <meta name="msapplication-TileColor" content="#1976D2" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
 
-    .home-button:hover {
-      background: rgba(255, 255, 255, 1);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-    }
-
-    .home-button:active {
-      transform: translateY(0);
-    }
-  </style>
-</head>
-<body>
-    <!-- 홈으로 돌아가기 버튼 -->
-    <a href="/" class="home-button">
-        <i class="material-icons" style="font-size: 18px;">home</i>
-        앱 목록
-    </a>
-
-    <script src="https://cdn.jsdelivr.net/npm/glfx@0.0.4/glfx.min.js"></script>
-  <div class="container z-depth-2 white" style="padding:32px 24px 24px 24px;">
-    <h1 class="center-align"><i class="material-icons left">layers</i>마작부장 강의장면 만들기</h1>
-    <form id="img-form">
-      <div class="file-field input-field">
-        <div class="btn">
-          <span>타겟(target.png)</span>
-          <input type="file" id="target-input" accept="image/*">
-        </div>
-        <div class="file-path-wrapper">
-          <input class="file-path validate" type="text" placeholder="Perspective 변환할 이미지를 선택하세요">
-        </div>
-      </div>
-    </form>
-    <div class="center-align" style="margin: 24px 0;">
-      <button id="make-btn" class="btn waves-effect waves-light"><i class="material-icons left">layers</i>최종 이미지 만들기</button>
-      <button id="save-btn" class="btn green waves-effect waves-light"><i class="material-icons left">file_download</i>PNG로 저장</button>
-    </div>
-    <canvas id="result-canvas"></canvas>
-    <!-- 슬라이더 추가 -->
-    <div class="range-field" style="margin-bottom:24px;">
-      <label for="humanPosition" style="color:#1976d2;font-weight:500;">인물 X 위치</label>
-      <input type="range" id="humanPosition" min="0" max="1000" step="0.1" value="0">
-      <span id="humanPositionValue" style="margin-left:8px;color:#1976d2;font-weight:500;">0</span>
-    </div>
-    <a id="download-link" class="download-link btn blue" style="display:none;"><i class="material-icons left">file_download</i>다운로드</a>
-  </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  <script>
-
-    let /** @type {HTMLImageElement} */ boardImg,
-    /** @type {HTMLImageElement} */ targetImg,
-    /** @type {HTMLImageElement} */ manImg;
-
-    let humanX = 0; // 인물 x좌표
-    let baseCompositeImg = null; // board + perspective(target) 합성 임시저장
-
-    // fetch로 이미지 로드 (Blob → DataURL → Image) - Promise 반환
-    /**
-    * @returns { Promise<HTMLImageElement> }
-    */
-    async function fetchImageToImageObj(url) {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const dataUrl = await new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.readAsDataURL(blob);
-      });
-      return await new Promise(resolve => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.src = dataUrl;
-      });
-    }
-
-    // 업로드 이미지 읽기 (Promise 반환)
-    async function readImage(input) {
-      if (!input.files || !input.files[0]) return null;
-      const dataUrl = await new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = e => resolve(e.target.result);
-        reader.readAsDataURL(input.files[0]);
-      });
-      return await new Promise(resolve => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.src = dataUrl;
-      });
-    }
-
-    // perspective 변환 (Promise 반환)
-    async function perspectiveTransform(img) {
-      // 1. 이미지 크기 체크 및 리사이즈
-      let w = img.width, h = img.height;
-      let resizedImg = img;
-
-      if (w < 1000 || h < 600) {
-        // 1000x600으로 리사이즈
-        const resizeCanvas = document.createElement('canvas');
-        resizeCanvas.width = Math.max(w, 1000);
-        resizeCanvas.height = Math.max(h, 800);
-        const rctx = resizeCanvas.getContext('2d');
-        rctx.drawImage(img, 0, 0, resizeCanvas.width, resizeCanvas.height);
-        resizedImg = await new Promise(resolve => {
-          const tmpImg = new Image();
-          tmpImg.onload = () => resolve(tmpImg);
-          tmpImg.src = resizeCanvas.toDataURL();
-        });
-        w = resizeCanvas.width;
-        h = resizeCanvas.height;
-      }
-
-      const fxCanvas = fx.canvas();
-      const texture = fxCanvas.texture(resizedImg);
-      console.log(w, h);
-      const before = [0,0, w,0, w,h, 0,h];
-      const after  = [93,132, 458,69, 523,517, 150,586];
-      fxCanvas.draw(texture).perspective(before, after).update();
-
-      // 변환된 이미지를 임시 캔버스에 복사
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = w;
-      tempCanvas.height = h;
-      tempCanvas.getContext('2d').drawImage(fxCanvas, 0, 0);
-      const dataUrl = tempCanvas.toDataURL();
-      return await new Promise(resolve => {
-        const resultImg = new Image();
-        resultImg.onload = () => resolve(resultImg);
-        resultImg.src = dataUrl;
-      });
-    }
-
-    // board, man 이미지는 fetch로 자동 로드
-    window.addEventListener('DOMContentLoaded', async function() {
-      boardImg = await fetchImageToImageObj('./board.jpg');
-      // manImg = await fetchImageToImageObj('./man.png');
-      // boardImg가 로드된 후 슬라이더 max값 설정
-      const slider = document.getElementById('humanPosition');
-      slider.max = boardImg.width;
-      slider.value = 0;
-      document.getElementById('humanPositionValue').textContent = slider.value;
-    });
-
-    // 타겟 이미지는 업로드로 받음
-    document.getElementById('target-input').addEventListener('change', async function() {
-      targetImg = await readImage(this);
-      // 이미지가 바뀌면 baseCompositeImg를 새로 생성
-      await updateBaseComposite();
-      await updateHumanLayer();
-    });
-
-    // 슬라이더 값 변경 시 인물만 다시 그림
-    document.getElementById('humanPosition').addEventListener('input', async function() {
-      humanX = parseFloat(this.value);
-      document.getElementById('humanPositionValue').textContent = this.value;
-      await updateHumanLayer();
-    });
-
-    // "최종 이미지 만들기" 버튼 클릭 시 baseCompositeImg 갱신 후 인물 합성
-    document.getElementById('make-btn').addEventListener('click', async function() {
-      const slider = document.getElementById('humanPosition');
-      humanX = parseFloat(slider.value);
-      await updateBaseComposite();
-      // await updateHumanLayer();
-      M.toast({html: '합성이 완료되었습니다!', classes: 'blue'});
-    });
-
-    // board + perspective(target) 합성 이미지를 임시로 만듦
-    async function updateBaseComposite() {
-      if (!boardImg || !targetImg) return;
-      const w = boardImg.width, h = boardImg.height;
-      // 임시 캔버스 생성
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = w;
-      tempCanvas.height = h;
-      const ctx = tempCanvas.getContext('2d');
-      ctx.clearRect(0, 0, w, h);
-      ctx.drawImage(boardImg, 0, 0);
-
-      const perspImg = await perspectiveTransform(targetImg);
-      ctx.drawImage(perspImg, 0, 0);
-
-      // 임시 합성 이미지를 Image 객체로 저장
-      const dataUrl = tempCanvas.toDataURL();
-      baseCompositeImg = await new Promise(resolve => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.src = dataUrl;
-      });
-    }
-
-    // baseCompositeImg 위에 인물만 다시 그림
-    async function updateHumanLayer() {
-      if (!baseCompositeImg || !manImg) return;
-      const resultCanvas = document.getElementById('result-canvas');
-      resultCanvas.width = baseCompositeImg.width;
-      resultCanvas.height = baseCompositeImg.height;
-      const ctx = resultCanvas.getContext('2d');
-      ctx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
-      ctx.drawImage(baseCompositeImg, 0, 0);
-      ctx.drawImage(manImg, humanX, resultCanvas.height - manImg.height);
-    }
-
-    document.getElementById('save-btn').addEventListener('click', function() {
-      const resultCanvas = document.getElementById('result-canvas');
-      const downloadLink = document.getElementById('download-link');
-      resultCanvas.toBlob(function(blob) {
-        const url = URL.createObjectURL(blob);
-        downloadLink.href = url;
-        downloadLink.download = 'result.png';
-        downloadLink.style.display = 'inline-block';
-        downloadLink.textContent = '다운로드';
-        downloadLink.click();
-        setTimeout(() => {
-          URL.revokeObjectURL(url);
-          downloadLink.style.display = 'none';
-        }, 1000);
-      }, 'image/png');
-    });
-
-    // fx가 정의되어 있는지 체크
-    if (typeof fx === "undefined") {
-      alert("glfx.js가 정상적으로 로드되지 않았습니다. 네트워크 상태를 확인하거나, CDN 주소를 확인하세요.");
-    }
-
-    // 클립보드에서 이미지 붙여넣기 지원
-    window.addEventListener('paste', async function (e) {
-      if (!navigator.clipboard || !navigator.clipboard.read) return;
-
-      try {
-        const items = await navigator.clipboard.read();
-        for (const item of items) {
-          for (const type of item.types) {
-            if (type.startsWith('image/')) {
-              const blob = await item.getType(type);
-              const file = new File([blob], 'pasted-image.png', { type: blob.type });
-
-              const dataTransfer = new DataTransfer();
-              dataTransfer.items.add(file);
-
-              const input = document.getElementById('target-input');
-              input.files = dataTransfer.files;
-
-              // change 이벤트 강제 발생
-              const event = new Event('change', { bubbles: true });
-              input.dispatchEvent(event);
-
-              M.toast({html: '클립보드 이미지를 붙여넣었습니다.', classes: 'blue'});
-              return;
-            }
+        <!-- PWA 아이콘 -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png" />
+    <link rel="apple-touch-icon" href="/icons/icon-128x128.png" />
+        <link rel="manifest" href="/manifest.json" />
+    
+    <!-- 즉시 테마 초기화 (깜빡임 방지) -->
+        <script>
+      (function() {
+        try {
+          const savedTheme = localStorage.getItem('theme');
+          let theme = 'light';
+          if (savedTheme === 'dark' || savedTheme === 'light') {
+            theme = savedTheme;
+          } else {
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            theme = prefersDark ? 'dark' : 'light';
+          }
+          
+          // 즉시 HTML과 body에 테마 속성 설정
+          if (document.documentElement) {
+            document.documentElement.setAttribute('data-theme', theme);
+          }
+          if (document.body) {
+            document.body.setAttribute('data-theme', theme);
+            // 즉시 배경색 적용 (CSS 로드 전에도)
+            document.body.style.backgroundColor = theme === 'dark' ? '#121212' : '#f5f5f5';
+            document.body.style.color = theme === 'dark' ? '#ffffff' : '#212121';
+          }
+        } catch (e) {
+          // 에러 발생 시 기본값 사용
+          if (document.documentElement) {
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+          if (document.body) {
+            document.body.setAttribute('data-theme', 'light');
           }
         }
-      } catch (err) {
-        M.toast({html: '클립보드에서 이미지를 읽을 수 없습니다.', classes: 'red'});
-      }
-    });
-  </script>
-</body>
+      })();
+        </script>
+        <style>
+          /* 즉시 적용되는 기본 스타일 (CSS 로드 전) */
+          html[data-theme="dark"],
+          body[data-theme="dark"] {
+            background-color: #121212 !important;
+            color: #ffffff !important;
+          }
+          html[data-theme="light"],
+          body[data-theme="light"] {
+            background-color: #f5f5f5 !important;
+            color: #212121 !important;
+            }
+        </style>
+      <script type="module" crossorigin src="/assets/index-DTaYbzpY.js"></script>
+      <link rel="stylesheet" crossorigin href="/assets/index-DPBGE1wF.css">
+    </head>
+    <body>
+    <div id="app"></div>
+    </body>
 </html>
+
