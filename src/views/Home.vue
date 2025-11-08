@@ -18,10 +18,7 @@
             <router-link to="/arch-graphic" class="app-card">
                 <div class="card">
                     <div class="icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                            <rect x="8" y="8" width="32" height="32" rx="8" fill="#1976D2" />
-                            <path d="M24 16v16M16 24h16" stroke="#fff" stroke-width="3" stroke-linecap="round" />
-                        </svg>
+                        <ArchGraphicIcon />
                     </div>
                     <div class="card-title">건설 그래픽 커뮤니케이션</div>
                     <div class="card-desc">건설 그래픽 커뮤니케이션 단어 외우기</div>
@@ -31,10 +28,7 @@
             <router-link to="/dijkstra" class="app-card">
                 <div class="card">
                     <div class="icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                            <circle cx="24" cy="24" r="16" fill="#43A047" />
-                            <path d="M24 16v8l6 6" stroke="#fff" stroke-width="3" stroke-linecap="round" />
-                        </svg>
+                        <DijkstraIcon />
                     </div>
                     <div class="card-title">다익스트라 알고리즘</div>
                     <div class="card-desc">다익스트라 알고리즘 테스트</div>
@@ -44,10 +38,7 @@
             <router-link to="/imgs/unnamed" class="app-card">
                 <div class="card">
                     <div class="icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                            <polygon points="24,12 36,36 12,36" fill="#FBC02D" />
-                            <circle cx="24" cy="24" r="4" fill="#fff" />
-                        </svg>
+                        <UnnamedIcon />
                     </div>
                     <div class="card-title">마작부장 강의장면 만들기</div>
                     <div class="card-desc">합성짤 만들기</div>
@@ -57,11 +48,7 @@
             <router-link to="/jungsan" class="app-card">
                 <div class="card">
                     <div class="icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                            <rect x="8" y="8" width="32" height="32" rx="8" fill="#7B1FA2" />
-                            <path d="M24 16v16M16 24h16" stroke="#fff" stroke-width="3" stroke-linecap="round" />
-                            <circle cx="24" cy="24" r="4" fill="#fff" />
-                        </svg>
+                        <JungsanIcon />
                     </div>
                     <div class="card-title">회식 정산 계산기</div>
                     <div class="card-desc">테이블별 회식비 정산</div>
@@ -71,12 +58,7 @@
             <router-link to="/password" class="app-card">
                 <div class="card">
                     <div class="icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                            <rect x="8" y="8" width="32" height="32" rx="8" fill="#FF5722" />
-                            <path d="M16 20h16M16 24h16M16 28h8" stroke="#fff" stroke-width="3"
-                                stroke-linecap="round" />
-                            <circle cx="24" cy="16" r="2" fill="#fff" />
-                        </svg>
+                        <PasswordIcon />
                     </div>
                     <div class="card-title">강력한 비밀번호 생성기</div>
                     <div class="card-desc">안전한 비밀번호 생성</div>
@@ -86,13 +68,7 @@
             <router-link to="/surveys" class="app-card">
                 <div class="card">
                     <div class="icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                            <rect x="8" y="8" width="32" height="32" rx="8" fill="#9C27B0" />
-                            <path d="M16 16h16M16 20h16M16 24h12" stroke="#fff" stroke-width="3"
-                                stroke-linecap="round" />
-                            <circle cx="20" cy="28" r="2" fill="#fff" />
-                            <circle cx="28" cy="28" r="2" fill="#fff" />
-                        </svg>
+                        <SurveysIcon />
                     </div>
                     <div class="card-title">검사 모음</div>
                     <div class="card-desc">각종 검사 모음</div>
@@ -102,16 +78,7 @@
             <router-link to="/clipboard-img-save" class="app-card">
                 <div class="card">
                     <div class="icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                            <rect x="8" y="6" width="24" height="32" rx="4" fill="#00BCD4" stroke="#00BCD4"
-                                stroke-width="2" />
-                            <rect x="12" y="2" width="16" height="6" rx="2" fill="#fff" />
-                            <rect x="14" y="14" width="12" height="8" rx="2" fill="#fff" opacity="0.9" />
-                            <circle cx="20" cy="18" r="2" fill="#00BCD4" />
-                            <path d="M14 26h12M14 30h8" stroke="#fff" stroke-width="2" stroke-linecap="round" />
-                            <path d="M32 24l8 8-8 8" stroke="#00BCD4" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
+                        <ClipboardImgSaveIcon />
                     </div>
                     <div class="card-title">클립보드 이미지 저장기</div>
                     <div class="card-desc">클립보드 이미지를 PNG/WEBP로 저장</div>
@@ -121,19 +88,7 @@
             <router-link to="/todo" class="app-card">
                 <div class="card">
                     <div class="icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                            <rect x="8" y="8" width="32" height="32" rx="6" fill="#FF9800" />
-                            <rect x="14" y="14" width="4" height="4" fill="#fff" stroke="#fff" stroke-width="1" />
-                            <rect x="14" y="22" width="4" height="4" fill="#fff" stroke="#fff" stroke-width="1" />
-                            <rect x="14" y="30" width="4" height="4" fill="#fff" stroke="#fff" stroke-width="1" />
-                            <path d="M16 16l1 1 1-1" stroke="#FF9800" stroke-width="1.5" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <path d="M16 24l1 1 1-1" stroke="#FF9800" stroke-width="1.5" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <rect x="22" y="15" width="12" height="2" fill="#fff" rx="1" />
-                            <rect x="22" y="23" width="10" height="2" fill="#fff" rx="1" />
-                            <rect x="22" y="31" width="8" height="2" fill="#fff" rx="1" />
-                        </svg>
+                        <TodoIcon />
                     </div>
                     <div class="card-title">할 일 관리</div>
                     <div class="card-desc">할 일 목록 관리 및 체크리스트</div>
@@ -143,17 +98,7 @@
             <router-link to="/wbs-chart" class="app-card">
                 <div class="card">
                     <div class="icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="8" y="8" width="32" height="32" rx="6" fill="#4A90E2" />
-                            <rect x="18" y="14" width="12" height="6" rx="2" fill="white" />
-                            <path d="M24 20V26" stroke="#FFFFFF" stroke-width="2" />
-                            <path d="M16 26H32" stroke="#FFFFFF" stroke-width="2" />
-                            <rect x="13" y="32" width="8" height="5" rx="1.5" fill="white" />
-                            <rect x="22" y="32" width="8" height="5" rx="1.5" fill="white" />
-                            <rect x="31" y="32" width="8" height="5" rx="1.5" fill="white" />
-                            <path d="M17 26V32" stroke="#FFFFFF" stroke-width="2" />
-                            <path d="M31 26V32" stroke="#FFFFFF" stroke-width="2" />
-                        </svg>
+                        <WBSChartIcon />
                     </div>
                     <div class="card-title">WBS 차트 편집기</div>
                     <div class="card-desc">프로젝트 구조를 시각적으로 계획하고 편집하세요.</div>
@@ -163,15 +108,7 @@
             <router-link to="/typing-game" class="app-card">
                 <div class="card">
                     <div class="icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="8" y="8" width="32" height="32" rx="6" fill="#263386" />
-                            <rect x="13" y="12" width="14" height="5" rx="2.5" fill="white" fill-opacity="0.95" />
-                            <rect x="25" y="19" width="10" height="5" rx="2.5" fill="white" fill-opacity="0.95" />
-                            <rect x="16" y="26" width="16" height="5" rx="2.5" fill="white" fill-opacity="0.95" />
-                            <path d="M12 39L14 35L34 35L36 39L12 39Z" fill="#FFFFFF" />
-                            <path d="M14 35L34 35L36 39L35 40L13 40L12 39L14 35Z" fill="#E0E0E0" />
-                            <rect x="19" y="36" width="10" height="1.5" rx="0.75" fill="#4A90E2" fill-opacity="0.6" />
-                        </svg>
+                        <TypingGameIcon />
                     </div>
                     <div class="card-title">타자 게임</div>
                     <div class="card-desc">한컴 타자 연습 소나기 비슷한거</div>
@@ -181,14 +118,7 @@
             <router-link to="/chatting-app" class="app-card">
                 <div class="card">
                     <div class="icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="8" y="8" width="32" height="32" rx="6" fill="#03A9F4" />
-                            <path
-                                d="M16 18C16 16.8954 16.8954 16 18 16H30C31.1046 16 32 16.8954 32 18V26C32 27.1046 31.1046 28 30 28H22L16 32V28V18Z"
-                                fill="white" />
-                            <circle cx="21" cy="22" r="1.5" fill="#03A9F4" />
-                            <circle cx="27" cy="22" r="1.5" fill="#03A9F4" />
-                        </svg>
+                        <ChattingAppIcon />
                     </div>
                     <div class="card-title">WebRTC 채팅</div>
                     <div class="card-desc">QR코드로 연결하는 퀴즈용 P2P 실시간채팅</div>
@@ -198,14 +128,7 @@
             <router-link to="/web-rtc-video" class="app-card">
                 <div class="card">
                     <div class="icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="8" y="8" width="32" height="32" rx="6" fill="#03A9F4" />
-                            <path
-                                d="M16 18C16 16.8954 16.8954 16 18 16H30C31.1046 16 32 16.8954 32 18V26C32 27.1046 31.1046 28 30 28H22L16 32V28V18Z"
-                                fill="white" />
-                            <circle cx="21" cy="22" r="1.5" fill="#03A9F4" />
-                            <circle cx="27" cy="22" r="1.5" fill="#03A9F4" />
-                        </svg>
+                        <WebRTCVideoIcon />
                     </div>
                     <div class="card-title">WebRTC 비디오</div>
                     <div class="card-desc">WebRTC 비디오 통화 테스트</div>
@@ -270,6 +193,7 @@ import WBSChartIcon from '@/components/icons/WBSChartIcon.vue';
 import TypingGameIcon from '@/components/icons/TypingGameIcon.vue';
 import ChattingAppIcon from '@/components/icons/ChattingAppIcon.vue';
 import QRScannerIcon from '@/components/icons/QRScannerIcon.vue';
+import WebRTCVideoIcon from '@/components/icons/WebRTCVideoIcon.vue';
 
 let deferredPrompt = null;
 const pwaInstallContainer = document.getElementById('pwa-install-container');
