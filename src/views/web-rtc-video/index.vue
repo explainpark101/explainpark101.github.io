@@ -20,7 +20,7 @@
                     <div id="qrcode" ref="qrcodeContainer"></div>
                 </div>
                 <a v-if="isHost && hostRoomUrl" :href="hostRoomUrl" target="_blank" class="room-link">{{ hostRoomUrl
-                    }}</a>
+                }}</a>
                 <div v-if="isHost && myPeerId" class="room-id-display">
                     내 룸 ID: {{ myPeerId }}
                 </div>
@@ -107,7 +107,7 @@
                                     :class="{ 'bg-blue-600': msg.senderId === myPeerId, 'bg-gray-700': msg.senderId !== myPeerId }">
                                     <div v-if="msg.senderId !== myPeerId" class="message-name">
                                         {{ msg.displayName }} <span class="text-xs text-gray-400">#{{ msg.shortId
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <div class="message-text">
                                         {{ msg.text }}
@@ -138,7 +138,7 @@
                             <li v-for="guest in guests" :key="guest.id" class="guest-item"
                                 :class="{ 'is-me': guest.shortId === localShortId }">
                                 <span>👤 {{ guest.name }} <span class="text-xs text-gray-400">#{{ guest.shortId
-                                        }}</span></span>
+                                }}</span></span>
                                 <span v-if="guest.shortId === localShortId">(나)</span>
                             </li>
                         </ul>
