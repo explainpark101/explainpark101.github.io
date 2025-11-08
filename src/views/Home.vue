@@ -194,6 +194,23 @@
                     <div class="card-desc">QR코드로 연결하는 퀴즈용 P2P 실시간채팅</div>
                 </div>
             </router-link>
+
+            <router-link to="/web-rtc-video" class="app-card">
+                <div class="card">
+                    <div class="icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="8" y="8" width="32" height="32" rx="6" fill="#03A9F4" />
+                            <path
+                                d="M16 18C16 16.8954 16.8954 16 18 16H30C31.1046 16 32 16.8954 32 18V26C32 27.1046 31.1046 28 30 28H22L16 32V28V18Z"
+                                fill="white" />
+                            <circle cx="21" cy="22" r="1.5" fill="#03A9F4" />
+                            <circle cx="27" cy="22" r="1.5" fill="#03A9F4" />
+                        </svg>
+                    </div>
+                    <div class="card-title">WebRTC 비디오</div>
+                    <div class="card-desc">WebRTC 비디오 통화 테스트</div>
+                </div>
+            </router-link>
         </div>
 
         <hr />
@@ -240,6 +257,19 @@
 
 <script setup>
 import { onMounted, onUnmounted } from 'vue';
+import DownloadIcon from '@/components/icons/DownloadIcon.vue';
+import ArchGraphicIcon from '@/components/icons/ArchGraphicIcon.vue';
+import DijkstraIcon from '@/components/icons/DijkstraIcon.vue';
+import UnnamedIcon from '@/components/icons/UnnamedIcon.vue';
+import JungsanIcon from '@/components/icons/JungsanIcon.vue';
+import PasswordIcon from '@/components/icons/PasswordIcon.vue';
+import SurveysIcon from '@/components/icons/SurveysIcon.vue';
+import ClipboardImgSaveIcon from '@/components/icons/ClipboardImgSaveIcon.vue';
+import TodoIcon from '@/components/icons/TodoIcon.vue';
+import WBSChartIcon from '@/components/icons/WBSChartIcon.vue';
+import TypingGameIcon from '@/components/icons/TypingGameIcon.vue';
+import ChattingAppIcon from '@/components/icons/ChattingAppIcon.vue';
+import QRScannerIcon from '@/components/icons/QRScannerIcon.vue';
 
 let deferredPrompt = null;
 const pwaInstallContainer = document.getElementById('pwa-install-container');
