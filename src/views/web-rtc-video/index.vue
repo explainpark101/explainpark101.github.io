@@ -20,7 +20,7 @@
                     <div id="qrcode" ref="qrcodeContainer"></div>
                 </div>
                 <a v-if="isHost && hostRoomUrl" :href="hostRoomUrl" target="_blank" class="room-link">{{ hostRoomUrl
-                }}</a>
+                    }}</a>
                 <div v-if="isHost && myPeerId" class="room-id-display">
                     내 룸 ID: {{ myPeerId }}
                 </div>
@@ -42,13 +42,38 @@
                 <div class="video-main">
                     <header class="video-header">
                         <span class="video-header-title">{{ videoHeaderTitle }}</span>
-                        <button id="options-btn" class="options-btn md:hidden" @click="toggleSidebar">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z">
-                                </path>
-                            </svg>
-                        </button>
+                        <div class="video-header-actions">
+                            <button id="audio-volume-btn" class="audio-volume-btn" @click="openAudioVolumeModal"
+                                :title="'오디오 볼륨 조절'">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button id="screen-share-btn" class="screen-share-btn"
+                                @click="isScreenSharing ? stopScreenShare() : showScreenShareOptionsDialog()"
+                                :title="isScreenSharing ? '카메라로 전환' : '화면 공유'">
+                                <svg v-if="!isScreenSharing" class="w-6 h-6" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                            </button>
+                            <button id="options-btn" class="options-btn md:hidden" @click="toggleSidebar">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
                     </header>
 
                     <!-- 비디오 영역 -->
@@ -72,6 +97,16 @@
                         <div class="local-video-wrapper">
                             <video ref="localVideo" autoplay playsinline muted class="local-video"
                                 :class="{ hidden: !localStream }"></video>
+                            <div v-if="isScreenSharing" class="screen-share-badge">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                <span>화면 공유 중</span>
+                                <span v-if="screenShareAudioTracks.length > 0" class="audio-indicator">🔊</span>
+                                <span v-if="cameraVideoTrack" class="camera-indicator">📹</span>
+                            </div>
                             <div v-if="!localStream" class="video-placeholder-small">
                                 <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
@@ -107,7 +142,7 @@
                                     :class="{ 'bg-blue-600': msg.senderId === myPeerId, 'bg-gray-700': msg.senderId !== myPeerId }">
                                     <div v-if="msg.senderId !== myPeerId" class="message-name">
                                         {{ msg.displayName }} <span class="text-xs text-gray-400">#{{ msg.shortId
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                     <div class="message-text">
                                         {{ msg.text }}
@@ -138,7 +173,7 @@
                             <li v-for="guest in guests" :key="guest.id" class="guest-item"
                                 :class="{ 'is-me': guest.shortId === localShortId }">
                                 <span>👤 {{ guest.name }} <span class="text-xs text-gray-400">#{{ guest.shortId
-                                }}</span></span>
+                                        }}</span></span>
                                 <span v-if="guest.shortId === localShortId">(나)</span>
                             </li>
                         </ul>
@@ -157,6 +192,54 @@
                             <button @click="handleModalConfirm" class="btn-modal-confirm">확인</button>
                             <button @click="closeModal" class="btn-modal-cancel">취소</button>
                         </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. 화면 공유 옵션 모달 -->
+            <div id="screen-share-options-modal" class="modal-overlay" :class="{ hidden: !showScreenShareOptions }"
+                @click.self="closeScreenShareOptions">
+                <div class="modal-content">
+                    <h3>화면 공유 옵션</h3>
+                    <div class="screen-share-options">
+                        <label class="option-checkbox">
+                            <input type="checkbox" v-model="screenShareOptions.includeAudio" />
+                            <span>오디오도 공유하기</span>
+                        </label>
+                        <label class="option-checkbox">
+                            <input type="checkbox" v-model="screenShareOptions.keepCamera" />
+                            <span>웹캠도 함께 표시하기</span>
+                        </label>
+                    </div>
+                    <div class="modal-actions">
+                        <button @click="confirmScreenShareOptions" class="btn-modal-confirm">시작</button>
+                        <button @click="closeScreenShareOptions" class="btn-modal-cancel">취소</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. 오디오 볼륨 조절 모달 -->
+            <div id="audio-volume-modal" class="modal-overlay" :class="{ hidden: !showAudioVolumeModal }"
+                @click.self="closeAudioVolumeModal">
+                <div class="modal-content audio-volume-modal-content">
+                    <h3>오디오 볼륨 조절</h3>
+                    <div class="audio-tracks-list" v-if="audioTracksWithVolume.length > 0">
+                        <div v-for="trackInfo in audioTracksWithVolume" :key="trackInfo.track.id"
+                            class="audio-track-item">
+                            <div class="audio-track-label">
+                                <span class="track-name">{{ trackInfo.label }}</span>
+                                <span class="track-volume">{{ Math.round(trackInfo.volume * 100) }}%</span>
+                            </div>
+                            <input type="range" min="0" max="1" step="0.01" :value="trackInfo.volume"
+                                @input="updateTrackVolume(trackInfo.track, parseFloat($event.target.value))"
+                                class="volume-slider" />
+                        </div>
+                    </div>
+                    <div v-else class="no-audio-tracks">
+                        <p>현재 활성화된 오디오 트랙이 없습니다.</p>
+                    </div>
+                    <div class="modal-actions">
+                        <button @click="closeAudioVolumeModal" class="btn-modal-ok">닫기</button>
                     </div>
                 </div>
             </div>
@@ -193,6 +276,18 @@ const remoteVideo = ref(null);
 // 미디어 스트림
 const localStream = ref(null);
 const remoteStream = ref(null);
+const isScreenSharing = ref(false);
+const screenStream = ref(null);
+const cameraVideoTrack = ref(null); // 웹캠 비디오 트랙 저장 (동시 사용을 위해)
+const screenShareAudioTracks = ref([]); // 화면 공유 오디오 트랙들 저장
+const showScreenShareOptions = ref(false);
+const screenShareOptions = ref({
+    includeAudio: false,
+    keepCamera: false
+});
+const showAudioVolumeModal = ref(false);
+const audioGainNodes = new Map(); // 각 오디오 트랙의 GainNode 저장
+const audioContext = ref(null); // Web Audio API 컨텍스트
 
 let peer = null;
 let guestConnections = new Map();
@@ -256,6 +351,41 @@ const roomUrl = computed(() => {
         return hostRoomUrl.value;
     }
     return hostRoomUrl.value || (pendingHostId.value ? `${window.location.origin}${window.location.pathname}#${pendingHostId.value}` : '');
+});
+
+// 오디오 트랙 볼륨 저장 (반응형)
+const audioTrackVolumes = ref(new Map());
+
+// 오디오 트랙 목록과 볼륨 정보
+const audioTracksWithVolume = computed(() => {
+    if (!localStream.value) return [];
+
+    const tracks = [];
+    const audioTracks = localStream.value.getAudioTracks();
+
+    audioTracks.forEach(track => {
+        let label = '오디오 트랙';
+        // 트랙 라벨 결정
+        if (screenShareAudioTracks.value.some(st => st.id === track.id)) {
+            label = '화면 공유 오디오';
+        } else {
+            label = '웹캠 마이크';
+        }
+
+        // 볼륨 가져오기 (없으면 1.0)
+        if (!audioTrackVolumes.value.has(track.id)) {
+            audioTrackVolumes.value.set(track.id, 1.0);
+        }
+        const volume = audioTrackVolumes.value.get(track.id);
+
+        tracks.push({
+            track,
+            label,
+            volume
+        });
+    });
+
+    return tracks;
 });
 
 function generateShortId(peerId) {
@@ -330,6 +460,90 @@ function handleModalConfirm() {
     closeModal();
 }
 
+function showScreenShareOptionsDialog() {
+    // 옵션 초기화
+    screenShareOptions.value = {
+        includeAudio: false,
+        keepCamera: false
+    };
+    showScreenShareOptions.value = true;
+}
+
+function closeScreenShareOptions() {
+    showScreenShareOptions.value = false;
+}
+
+function confirmScreenShareOptions() {
+    closeScreenShareOptions();
+    startScreenShare(screenShareOptions.value);
+}
+
+// 오디오 볼륨 모달 열기
+function openAudioVolumeModal() {
+    // Web Audio API 컨텍스트 초기화
+    if (!audioContext.value) {
+        audioContext.value = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    // 모든 오디오 트랙에 대해 GainNode 생성
+    if (localStream.value) {
+        const audioTracks = localStream.value.getAudioTracks();
+        audioTracks.forEach(track => {
+            if (!audioGainNodes.has(track.id)) {
+                setupAudioTrackGain(track);
+            }
+        });
+    }
+
+    showAudioVolumeModal.value = true;
+}
+
+// 오디오 볼륨 모달 닫기
+function closeAudioVolumeModal() {
+    showAudioVolumeModal.value = false;
+}
+
+// 오디오 트랙에 GainNode 설정
+function setupAudioTrackGain(track) {
+    if (!audioContext.value) {
+        audioContext.value = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    try {
+        // MediaStreamTrack을 MediaStreamSource로 변환
+        const source = audioContext.value.createMediaStreamSource(new MediaStream([track]));
+        const gainNode = audioContext.value.createGain();
+        gainNode.gain.value = 1.0; // 기본 볼륨
+
+        // source -> gain -> destination 연결
+        source.connect(gainNode);
+        gainNode.connect(audioContext.value.destination);
+
+        audioGainNodes.set(track.id, gainNode);
+    } catch (err) {
+        console.error('오디오 트랙 GainNode 설정 실패:', err);
+    }
+}
+
+// 오디오 트랙 볼륨 업데이트
+function updateTrackVolume(track, volume) {
+    // 볼륨 값 저장
+    audioTrackVolumes.value.set(track.id, volume);
+
+    // GainNode가 있으면 업데이트
+    const gainNode = audioGainNodes.get(track.id);
+    if (gainNode) {
+        gainNode.gain.value = volume;
+    } else {
+        // GainNode가 없으면 생성
+        setupAudioTrackGain(track);
+        const newGainNode = audioGainNodes.get(track.id);
+        if (newGainNode) {
+            newGainNode.gain.value = volume;
+        }
+    }
+}
+
 function formatTime(timestamp) {
     return new Date(timestamp).toLocaleTimeString('ko-KR', {
         hour: '2-digit',
@@ -362,9 +576,40 @@ function broadcastParticipantList() {
     broadcast(data);
 }
 
+// 미디어 디바이스 API 사용 가능 여부 확인
+function checkMediaDevicesSupport() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        // 구형 브라우저 폴백
+        const getUserMedia = navigator.getUserMedia ||
+            navigator.webkitGetUserMedia ||
+            navigator.mozGetUserMedia ||
+            navigator.msGetUserMedia;
+
+        if (!getUserMedia) {
+            return { supported: false, error: '이 브라우저는 미디어 디바이스 API를 지원하지 않습니다.' };
+        }
+
+        // Promise로 래핑
+        navigator.mediaDevices = {
+            getUserMedia: (constraints) => {
+                return new Promise((resolve, reject) => {
+                    getUserMedia.call(navigator, constraints, resolve, reject);
+                });
+            }
+        };
+    }
+    return { supported: true };
+}
+
 // 고화질/고음질 미디어 스트림 가져오기
 async function getLocalMediaStream() {
     try {
+        const supportCheck = checkMediaDevicesSupport();
+        if (!supportCheck.supported) {
+            showModalDialog('미디어 접근 실패', supportCheck.error || '이 브라우저는 카메라/마이크 접근을 지원하지 않습니다.');
+            return null;
+        }
+
         const constraints = {
             video: {
                 width: { ideal: 1920 },
@@ -405,11 +650,352 @@ function cleanupMediaStreams() {
         remoteStream.value.getTracks().forEach(track => track.stop());
         remoteStream.value = null;
     }
+    if (screenStream.value) {
+        screenStream.value.getTracks().forEach(track => track.stop());
+        screenStream.value = null;
+    }
     if (localVideo.value) {
         localVideo.value.srcObject = null;
     }
     if (remoteVideo.value) {
         remoteVideo.value.srcObject = null;
+    }
+    isScreenSharing.value = false;
+}
+
+// 화면 공유 시작
+async function startScreenShare(options = { includeAudio: false, keepCamera: false }) {
+    try {
+        // 미디어 디바이스 API 지원 확인
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+            showModalDialog('화면 공유 실패', '이 브라우저는 화면 공유를 지원하지 않습니다. 최신 브라우저를 사용해주세요.');
+            return;
+        }
+
+        // 화면 공유 스트림 가져오기 (viewport/디스플레이 크기 자동 적용)
+        // 사용자가 화면/탭/윈도우를 선택할 수 있도록 displaySurface 제한 없음
+        const displayStream = await navigator.mediaDevices.getDisplayMedia({
+            video: {
+                cursor: 'always' // 커서 표시
+            },
+            audio: options.includeAudio || false // 사용자 선택에 따라 오디오 포함
+        });
+
+        screenStream.value = displayStream;
+        isScreenSharing.value = true;
+
+        // 화면 공유 오디오 트랙 저장 및 처리
+        screenShareAudioTracks.value = [];
+        if (options.includeAudio && displayStream.getAudioTracks().length > 0) {
+            displayStream.getAudioTracks().forEach(track => {
+                screenShareAudioTracks.value.push(track);
+            });
+        }
+
+        if (!localStream.value) {
+            // localStream이 없는 경우 (이론적으로는 발생하지 않아야 함)
+            localStream.value = displayStream;
+            if (localVideo.value) {
+                localVideo.value.srcObject = displayStream;
+            }
+        } else {
+            // 기존 스트림 처리
+            const screenVideoTrack = displayStream.getVideoTracks()[0];
+            const existingVideoTrack = localStream.value.getVideoTracks()[0];
+
+            if (options.keepCamera && existingVideoTrack) {
+                // 웹캠과 화면 공유 동시 사용
+                // 웹캠 비디오 트랙 저장
+                cameraVideoTrack.value = existingVideoTrack;
+                // 화면 공유 비디오 트랙 추가 (기존 트랙은 유지하지 않음, PeerJS는 하나의 비디오만 지원)
+                // 로컬에서는 화면 공유만 표시하고, PeerJS에는 화면 공유 트랙 전송
+                localStream.value.removeTrack(existingVideoTrack);
+                localStream.value.addTrack(screenVideoTrack);
+                // 웹캠 트랙은 중지하지 않고 저장만 함 (나중에 복구용)
+            } else {
+                // 화면 공유만 사용 (기존 동작)
+                if (existingVideoTrack) {
+                    localStream.value.removeTrack(existingVideoTrack);
+                    existingVideoTrack.stop();
+                }
+                localStream.value.addTrack(screenVideoTrack);
+            }
+
+            // 화면 공유 오디오 트랙 추가 (웹캠 마이크 오디오는 유지)
+            // 기존 웹캠 오디오 트랙은 localStream에 이미 있으므로 유지됨
+            if (options.includeAudio && screenShareAudioTracks.value.length > 0) {
+                screenShareAudioTracks.value.forEach(audioTrack => {
+                    // 중복 추가 방지
+                    const existingTrack = localStream.value.getAudioTracks().find(t => t.id === audioTrack.id);
+                    if (!existingTrack) {
+                        localStream.value.addTrack(audioTrack);
+                    }
+                });
+            }
+
+            // 비디오 요소에 업데이트된 스트림 표시
+            if (localVideo.value) {
+                localVideo.value.srcObject = localStream.value;
+            }
+        }
+
+        // 모든 연결된 피어에게 새 트랙 전송
+        if (localStream.value) {
+            const videoTrack = localStream.value.getVideoTracks()[0];
+            for (let [peerId, call] of mediaCalls) {
+                try {
+                    // PeerJS call 객체의 peerConnection에 접근
+                    const peerConnection = call?.peerConnection || call?._pc;
+                    if (peerConnection) {
+                        // 비디오 트랙 교체
+                        const videoSender = peerConnection.getSenders().find(s =>
+                            s.track && s.track.kind === 'video'
+                        );
+                        if (videoSender) {
+                            await videoSender.replaceTrack(videoTrack);
+                        }
+
+                        // 화면 공유 오디오 트랙 추가 (여러 오디오 트랙 지원)
+                        if (options.includeAudio && screenShareAudioTracks.value.length > 0) {
+                            screenShareAudioTracks.value.forEach(audioTrack => {
+                                // 이미 추가된 트랙인지 확인
+                                const existingSender = peerConnection.getSenders().find(s =>
+                                    s.track && s.track.id === audioTrack.id
+                                );
+                                if (!existingSender) {
+                                    peerConnection.addTrack(audioTrack, localStream.value);
+                                }
+                            });
+                        }
+                    }
+                } catch (err) {
+                    console.error(`피어 ${peerId}에게 트랙 교체 실패:`, err);
+                }
+            }
+        }
+
+        // 화면 공유 중지 이벤트 감지
+        displayStream.getVideoTracks()[0].onended = () => {
+            stopScreenShare();
+        };
+
+    } catch (err) {
+        console.error('화면 공유 실패:', err);
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+            showModalDialog('화면 공유 권한 거부', '화면 공유 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.');
+        } else if (err.name === 'NotFoundError') {
+            showModalDialog('화면 공유 실패', '공유할 수 있는 화면을 찾을 수 없습니다.');
+        } else {
+            showModalDialog('화면 공유 실패', `화면 공유 중 오류가 발생했습니다: ${err.message}`);
+        }
+        isScreenSharing.value = false;
+        screenShareAudioTracks.value = [];
+    }
+}
+
+// 화면 공유 중지 및 카메라로 전환
+async function stopScreenShare() {
+    if (!isScreenSharing.value) return;
+
+    try {
+        if (!localStream.value) {
+            isScreenSharing.value = false;
+            return;
+        }
+
+        // 화면 공유 비디오 트랙 제거
+        const screenVideoTrack = localStream.value.getVideoTracks().find(track =>
+            screenStream.value && screenStream.value.getVideoTracks().some(st => st.id === track.id)
+        );
+
+        if (screenVideoTrack) {
+            localStream.value.removeTrack(screenVideoTrack);
+            screenVideoTrack.stop();
+        }
+
+        // 화면 공유 오디오 트랙 제거 (여러 개일 수 있음)
+        const audioTracksToRemove = [...screenShareAudioTracks.value]; // 복사본 생성
+        if (audioTracksToRemove.length > 0) {
+            audioTracksToRemove.forEach(audioTrack => {
+                const trackInStream = localStream.value.getAudioTracks().find(t => t.id === audioTrack.id);
+                if (trackInStream) {
+                    localStream.value.removeTrack(trackInStream);
+                }
+                audioTrack.stop();
+            });
+        }
+
+        // 화면 공유 스트림 정리
+        if (screenStream.value) {
+            screenStream.value.getTracks().forEach(track => {
+                if (track.readyState !== 'ended') {
+                    track.stop();
+                }
+            });
+            screenStream.value = null;
+        }
+
+        // 웹캠 비디오 트랙 복구 (keepCamera 옵션이었던 경우)
+        if (cameraVideoTrack.value && cameraVideoTrack.value.readyState !== 'ended') {
+            // 웹캠 트랙이 아직 활성 상태인지 확인
+            const existingVideoTrack = localStream.value.getVideoTracks()[0];
+            if (!existingVideoTrack) {
+                localStream.value.addTrack(cameraVideoTrack.value);
+            } else if (existingVideoTrack.id !== cameraVideoTrack.value.id) {
+                // 다른 비디오 트랙이 있으면 교체
+                localStream.value.removeTrack(existingVideoTrack);
+                existingVideoTrack.stop();
+                localStream.value.addTrack(cameraVideoTrack.value);
+            }
+            cameraVideoTrack.value = null;
+        } else {
+            // 웹캠 트랙이 없거나 종료된 경우 카메라로 전환
+            await switchToCamera();
+        }
+
+        // PeerJS 연결에서 화면 공유 트랙 제거
+        for (let [peerId, call] of mediaCalls) {
+            try {
+                const peerConnection = call?.peerConnection || call?._pc;
+                if (peerConnection) {
+                    // 화면 공유 오디오 트랙 제거
+                    if (audioTracksToRemove.length > 0) {
+                        const senders = peerConnection.getSenders();
+                        senders.forEach(sender => {
+                            if (sender.track && audioTracksToRemove.some(t => t.id === sender.track.id)) {
+                                peerConnection.removeTrack(sender);
+                            }
+                        });
+                    }
+
+                    // 비디오 트랙 교체 (웹캠으로)
+                    const videoTrack = localStream.value.getVideoTracks()[0];
+                    if (videoTrack) {
+                        const videoSender = peerConnection.getSenders().find(s =>
+                            s.track && s.track.kind === 'video'
+                        );
+                        if (videoSender) {
+                            await videoSender.replaceTrack(videoTrack);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error(`피어 ${peerId}에게 트랙 제거 실패:`, err);
+            }
+        }
+
+        // 비디오 요소 업데이트
+        if (localVideo.value) {
+            localVideo.value.srcObject = localStream.value;
+        }
+
+        // 화면 공유 오디오 트랙 배열 정리
+        screenShareAudioTracks.value = [];
+        isScreenSharing.value = false;
+    } catch (err) {
+        console.error('화면 공유 중지 실패:', err);
+        showModalDialog('오류', '화면 공유를 중지하는 중 오류가 발생했습니다.');
+        isScreenSharing.value = false;
+    }
+}
+
+// 카메라 스트림으로 전환
+async function switchToCamera() {
+    try {
+        // 미디어 디바이스 API 지원 확인
+        const supportCheck = checkMediaDevicesSupport();
+        if (!supportCheck.supported) {
+            showModalDialog('카메라 접근 실패', supportCheck.error || '이 브라우저는 카메라 접근을 지원하지 않습니다.');
+            return;
+        }
+
+        // 카메라 스트림 가져오기
+        const constraints = {
+            video: {
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+                frameRate: { ideal: 30 },
+                facingMode: 'user'
+            },
+            audio: {
+                sampleRate: 48000,
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
+            }
+        };
+
+        const cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+        // 기존 스트림의 비디오 트랙 교체
+        if (localStream.value) {
+            const videoTrack = cameraStream.getVideoTracks()[0];
+            const oldVideoTrack = localStream.value.getVideoTracks().find(track => track.kind === 'video');
+
+            if (oldVideoTrack) {
+                localStream.value.removeTrack(oldVideoTrack);
+                oldVideoTrack.stop();
+            }
+            localStream.value.addTrack(videoTrack);
+        } else {
+            localStream.value = cameraStream;
+        }
+
+        // 비디오 요소에 카메라 스트림 표시
+        if (localVideo.value) {
+            localVideo.value.srcObject = localStream.value;
+        }
+
+        // 오디오 트랙 처리 (카메라 스트림의 오디오 사용)
+        if (cameraStream.getAudioTracks().length > 0 && localStream.value) {
+            const audioTrack = cameraStream.getAudioTracks()[0];
+            const oldAudioTrack = localStream.value.getAudioTracks()[0];
+            if (oldAudioTrack) {
+                localStream.value.removeTrack(oldAudioTrack);
+                oldAudioTrack.stop();
+            }
+            localStream.value.addTrack(audioTrack);
+        }
+
+        // 모든 연결된 피어에게 새 트랙 전송 (비디오 + 오디오)
+        for (let [peerId, call] of mediaCalls) {
+            try {
+                // PeerJS call 객체의 peerConnection에 접근
+                const peerConnection = call?.peerConnection || call?._pc;
+                if (peerConnection && localStream.value) {
+                    // 비디오 트랙 교체
+                    const videoTrack = localStream.value.getVideoTracks()[0];
+                    if (videoTrack) {
+                        const videoSender = peerConnection.getSenders().find(s =>
+                            s.track && s.track.kind === 'video'
+                        );
+                        if (videoSender) {
+                            await videoSender.replaceTrack(videoTrack);
+                        }
+                    }
+
+                    // 오디오 트랙 교체
+                    const audioTrack = localStream.value.getAudioTracks()[0];
+                    if (audioTrack) {
+                        const audioSender = peerConnection.getSenders().find(s =>
+                            s.track && s.track.kind === 'audio'
+                        );
+                        if (audioSender) {
+                            await audioSender.replaceTrack(audioTrack);
+                        } else {
+                            // 오디오 sender가 없는 경우 새로 추가
+                            peerConnection.addTrack(audioTrack, localStream.value);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error(`피어 ${peerId}에게 트랙 교체 실패:`, err);
+            }
+        }
+
+    } catch (err) {
+        console.error('카메라 전환 실패:', err);
+        showModalDialog('카메라 접근 실패', `카메라에 접근할 수 없습니다: ${err.message}`);
     }
 }
 
@@ -1033,11 +1619,53 @@ onUnmounted(() => {
 }
 
 .video-header-title {
-    width: 100%;
+    flex: 1;
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.video-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.audio-volume-btn {
+    padding: 0.25rem;
+    border-radius: 0.375rem;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.audio-volume-btn:hover {
+    background-color: #374151;
+}
+
+.audio-volume-btn:active {
+    background-color: #4b5563;
+}
+
+.screen-share-btn {
+    padding: 0.25rem;
+    border-radius: 0.375rem;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.screen-share-btn:hover {
+    background-color: #374151;
+}
+
+.screen-share-btn:active {
+    background-color: #4b5563;
 }
 
 .options-btn {
@@ -1096,6 +1724,34 @@ onUnmounted(() => {
     border: 2px solid #374151;
     background-color: #111827;
     z-index: 10;
+}
+
+.screen-share-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 0.375rem;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 20;
+    backdrop-filter: blur(4px);
+}
+
+.screen-share-badge svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.audio-indicator,
+.camera-indicator {
+    font-size: 0.875rem;
+    margin-left: 0.125rem;
 }
 
 .local-video {
@@ -1362,6 +2018,127 @@ onUnmounted(() => {
 
 .modal-content p {
     color: #d1d5db;
+}
+
+.screen-share-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1rem 0;
+    text-align: left;
+}
+
+.option-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+    color: #d1d5db;
+}
+
+.option-checkbox:hover {
+    background-color: #374151;
+}
+
+.option-checkbox input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    accent-color: #2563eb;
+}
+
+.option-checkbox span {
+    flex: 1;
+    user-select: none;
+}
+
+.audio-volume-modal-content {
+    max-width: 28rem;
+    text-align: left;
+}
+
+.audio-tracks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 1rem 0;
+}
+
+.audio-track-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.audio-track-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #d1d5db;
+    font-size: 0.875rem;
+}
+
+.track-name {
+    font-weight: 500;
+}
+
+.track-volume {
+    color: #60a5fa;
+    font-weight: 600;
+    min-width: 3rem;
+    text-align: right;
+}
+
+.volume-slider {
+    width: 100%;
+    height: 0.5rem;
+    border-radius: 0.25rem;
+    background: #374151;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background: #2563eb;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+    background: #1d4ed8;
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background: #2563eb;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.volume-slider::-moz-range-thumb:hover {
+    background: #1d4ed8;
+}
+
+.no-audio-tracks {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: #9ca3af;
+}
+
+.no-audio-tracks p {
+    margin: 0;
 }
 
 .modal-actions {
