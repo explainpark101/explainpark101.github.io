@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+    <title>explainpark101 Apps</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <!-- PWA 관련 메타 태그 -->
+        <meta name="theme-color" content="#1976D2" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="explainpark101" />
+        <meta name="msapplication-TileColor" content="#1976D2" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
+
+        <!-- PWA 아이콘 -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png" />
+    <link rel="apple-touch-icon" href="/icons/icon-128x128.png" />
+        <link rel="manifest" href="/manifest.json" />
+    
+    <!-- 즉시 테마 초기화 (깜빡임 방지) -->
+        <script>
+      (function() {
+        try {
+          const savedTheme = localStorage.getItem('theme');
+          let theme = 'light';
+          if (savedTheme === 'dark' || savedTheme === 'light') {
+            theme = savedTheme;
+          } else {
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            theme = prefersDark ? 'dark' : 'light';
+          }
+          
+          // 즉시 HTML과 body에 테마 속성 설정
+          if (document.documentElement) {
+            document.documentElement.setAttribute('data-theme', theme);
+          }
+          if (document.body) {
+            document.body.setAttribute('data-theme', theme);
+            // 즉시 배경색 적용 (CSS 로드 전에도)
+            document.body.style.backgroundColor = theme === 'dark' ? '#121212' : '#f5f5f5';
+            document.body.style.color = theme === 'dark' ? '#ffffff' : '#212121';
+          }
+        } catch (e) {
+          // 에러 발생 시 기본값 사용
+          if (document.documentElement) {
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+          if (document.body) {
+            document.body.setAttribute('data-theme', 'light');
+          }
+        }
+      })();
+        </script>
+        <style>
+          /* 즉시 적용되는 기본 스타일 (CSS 로드 전) */
+          html[data-theme="dark"],
+          body[data-theme="dark"] {
+            background-color: #121212 !important;
+            color: #ffffff !important;
+          }
+          html[data-theme="light"],
+          body[data-theme="light"] {
+            background-color: #f5f5f5 !important;
+            color: #212121 !important;
+            }
+        </style>
+      <script type="module" crossorigin src="/assets/index-ANXj39xr.js"></script>
+      <link rel="stylesheet" crossorigin href="/assets/index-DPBGE1wF.css">
+    </head>
+    <body>
+    <div id="app"></div>
+    </body>
+</html>
+
