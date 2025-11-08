@@ -3,7 +3,14 @@
         <div class="main-container">
             <!-- 1. 홈 뷰 (초기 화면 - 이름 입력) -->
             <div id="home-view" class="home-view" :class="{ hidden: currentView !== 'home' }">
-                <h1>WebRTC 화상통화</h1>
+                <h1>EZ WebRTC 화상 솔루션
+                    <template v-if="isHost">
+                        (교사용)
+                    </template>
+                    <template v-else>
+                        (학생용)
+                    </template>
+                </h1>
                 <p>서버 없이 QR 코드로 연결하는 P2P 화상통화</p>
                 <input id="username-input" v-model="usernameInput" type="text" placeholder="이름을 입력하세요..."
                     @keydown.enter="handleStart" autocomplete="off" autocapitalize="off" />
@@ -20,7 +27,7 @@
                     <div id="qrcode" ref="qrcodeContainer"></div>
                 </div>
                 <a v-if="isHost && hostRoomUrl" :href="hostRoomUrl" target="_blank" class="room-link">{{ hostRoomUrl
-                    }}</a>
+                }}</a>
                 <div v-if="isHost && myPeerId" class="room-id-display">
                     내 룸 ID: {{ myPeerId }}
                 </div>
@@ -142,7 +149,7 @@
                                     :class="{ 'bg-blue-600': msg.senderId === myPeerId, 'bg-gray-700': msg.senderId !== myPeerId }">
                                     <div v-if="msg.senderId !== myPeerId" class="message-name">
                                         {{ msg.displayName }} <span class="text-xs text-gray-400">#{{ msg.shortId
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <div class="message-text">
                                         {{ msg.text }}
@@ -173,7 +180,7 @@
                             <li v-for="guest in guests" :key="guest.id" class="guest-item"
                                 :class="{ 'is-me': guest.shortId === localShortId }">
                                 <span>👤 {{ guest.name }} <span class="text-xs text-gray-400">#{{ guest.shortId
-                                        }}</span></span>
+                                }}</span></span>
                                 <span v-if="guest.shortId === localShortId">(나)</span>
                             </li>
                         </ul>
@@ -1380,6 +1387,59 @@ function loadScript(src) {
     });
 }
 
+// HTML head 설정 함수
+function setupHead() {
+    // Title 설정
+    document.title = 'ezlive';
+
+    // 기존 meta 태그 제거 (중복 방지)
+    const existingMetaTags = document.querySelectorAll('meta[name="description"], meta[name="keywords"], meta[property^="og:"], meta[name^="twitter:"], meta[name="theme-color"], meta[name="apple-mobile-web-app-title"]');
+    existingMetaTags.forEach(tag => tag.remove());
+
+    // 기본 메타 태그
+    const metaTags = [
+        { name: 'description', content: '서버 없이 QR 코드로 연결하는 P2P 화상통화 앱. ezlive로 쉽고 빠르게 화상통화를 시작하세요.' },
+        { name: 'keywords', content: '화상통화, WebRTC, P2P, QR코드, 비디오채팅, 화상회의, ezlive' },
+        { name: 'theme-color', content: '#111827' },
+        { name: 'apple-mobile-web-app-title', content: 'ezlive' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' },
+    ];
+
+    // Open Graph 메타 태그
+    const ogTags = [
+        { property: 'og:title', content: 'ezlive - P2P 화상통화' },
+        { property: 'og:description', content: '서버 없이 QR 코드로 연결하는 P2P 화상통화 앱' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:url', content: window.location.href },
+        { property: 'og:site_name', content: 'ezlive' },
+    ];
+
+    // Twitter Card 메타 태그
+    const twitterTags = [
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'ezlive - P2P 화상통화' },
+        { name: 'twitter:description', content: '서버 없이 QR 코드로 연결하는 P2P 화상통화 앱' },
+    ];
+
+    // 메타 태그 추가 함수
+    const addMetaTag = (attrs) => {
+        const meta = document.createElement('meta');
+        Object.keys(attrs).forEach(key => {
+            if (key === 'property') {
+                meta.setAttribute('property', attrs[key]);
+            } else {
+                meta.setAttribute(key, attrs[key]);
+            }
+        });
+        document.head.appendChild(meta);
+    };
+
+    // 모든 메타 태그 추가
+    [...metaTags, ...ogTags, ...twitterTags].forEach(tag => addMetaTag(tag));
+}
+
 watch(allMessages, () => {
     nextTick(() => {
         if (messagesContainer.value) {
@@ -1389,6 +1449,9 @@ watch(allMessages, () => {
 });
 
 onMounted(async () => {
+    // HTML head 설정
+    setupHead();
+
     // 외부 스크립트 로드
     try {
         await Promise.all([
