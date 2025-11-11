@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>채팅 이름 카운터</title>
+    <!-- Tailwind CSS 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter (영어) 및 Noto Sans KR (한글) 폰트 로드 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Noto Sans KR을 기본 폰트로 사용하고 Inter를 영어/숫자용으로 사용 */
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-2xl transition-all">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-2">채팅 내역 이름 카운터</h1>
+        <p class="text-center text-gray-600 mb-6">
+            카카오톡 등에서 백업한 <code>.txt</code> 파일을 업로드하면, 대화 라인에서 이름을 추출하여 횟수를 집계합니다.
+        </p>
+
+        <!-- 파일 업로드 영역 -->
+        <div class="space-y-4">
+            <div>
+                <label for="file-upload" class="block text-sm font-medium text-gray-700 mb-1">
+                    텍스트 파일 (.txt)
+                </label>
+                <input id="file-upload" 
+                       name="file-upload" 
+                       type="file" 
+                       accept=".txt" 
+                       class="block w-full text-sm text-gray-500
+                              file:mr-4 file:py-2 file:px-4
+                              file:rounded-lg file:border-0
+                              file:text-sm file:font-semibold
+                              file:bg-blue-50 file:text-blue-700
+                              hover:file:bg-blue-100
+                              cursor-pointer transition-colors">
+            </div>
+
+            <!-- 분석 시작 버튼 -->
+            <button id="process-button" 
+                    class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg
+                           hover:bg-blue-700 focus:outline-none focus:ring-2 
+                           focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-md">
+                분석 시작
+            </button>
+        </div>
+
+        <!-- 결과 표시 영역 -->
+        <div id="results-container" class="mt-8">
+            <!-- 결과가 여기에 동적으로 삽입됩니다. -->
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-upload');
+        const processButton = document.getElementById('process-button');
+        const resultsContainer = document.getElementById('results-container');
+
+        processButton.addEventListener('click', () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                showMessage("파일을 먼저 선택해주세요.", "error");
+                return;
+            }
+
+            // 파일 리더기 생성
+            const reader = new FileReader();
+
+            // 파일 읽기 완료 시
+            reader.onload = (event) => {
+                const logContent = event.target.result;
+                processLog(logContent);
+            };
+
+            // 파일 읽기 시작
+            reader.readAsText(file, 'UTF-8');
+        });
+
+        /**
+         * 로그 내용을 처리하여 이름 횟수를 집계합니다.
+         * @param {string} logContent - .txt 파일의 전체 내용
+         */
+        function processLog(logContent) {
+            const nameCounts = new Map();
+            
+            // 정규식 설명:
+            // ^ : 줄의 시작
+            // \d{4}년 \d{1,2}월 \d{1,2}일 (?:오전|오후) \d{1,2}:\d{1,2} : "YYYY년 MM월 DD일 오전/오후 HH:MM" 형식의 타임스탬프
+            // , (.*?) : 쉼표와 공백 뒤에 오는 모든 문자(이름)를 비탐욕적으로(non-greedy) 캡처 (캡처 그룹 1)
+            // \s*:\s* : 이름과 메시지 사이의 콜론 (양쪽 공백 포함)
+            // .* : 나머지 메시지 내용
+            const regex = /^\d{4}년 \d{1,2}월 \d{1,2}일 (?:오전|오후) \d{1,2}:\d{1,2}, (.*?)\s*:\s*.*/;
+
+            const lines = logContent.split('\n');
+            
+            lines.forEach(line => {
+                const match = line.match(regex);
+                
+                // 정규식과 일치하는 경우
+                if (match && match[1]) {
+                    const name = match[1].trim(); // 캡처된 이름 (그룹 1)
+                    if (name) {
+                        const count = (nameCounts.get(name) || 0) + 1;
+                        nameCounts.set(name, count);
+                    }
+                }
+            });
+
+            displayResults(nameCounts);
+        }
+
+        /**
+         * 집계된 결과를 화면에 표로 표시합니다.
+         * @param {Map<string, number>} nameCounts - 이름과 횟수가 담긴 Map
+         */
+        function displayResults(nameCounts) {
+            resultsContainer.innerHTML = ''; // 이전 결과 초기화
+
+            if (nameCounts.size === 0) {
+                showMessage("분석할 수 있는 유효한 대화 라인을 찾지 못했습니다. 파일 형식을 확인해주세요.", "info");
+                return;
+            }
+
+            // 횟수를 기준으로 내림차순 정렬
+            const sortedResults = Array.from(nameCounts.entries()).sort((a, b) => b[1] - a[1]);
+
+            // 테이블 생성
+            const table = document.createElement('table');
+            table.className = "min-w-full divide-y divide-gray-200 bg-white shadow-lg rounded-lg overflow-hidden";
+            
+            // 테이블 헤더
+            const thead = document.createElement('thead');
+            thead.className = "bg-gray-50";
+            thead.innerHTML = `
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">횟수</th>
+                </tr>
+            `;
+            
+            // 테이블 바디
+            const tbody = document.createElement('tbody');
+            tbody.className = "bg-white divide-y divide-gray-200";
+
+            sortedResults.forEach(([name, count]) => {
+                const row = document.createElement('tr');
+                row.className = "hover:bg-gray-50 transition-colors";
+                
+                const nameCell = document.createElement('td');
+                nameCell.className = "px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900";
+                nameCell.textContent = name; // textContent를 사용하여 HTML 인젝션 방지
+                
+                const countCell = document.createElement('td');
+                countCell.className = "px-6 py-4 whitespace-nowrap text-sm text-gray-500";
+                countCell.textContent = `${count}개`;
+                
+                row.appendChild(nameCell);
+                row.appendChild(countCell);
+                tbody.appendChild(row);
+            });
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            resultsContainer.appendChild(table);
+        }
+        
+        /**
+         * 사용자에게 상태 메시지를 표시합니다.
+         * @param {string} message - 표시할 메시지
+         * @param {'info' | 'error'} type - 메시지 유형
+         */
+        function showMessage(message, type = 'info') {
+            const bgColor = type === 'error' ? 'bg-red-100' : 'bg-blue-100';
+            const textColor = type === 'error' ? 'text-red-700' : 'text-blue-700';
+            
+            resultsContainer.innerHTML = `
+                <div class="${bgColor} ${textColor} p-4 rounded-lg text-center">
+                    ${message}
+                </div>
+            `;
+        }
+
+    </script>
+</body>
+</html>
