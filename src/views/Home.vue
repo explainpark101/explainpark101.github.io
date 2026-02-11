@@ -178,7 +178,7 @@ import WBSChartIcon from '@/components/icons/WBSChartIcon.vue';
 import TypingGameIcon from '@/components/icons/TypingGameIcon.vue';
 import ChattingAppIcon from '@/components/icons/ChattingAppIcon.vue';
 import WebRTCVideoIcon from '@/components/icons/WebRTCVideoIcon.vue';
-import QRCodeScannerIcon from '@/components/icons/QRCodeScannerIcon.vue';
+import QRCodeScannerIcon from '@/components/icons/QrCodeScannerIcon.vue';
 
 let deferredPrompt = null;
 const pwaInstallContainer = document.getElementById('pwa-install-container');
