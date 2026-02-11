@@ -4,6 +4,9 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [vue()],
+  optimizeDeps: {
+    include: ['pdfjs-dist'],
+  },
   base: '/',
   root: '.',
   outputDir: 'dist',

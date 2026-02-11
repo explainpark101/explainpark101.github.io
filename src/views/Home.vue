@@ -85,6 +85,16 @@
                 </div>
             </router-link>
 
+            <router-link to="/pdf-to-png" class="app-card">
+                <div class="card">
+                    <div class="icon">
+                        <PdfToPngIcon />
+                    </div>
+                    <div class="card-title">PDF to PNG</div>
+                    <div class="card-desc">PDF를 고화질 PNG 이미지로 변환</div>
+                </div>
+            </router-link>
+
             <router-link to="/todo" class="app-card">
                 <div class="card">
                     <div class="icon">
@@ -142,33 +152,7 @@
             <a href="https://qrscan101.onrender.com/" class="app-card" target="_blank" rel="noopener noreferrer">
                 <div class="card">
                     <div class="icon">
-                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                            <rect x="8" y="8" width="32" height="32" rx="4" fill="#2E7D32" />
-                            <rect x="12" y="12" width="6" height="6" fill="#fff" />
-                            <rect x="14" y="14" width="2" height="2" fill="#2E7D32" />
-                            <rect x="30" y="12" width="6" height="6" fill="#fff" />
-                            <rect x="32" y="14" width="2" height="2" fill="#2E7D32" />
-                            <rect x="12" y="30" width="6" height="6" fill="#fff" />
-                            <rect x="14" y="32" width="2" height="2" fill="#2E7D32" />
-                            <rect x="20" y="12" width="2" height="2" fill="#fff" />
-                            <rect x="24" y="12" width="2" height="2" fill="#fff" />
-                            <rect x="20" y="16" width="2" height="2" fill="#fff" />
-                            <rect x="24" y="16" width="2" height="2" fill="#fff" />
-                            <rect x="20" y="20" width="8" height="8" fill="#fff" />
-                            <rect x="22" y="22" width="4" height="4" fill="#2E7D32" />
-                            <rect x="30" y="20" width="2" height="2" fill="#fff" />
-                            <rect x="34" y="20" width="2" height="2" fill="#fff" />
-                            <rect x="30" y="24" width="2" height="2" fill="#fff" />
-                            <rect x="34" y="24" width="2" height="2" fill="#fff" />
-                            <rect x="20" y="30" width="2" height="2" fill="#fff" />
-                            <rect x="24" y="30" width="2" height="2" fill="#fff" />
-                            <rect x="30" y="30" width="2" height="2" fill="#fff" />
-                            <rect x="34" y="30" width="2" height="2" fill="#fff" />
-                            <rect x="20" y="34" width="2" height="2" fill="#fff" />
-                            <rect x="24" y="34" width="2" height="2" fill="#fff" />
-                            <rect x="30" y="34" width="2" height="2" fill="#fff" />
-                            <rect x="34" y="34" width="2" height="2" fill="#fff" />
-                        </svg>
+                        <QRCodeScannerIcon />
                     </div>
                     <div class="card-title">QR Scanner</div>
                     <div class="card-desc">QR 코드 스캐너 / 클립보드 qr코드 인식</div>
@@ -188,12 +172,13 @@ import JungsanIcon from '@/components/icons/JungsanIcon.vue';
 import PasswordIcon from '@/components/icons/PasswordIcon.vue';
 import SurveysIcon from '@/components/icons/SurveysIcon.vue';
 import ClipboardImgSaveIcon from '@/components/icons/ClipboardImgSaveIcon.vue';
+import PdfToPngIcon from '@/components/icons/PdfToPngIcon.vue';
 import TodoIcon from '@/components/icons/TodoIcon.vue';
 import WBSChartIcon from '@/components/icons/WBSChartIcon.vue';
 import TypingGameIcon from '@/components/icons/TypingGameIcon.vue';
 import ChattingAppIcon from '@/components/icons/ChattingAppIcon.vue';
-import QRScannerIcon from '@/components/icons/QRScannerIcon.vue';
 import WebRTCVideoIcon from '@/components/icons/WebRTCVideoIcon.vue';
+import QRCodeScannerIcon from '@/components/icons/QRCodeScannerIcon.vue';
 
 let deferredPrompt = null;
 const pwaInstallContainer = document.getElementById('pwa-install-container');
