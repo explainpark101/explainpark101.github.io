@@ -158,6 +158,15 @@
                     <div class="card-desc">QR 코드 스캐너 / 클립보드 qr코드 인식</div>
                 </div>
             </a>
+            <a href="/test-paper/" class="app-card" target="_blank" rel="noopener noreferrer">
+                <div class="card">
+                    <div class="icon">
+                        <ExamPaperIcon />
+                    </div>
+                    <div class="card-title">Exam Master</div>
+                    <div class="card-desc">시험 응시 및 채점 도우미</div>
+                </div>
+            </a>
         </div>
     </div>
 </template>
@@ -179,6 +188,7 @@ import TypingGameIcon from '@/components/icons/TypingGameIcon.vue';
 import ChattingAppIcon from '@/components/icons/ChattingAppIcon.vue';
 import WebRTCVideoIcon from '@/components/icons/WebRTCVideoIcon.vue';
 import QRCodeScannerIcon from '@/components/icons/QrCodeScannerIcon.vue';
+import ExamPaperIcon from '../components/icons/ExamPaperIcon.vue';
 
 let deferredPrompt = null;
 const pwaInstallContainer = document.getElementById('pwa-install-container');
