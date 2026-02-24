@@ -20,10 +20,9 @@
           ▼
         </button>
         <label>
-          <input
-            type="checkbox"
-            :checked="todo.state === 'completed'"
-            @change="handleCheckboxChange"
+          <TodoStateToggle
+            :state="todo.state"
+            @change="newState => emit('toggle-state', todo.id, newState)"
           />
           <span class="todo-text" @dblclick="$emit('edit-text', todo.id)">{{ todo.text }}</span>
         </label>
@@ -65,6 +64,7 @@
 
 <script setup>
 import { ref } from 'vue';
+import TodoStateToggle from '@/views/todo/TodoStateToggle.vue';
 
 const props = defineProps({
   todo: {
@@ -91,11 +91,6 @@ const emit = defineEmits([
 ]);
 
 const isDragging = ref(false);
-
-const handleCheckboxChange = (e) => {
-  const newState = e.target.checked ? 'completed' : 'not-started';
-  emit('toggle-state', props.todo.id, newState);
-};
 
 const handleStateChange = (e) => {
   emit('toggle-state', props.todo.id, e.target.value);
@@ -191,13 +186,6 @@ li label {
   align-items: center;
   cursor: pointer;
   margin-right: 15px;
-}
-
-input[type="checkbox"] {
-  margin-right: 15px;
-  transform: scale(1.3);
-  min-width: 20px;
-  min-height: 20px;
 }
 
 .todo-text {
@@ -306,12 +294,6 @@ li.drag-over {
     background-color: #424242;
   }
 
-  .todo-state {
-    border-color: #424242;
-    background-color: #2d2d2d;
-    color: #e0e0e0;
-  }
-
   .add-subtask-btn,
   .delete-todo-btn,
   .collapse-subtask-btn {
@@ -370,13 +352,6 @@ body[data-theme="dark"] .subtask-list > li::after,
 [data-theme="dark"] .subtask-list > li::before,
 [data-theme="dark"] .subtask-list > li::after {
   background-color: #424242;
-}
-
-body[data-theme="dark"] .todo-state,
-[data-theme="dark"] .todo-state {
-  border-color: #424242;
-  background-color: #2d2d2d;
-  color: #e0e0e0;
 }
 
 body[data-theme="dark"] .add-subtask-btn,

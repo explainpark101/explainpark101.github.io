@@ -217,8 +217,9 @@ const getTodosByTab = (tabId) => {
 };
 
 const putInDb = (storeName, item) => {
+  const plain = JSON.parse(JSON.stringify(item));
   return new Promise((resolve) => {
-    db.value.transaction(storeName, 'readwrite').objectStore(storeName).put(item).onsuccess = resolve;
+    db.value.transaction(storeName, 'readwrite').objectStore(storeName).put(plain).onsuccess = resolve;
   });
 };
 
