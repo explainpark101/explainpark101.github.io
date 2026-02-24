@@ -60,8 +60,9 @@
       <p>진행상황 포함 마크다운: <code>- [ ]</code> 시작전, <code>- [o]</code> 진행중, <code>- [x]</code> 완료. 내용을 수정한 뒤 적용할 수 있습니다.</p>
       <p
         class="export-textarea-hint"
-        title="Alt+↑: 선택한 줄 위로 · Alt+↓: 아래로 · Ctrl+Shift+K / Ctrl+D: 선택한 줄 삭제"
+        title="Tab: 들여쓰기 · Shift+Tab: 내어쓰기 · Alt+↑/↓: 줄 이동 · Ctrl+Shift+K / Ctrl+D: 줄 삭제"
       >
+        <mark>Tab</mark> / <mark>Shift</mark>+<mark>Tab</mark>: 들여쓰기 ·
         <mark>Alt</mark>+<mark>↑</mark> / <mark>Alt</mark>+<mark>↓</mark>: 줄 이동 ·
         <mark>Ctrl</mark>+<mark>Shift</mark>+<mark>K</mark> / <mark>Ctrl</mark>+<mark>D</mark>: 줄 삭제
       </p>
@@ -69,7 +70,7 @@
         ref="exportTextarea"
         v-model="exportText"
         placeholder="내보낼 할일 목록이 여기에 표시됩니다."
-        title="Alt+↑: 선택한 줄 위로 · Alt+↓: 아래로 · Ctrl+Shift+K / Ctrl+D: 선택한 줄 삭제"
+        title="Tab: 들여쓰기 · Shift+Tab: 내어쓰기 · Alt+↑/↓: 줄 이동 · Ctrl+Shift+K / Ctrl+D: 줄 삭제"
         @keydown="handleExportTextareaKeydown"
       ></textarea>
       <div class="dialog-actions">
@@ -787,6 +788,8 @@ const getOffsetOfLineStart = (text, lineIndex) => {
   return offset;
 };
 
+const EXPORT_INDENT = '  ';
+
 const handleExportTextareaKeydown = (e) => {
   const textarea = exportTextarea.value;
   if (!textarea) return;
@@ -798,6 +801,27 @@ const handleExportTextareaKeydown = (e) => {
   const startLine = getLineIndexFromOffset(value, start);
   const endLine = getLineIndexFromOffset(value, end > 0 ? end - 1 : 0);
   const lineCount = endLine - startLine + 1;
+
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    if (lines.length === 0) return;
+    const lineStartOffset = getOffsetOfLineStart(value, startLine);
+    const lineEndOffset = getOffsetOfLineStart(value, endLine + 1);
+    const selectedLines = lines.slice(startLine, endLine + 1);
+    const newLines = e.shiftKey
+      ? selectedLines.map(line => line.startsWith(EXPORT_INDENT) ? line.substring(EXPORT_INDENT.length) : line)
+      : selectedLines.map(line => EXPORT_INDENT + line);
+    const newBlock = newLines.join('\n');
+    const newValue = value.substring(0, lineStartOffset) + newBlock + value.substring(lineEndOffset);
+    exportText.value = newValue;
+    nextTick(() => {
+      if (!exportTextarea.value) return;
+      exportTextarea.value.selectionStart = getOffsetOfLineStart(newValue, startLine);
+      exportTextarea.value.selectionEnd = getOffsetOfLineStart(newValue, endLine + 1);
+      exportTextarea.value.focus();
+    });
+    return;
+  }
 
   const isDeleteLine = (e.ctrlKey && e.shiftKey && e.key === 'K') || (e.ctrlKey && e.key === 'D');
   if (isDeleteLine) {
