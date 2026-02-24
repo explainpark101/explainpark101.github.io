@@ -317,9 +317,10 @@ const renameTab = async (tab) => {
       await customAlert(`'${trimmedName}' 이름의 탭이 이미 존재합니다. 다른 이름을 사용해주세요.`, '중복된 탭 이름');
       return;
     }
-    tab.name = trimmedName;
-    await putInDb(TAB_STORE_NAME, tab);
-    await renderTabs();
+    const updatedTab = { id: tab.id, name: trimmedName, order: tab.order ?? 0 };
+    await putInDb(TAB_STORE_NAME, updatedTab);
+    const freshTabs = await getFromDb(TAB_STORE_NAME);
+    tabs.value = freshTabs;
   }
 };
 
