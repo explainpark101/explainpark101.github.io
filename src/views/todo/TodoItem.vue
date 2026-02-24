@@ -48,16 +48,16 @@
         :key="subtask.id"
         :todo="subtask"
         :collapsed-subtasks="collapsedSubtasks"
-        @toggle-state="$emit('toggle-state', $event, $event)"
+        @toggle-state="(id, newState) => $emit('toggle-state', id, newState)"
         @add-subtask="$emit('add-subtask', $event)"
         @delete-todo="$emit('delete-todo', $event)"
         @edit-text="$emit('edit-text', $event)"
         @toggle-collapse="$emit('toggle-collapse', $event)"
-        @drag-start="$emit('drag-start', $event, $event)"
+        @drag-start="(e, id) => $emit('drag-start', e, id)"
         @drag-end="$emit('drag-end', $event)"
-        @drag-over="$emit('drag-over', $event, $event)"
+        @drag-over="(e, id) => $emit('drag-over', e, id)"
         @drag-leave="$emit('drag-leave', $event)"
-        @drop="$emit('drop', $event, $event)"
+        @drop="(e, targetId) => $emit('drop', e, targetId)"
       />
     </ul>
   </li>

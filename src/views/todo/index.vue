@@ -16,7 +16,7 @@
 
       <div class="controls-container">
         <button @click="openMarkdownModal">할일 목록 불러오기</button>
-        <button @click="exportTodos">할일 목록 내보내기</button>
+        <button @click="exportTodos">할일 목록 수정 및 내보내기</button>
         <button @click="resetAllTodosToNotStarted">모두 시작전으로</button>
         <button @click="deleteCompletedTodos">완료항목 삭제</button>
         <input type="text" v-model="searchQuery" placeholder="할일 검색..." aria-label="할일 검색" />
@@ -54,12 +54,16 @@
       </div>
     </dialog>
 
-    <!-- Export Todos Modal -->
+    <!-- Export Todos Modal (진행상황 포함 마크다운, 편집 후 적용 가능) -->
     <dialog ref="exportModal" class="modal">
-      <h2>할일 목록 내보내기</h2>
-      <p>현재 탭의 모든 할일을 마크다운 형식으로 내보냅니다.</p>
-      <textarea ref="exportTextarea" v-model="exportText" readonly placeholder="내보낼 할일 목록이 여기에 표시됩니다."></textarea>
+      <h2>할일 목록 수정 및 내보내기</h2>
+      <p>진행상황 포함 마크다운: <code>- [ ]</code> 시작전, <code>- [o]</code> 진행중, <code>- [x]</code> 완료. 내용을 수정한 뒤 적용할 수 있습니다.</p>
+      <p class="export-textarea-hint" title="Alt+↑: 선택한 줄을 위로 이동 · Alt+↓: 선택한 줄을 아래로 이동">Alt+↑ / Alt+↓: 선택한 줄을 위·아래로 이동</p>
+      <textarea ref="exportTextarea" v-model="exportText" placeholder="내보낼 할일 목록이 여기에 표시됩니다."
+        title="Alt+↑: 선택한 줄을 위로 이동 · Alt+↓: 선택한 줄을 아래로 이동"
+        @keydown="handleExportTextareaKeydown"></textarea>
       <div class="dialog-actions">
+        <button @click="applyExportMarkdown" class="apply-export-btn">편집 내용 적용</button>
         <button @click="copyToClipboard">클립보드에 복사</button>
         <button @click="closeExportModal">닫기</button>
       </div>
@@ -596,14 +600,21 @@ const deleteCompletedTodos = async () => {
   };
 };
 
-// Markdown Import/Export
+// Markdown Import/Export (진행상황 포함: - [ ] 시작전, - [o] 진행중, - [x] 완료)
+const stateToMarkdownCheckbox = (state) => {
+  if (state === 'completed') return '[x]';
+  if (state === 'in-progress') return '[o]';
+  return '[ ]';
+};
+
 const convertTodosToMarkdown = (todos) => {
   if (!todos || todos.length === 0) return '';
   const todoTree = buildTodoTree(todos);
   let markdown = '';
   const addTodoToMarkdown = (todo, level = 0) => {
     const indent = '  '.repeat(level);
-    markdown += indent + '- ' + todo.text + '\n';
+    const checkbox = stateToMarkdownCheckbox(todo.state);
+    markdown += indent + '- ' + checkbox + ' ' + todo.text + '\n';
     if (todo.subtasks && todo.subtasks.length > 0) {
       todo.subtasks.forEach(subtask => {
         addTodoToMarkdown(subtask, level + 1);
@@ -643,38 +654,78 @@ const copyToClipboard = async () => {
   }
 };
 
-const loadTodosFromMarkdown = async () => {
+const applyExportMarkdown = async () => {
   if (!currentTabId.value) {
-    await customAlert("먼저 탭을 선택하거나 생성해주세요.");
+    await customAlert('먼저 탭을 선택해주세요.');
     return;
   }
-  const markdownText = markdownInput.value;
+  const newTodos = parseMarkdownToTodos(exportText.value, currentTabId.value);
+  if (newTodos.length === 0) {
+    await customAlert('적용할 항목이 없습니다. 마크다운 형식(- [ ] / - [o] / - [x] + 내용)을 확인해주세요.');
+    return;
+  }
+  const tx = db.value.transaction(TODO_STORE_NAME, 'readwrite');
+  const store = tx.objectStore(TODO_STORE_NAME);
+  const existing = currentTodos.value.map(t => t.id);
+  existing.forEach(id => store.delete(id));
+  newTodos.forEach(todo => store.put(todo));
+  await new Promise(resolve => tx.oncomplete = resolve);
+  await renderCurrentTodos();
+  closeExportModal();
+  await customAlert(`편집 내용 ${newTodos.length}개 항목으로 적용되었습니다.`);
+};
+
+// 진행상황 마크다운 한 줄 파싱: - [ ] / - [o] / - [x] + 내용
+const parseStateMarkdownLine = (line) => {
+  const stateCheckboxMatch = line.match(/^\s*-\s*\[\s*([ xo])\]\s*(.*)$/i);
+  if (stateCheckboxMatch) {
+    const ch = stateCheckboxMatch[1].toLowerCase();
+    const state = ch === 'x' ? 'completed' : ch === 'o' ? 'in-progress' : 'not-started';
+    const text = stateCheckboxMatch[2].trim();
+    const indent = line.match(/^\s*/)[0].length;
+    return { indent, state, text };
+  }
+  const legacyMatch = line.match(/^\s*((?:[-*+]|\d+\.)\s+)(.*)$/);
+  if (legacyMatch) {
+    const indent = line.match(/^\s*/)[0].length;
+    const text = legacyMatch[2].trim();
+    return { indent, state: 'not-started', text };
+  }
+  return null;
+};
+
+const parseMarkdownToTodos = (markdownText, tabId) => {
   const lines = markdownText.split('\n');
   const newTodos = [];
   const parentStack = [];
   const siblingCounters = new Map();
 
   lines.forEach(line => {
-    const trimmedLine = line.trim();
-    if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ') || trimmedLine.match(/^\d+\.\s/)) {
-      const indent = line.match(/^\s*/)[0].length;
-      const text = trimmedLine.replace(/^(?:[-*+]|\d+\.)\s*/, '').trim();
-      const id = `todo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    const parsed = parseStateMarkdownLine(line);
+    if (!parsed || !parsed.text) return;
+    const { indent, state, text } = parsed;
+    const id = `todo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
-      while (parentStack.length > 0 && parentStack[parentStack.length - 1].indent >= indent) {
-        parentStack.pop();
-      }
-
-      const parentId = parentStack.length > 0 ? parentStack[parentStack.length - 1].id : null;
-
-      if (text) {
-        const order = siblingCounters.get(parentId) || 0;
-        newTodos.push({ id, text, state: 'not-started', parentId, tabId: currentTabId.value, order });
-        siblingCounters.set(parentId, order + 1);
-        parentStack.push({ id, indent });
-      }
+    while (parentStack.length > 0 && parentStack[parentStack.length - 1].indent >= indent) {
+      parentStack.pop();
     }
+    const parentId = parentStack.length > 0 ? parentStack[parentStack.length - 1].id : null;
+    const order = siblingCounters.get(parentId) || 0;
+
+    newTodos.push({ id, text, state, parentId, tabId, order });
+    siblingCounters.set(parentId, order + 1);
+    parentStack.push({ id, indent });
   });
+  return newTodos;
+};
+
+const loadTodosFromMarkdown = async () => {
+  if (!currentTabId.value) {
+    await customAlert("먼저 탭을 선택하거나 생성해주세요.");
+    return;
+  }
+  const markdownText = markdownInput.value;
+  const newTodos = parseMarkdownToTodos(markdownText, currentTabId.value);
 
   if (newTodos.length > 0) {
     const tx = db.value.transaction(TODO_STORE_NAME, 'readwrite');
@@ -707,6 +758,58 @@ const closeExportModal = () => {
   if (exportModal.value) {
     exportModal.value.close();
   }
+};
+
+const getLineIndexFromOffset = (text, offset) => {
+  if (offset <= 0) return 0;
+  const before = text.slice(0, offset);
+  return (before.match(/\n/g) || []).length;
+};
+
+const getOffsetOfLineStart = (text, lineIndex) => {
+  const lines = text.split('\n');
+  if (lineIndex <= 0) return 0;
+  let offset = 0;
+  for (let i = 0; i < lineIndex && i < lines.length; i++) {
+    offset += lines[i].length + 1;
+  }
+  return offset;
+};
+
+const handleExportTextareaKeydown = (e) => {
+  if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+  const textarea = exportTextarea.value;
+  if (!textarea) return;
+  e.preventDefault();
+  const value = exportText.value;
+  const lines = value.split('\n');
+  if (lines.length === 0) return;
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const startLine = getLineIndexFromOffset(value, start);
+  const endLine = getLineIndexFromOffset(value, end > 0 ? end - 1 : 0);
+  const lineCount = endLine - startLine + 1;
+
+  if (e.key === 'ArrowUp') {
+    if (startLine === 0) return;
+    const block = lines.splice(startLine, lineCount);
+    lines.splice(startLine - 1, 0, ...block);
+  } else {
+    if (endLine >= lines.length - 1) return;
+    const block = lines.splice(startLine, lineCount);
+    lines.splice(startLine + 1, 0, ...block);
+  }
+
+  const newValue = lines.join('\n');
+  exportText.value = newValue;
+  nextTick(() => {
+    if (!exportTextarea.value) return;
+    const newStartLine = e.key === 'ArrowUp' ? startLine - 1 : startLine + 1;
+    const newEndLine = newStartLine + lineCount - 1;
+    exportTextarea.value.selectionStart = getOffsetOfLineStart(newValue, newStartLine);
+    exportTextarea.value.selectionEnd = getOffsetOfLineStart(newValue, newEndLine + 1);
+    exportTextarea.value.focus();
+  });
 };
 
 const handleMarkdownKeydown = (e) => {
@@ -793,13 +896,16 @@ const reorderTodos = async (draggedId, targetId) => {
   const targetTodo = currentTodos.value.find(t => t.id === targetId);
   if (!draggedTodo || !targetTodo) return;
 
-  if (draggedTodo.parentId === targetTodo.parentId) {
+  const parentIdA = draggedTodo.parentId ?? null;
+  const parentIdB = targetTodo.parentId ?? null;
+  if (parentIdA === parentIdB) {
     const siblings = currentTodos.value
-      .filter(t => t.parentId === draggedTodo.parentId)
+      .filter(t => (t.parentId ?? null) === parentIdA)
       .sort((a, b) => (a.order || 0) - (b.order || 0));
     const draggedIndex = siblings.findIndex(t => t.id === draggedId);
-    const [draggedItem] = siblings.splice(draggedIndex, 1);
     const targetIndexNew = siblings.findIndex(t => t.id === targetId);
+    if (draggedIndex === -1 || targetIndexNew === -1) return;
+    const [draggedItem] = siblings.splice(draggedIndex, 1);
     siblings.splice(targetIndexNew, 0, draggedItem);
     const updates = [];
     siblings.forEach((todo, index) => {
@@ -1135,6 +1241,29 @@ ul {
 
 #confirmLoadBtn:hover {
   background-color: #218838;
+}
+
+.apply-export-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.apply-export-btn:hover {
+  background-color: #0056b3;
+}
+
+.modal code {
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.export-textarea-hint {
+  margin: 0 0 8px 0;
+  font-size: 0.85em;
+  color: #6c757d;
 }
 
 #closeModalBtn {
