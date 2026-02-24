@@ -60,8 +60,10 @@
       <p>진행상황 포함 마크다운: <code>- [ ]</code> 시작전, <code>- [o]</code> 진행중, <code>- [x]</code> 완료. 내용을 수정한 뒤 적용할 수 있습니다.</p>
       <p
         class="export-textarea-hint"
-        title="Tab: 들여쓰기 · Shift+Tab: 내어쓰기 · Alt+↑/↓: 줄 이동 · Ctrl+Shift+K / Ctrl+D: 줄 삭제"
+        title="Ctrl+Enter: 편집 내용 적용 · Esc: 닫기 · Tab/Shift+Tab: 들여쓰기 · Alt+↑/↓: 줄 이동 · Ctrl+Shift+K/Ctrl+D: 줄 삭제"
       >
+        <mark>Ctrl</mark>+<mark>Enter</mark>: 적용 ·
+        <mark>Esc</mark>: 닫기 ·
         <mark>Tab</mark> / <mark>Shift</mark>+<mark>Tab</mark>: 들여쓰기 ·
         <mark>Alt</mark>+<mark>↑</mark> / <mark>Alt</mark>+<mark>↓</mark>: 줄 이동 ·
         <mark>Ctrl</mark>+<mark>Shift</mark>+<mark>K</mark> / <mark>Ctrl</mark>+<mark>D</mark>: 줄 삭제
@@ -70,7 +72,7 @@
         ref="exportTextarea"
         v-model="exportText"
         placeholder="내보낼 할일 목록이 여기에 표시됩니다."
-        title="Tab: 들여쓰기 · Shift+Tab: 내어쓰기 · Alt+↑/↓: 줄 이동 · Ctrl+Shift+K / Ctrl+D: 줄 삭제"
+        title="Ctrl+Enter: 편집 내용 적용 · Esc: 닫기 · Tab/Shift+Tab: 들여쓰기 · Alt+↑/↓: 줄 이동 · Ctrl+Shift+K/Ctrl+D: 줄 삭제"
         @keydown="handleExportTextareaKeydown"
       ></textarea>
       <div class="dialog-actions">
@@ -793,6 +795,17 @@ const EXPORT_INDENT = '  ';
 const handleExportTextareaKeydown = (e) => {
   const textarea = exportTextarea.value;
   if (!textarea) return;
+
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    closeExportModal();
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    applyExportMarkdown();
+    return;
+  }
 
   const value = exportText.value;
   const lines = value.split('\n');
