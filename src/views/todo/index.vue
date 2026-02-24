@@ -258,10 +258,10 @@ const showCustomModal = (options) => {
 };
 
 const handleCustomModalOk = () => {
+  const value = customModalType.value === 'prompt' ? customModalInputValue.value : true;
   if (customModal.value) {
     customModal.value.close();
   }
-  const value = customModalType.value === 'prompt' ? customModalInputValue.value : true;
   if (customModalResolve.value) {
     customModalResolve.value(value);
     customModalResolve.value = null;
@@ -516,11 +516,18 @@ const editTodoText = async (todoId) => {
   const todo = currentTodos.value.find(t => t.id === todoId);
   if (!todo) return;
   const newText = await customPrompt('할일 내용을 수정하세요:', todo.text, '할일 수정');
-  if (newText && newText.trim() && newText.trim() !== todo.text) {
-    todo.text = newText.trim();
-    await putInDb(TODO_STORE_NAME, todo);
-    await renderCurrentTodos();
-  }
+  const trimmed = newText != null ? String(newText).trim() : '';
+  if (trimmed === '' || trimmed === todo.text) return;
+  const updated = {
+    id: todo.id,
+    text: trimmed,
+    state: todo.state,
+    parentId: todo.parentId ?? null,
+    tabId: todo.tabId,
+    order: todo.order ?? 0
+  };
+  await putInDb(TODO_STORE_NAME, updated);
+  await renderCurrentTodos();
 };
 
 const toggleSubtaskCollapse = (todoId) => {

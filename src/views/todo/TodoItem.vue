@@ -19,13 +19,13 @@
         >
           ▼
         </button>
-        <label>
+        <span>
           <TodoStateToggle
             :state="todo.state"
             @change="newState => emit('toggle-state', todo.id, newState)"
           />
           <span class="todo-text" @click.stop @dblclick="$emit('edit-text', todo.id)">{{ todo.text }}</span>
-        </label>
+        </span>
       </div>
       <div>
         <select class="todo-state" :value="todo.state" @change="handleStateChange">
