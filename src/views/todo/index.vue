@@ -58,10 +58,20 @@
     <dialog ref="exportModal" class="modal">
       <h2>할일 목록 수정 및 내보내기</h2>
       <p>진행상황 포함 마크다운: <code>- [ ]</code> 시작전, <code>- [o]</code> 진행중, <code>- [x]</code> 완료. 내용을 수정한 뒤 적용할 수 있습니다.</p>
-      <p class="export-textarea-hint" title="Alt+↑: 선택한 줄을 위로 이동 · Alt+↓: 선택한 줄을 아래로 이동">Alt+↑ / Alt+↓: 선택한 줄을 위·아래로 이동</p>
-      <textarea ref="exportTextarea" v-model="exportText" placeholder="내보낼 할일 목록이 여기에 표시됩니다."
-        title="Alt+↑: 선택한 줄을 위로 이동 · Alt+↓: 선택한 줄을 아래로 이동"
-        @keydown="handleExportTextareaKeydown"></textarea>
+      <p
+        class="export-textarea-hint"
+        title="Alt+↑: 선택한 줄 위로 · Alt+↓: 아래로 · Ctrl+Shift+K / Ctrl+D: 선택한 줄 삭제"
+      >
+        <mark>Alt</mark>+<mark>↑</mark> / <mark>Alt</mark>+<mark>↓</mark>: 줄 이동 ·
+        <mark>Ctrl</mark>+<mark>Shift</mark>+<mark>K</mark> / <mark>Ctrl</mark>+<mark>D</mark>: 줄 삭제
+      </p>
+      <textarea
+        ref="exportTextarea"
+        v-model="exportText"
+        placeholder="내보낼 할일 목록이 여기에 표시됩니다."
+        title="Alt+↑: 선택한 줄 위로 · Alt+↓: 아래로 · Ctrl+Shift+K / Ctrl+D: 선택한 줄 삭제"
+        @keydown="handleExportTextareaKeydown"
+      ></textarea>
       <div class="dialog-actions">
         <button @click="applyExportMarkdown" class="apply-export-btn">편집 내용 적용</button>
         <button @click="copyToClipboard">클립보드에 복사</button>
@@ -778,18 +788,38 @@ const getOffsetOfLineStart = (text, lineIndex) => {
 };
 
 const handleExportTextareaKeydown = (e) => {
-  if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
   const textarea = exportTextarea.value;
   if (!textarea) return;
-  e.preventDefault();
+
   const value = exportText.value;
   const lines = value.split('\n');
-  if (lines.length === 0) return;
   const start = textarea.selectionStart;
   const end = textarea.selectionEnd;
   const startLine = getLineIndexFromOffset(value, start);
   const endLine = getLineIndexFromOffset(value, end > 0 ? end - 1 : 0);
   const lineCount = endLine - startLine + 1;
+
+  const isDeleteLine = (e.ctrlKey && e.shiftKey && e.key === 'K') || (e.ctrlKey && e.key === 'D');
+  if (isDeleteLine) {
+    e.preventDefault();
+    if (lines.length === 0) return;
+    lines.splice(startLine, lineCount);
+    const newValue = lines.join('\n');
+    exportText.value = newValue;
+    nextTick(() => {
+      if (!exportTextarea.value) return;
+      const newLine = Math.min(startLine, lines.length - 1);
+      const newOffset = newLine >= 0 ? getOffsetOfLineStart(newValue, newLine) : 0;
+      exportTextarea.value.selectionStart = newOffset;
+      exportTextarea.value.selectionEnd = newOffset;
+      exportTextarea.value.focus();
+    });
+    return;
+  }
+
+  if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+  e.preventDefault();
+  if (lines.length === 0) return;
 
   if (e.key === 'ArrowUp') {
     if (startLine === 0) return;
@@ -1267,6 +1297,25 @@ ul {
   color: #6c757d;
 }
 
+.export-textarea-hint mark {
+  display: inline-block;
+  padding: 2px 6px;
+  margin: 0 1px;
+  font-family: inherit;
+  font-size: 0.9em;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #333;
+  background: linear-gradient(180deg, #f7f7f7 0%, #e8e8e8 100%);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.8) inset, 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.export-textarea-hint mark + mark {
+  margin-left: 0;
+}
+
 #closeModalBtn {
   background-color: #dc3545;
   color: white;
@@ -1404,6 +1453,17 @@ ul {
     background-color: #2d2d2d;
     color: #e0e0e0;
   }
+
+  .export-textarea-hint {
+    color: #b0bec5;
+  }
+
+  .export-textarea-hint mark {
+    color: #e0e0e0;
+    background: linear-gradient(180deg, #3d3d3d 0%, #2d2d2d 100%);
+    border-color: #555;
+    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05) inset, 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
 }
 
 /* 다크모드: 사용자 테마 (data-theme="dark") */
@@ -1528,5 +1588,18 @@ body[data-theme="dark"] .todo-app .modal input[type="text"],
   border-color: #424242;
   background-color: #2d2d2d;
   color: #e0e0e0;
+}
+
+body[data-theme="dark"] .todo-app .export-textarea-hint,
+[data-theme="dark"] .todo-app .export-textarea-hint {
+  color: #b0bec5;
+}
+
+body[data-theme="dark"] .todo-app .export-textarea-hint mark,
+[data-theme="dark"] .todo-app .export-textarea-hint mark {
+  color: #e0e0e0;
+  background: linear-gradient(180deg, #3d3d3d 0%, #2d2d2d 100%);
+  border-color: #555;
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05) inset, 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 </style>
