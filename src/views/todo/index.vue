@@ -1163,4 +1163,240 @@ ul {
 .custom-modal-cancel:hover {
   background-color: #c82333;
 }
+
+/* 다크모드: 시스템 설정 */
+@media (prefers-color-scheme: dark) {
+  .todo-app {
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+
+  .container {
+    background: #1e1e1e;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  h1 {
+    color: #e0e0e0;
+    border-bottom-color: #424242;
+  }
+
+  h1:hover {
+    background-color: #2d2d2d;
+  }
+
+  .tabs-container {
+    border-bottom-color: #424242;
+  }
+
+  .tab-item {
+    background-color: #2d2d2d;
+    color: #b0bec5;
+  }
+
+  .tab-item:hover {
+    background-color: #383838;
+  }
+
+  .tab-item.active {
+    background-color: #1e1e1e;
+    color: #90caf9;
+    border-color: #424242;
+    border-bottom-color: #1e1e1e;
+  }
+
+  .tab-item.dragging {
+    background: #1e3a5f;
+  }
+
+  .tab-item.drag-over {
+    border-left-color: #90caf9;
+    background-color: #1e3a5f;
+  }
+
+  .delete-tab-btn {
+    color: #757575;
+  }
+
+  .delete-tab-btn:hover {
+    color: #ef5350;
+    background-color: #2d2d2d;
+  }
+
+  #addTabBtn {
+    background-color: #66bb6a;
+  }
+
+  .controls-container button {
+    background-color: #1976d2;
+  }
+
+  .controls-container button:hover {
+    background-color: #1565c0;
+  }
+
+  .controls-container input {
+    border-color: #424242;
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+  }
+
+  .controls-container input::placeholder {
+    color: #757575;
+  }
+
+  .empty-list-message {
+    color: #b0bec5;
+  }
+
+  .modal {
+    background-color: #1e1e1e;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+  }
+
+  .modal h2,
+  .modal h3 {
+    color: #e0e0e0;
+  }
+
+  .modal p {
+    color: #b0bec5;
+  }
+
+  .modal textarea {
+    border-color: #424242;
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+  }
+
+  .modal input[type="text"] {
+    border-color: #424242;
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+  }
+}
+
+/* 다크모드: 사용자 테마 (data-theme="dark") */
+body[data-theme="dark"] .todo-app,
+[data-theme="dark"] .todo-app {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .todo-app .container,
+[data-theme="dark"] .todo-app .container {
+  background: #1e1e1e;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+body[data-theme="dark"] .todo-app h1,
+[data-theme="dark"] .todo-app h1 {
+  color: #e0e0e0;
+  border-bottom-color: #424242;
+}
+
+body[data-theme="dark"] .todo-app h1:hover,
+[data-theme="dark"] .todo-app h1:hover {
+  background-color: #2d2d2d;
+}
+
+body[data-theme="dark"] .todo-app .tabs-container,
+[data-theme="dark"] .todo-app .tabs-container {
+  border-bottom-color: #424242;
+}
+
+body[data-theme="dark"] .todo-app .tab-item,
+[data-theme="dark"] .todo-app .tab-item {
+  background-color: #2d2d2d;
+  color: #b0bec5;
+}
+
+body[data-theme="dark"] .todo-app .tab-item:hover,
+[data-theme="dark"] .todo-app .tab-item:hover {
+  background-color: #383838;
+}
+
+body[data-theme="dark"] .todo-app .tab-item.active,
+[data-theme="dark"] .todo-app .tab-item.active {
+  background-color: #1e1e1e;
+  color: #90caf9;
+  border-color: #424242;
+  border-bottom-color: #1e1e1e;
+}
+
+body[data-theme="dark"] .todo-app .tab-item.dragging,
+[data-theme="dark"] .todo-app .tab-item.dragging {
+  background: #1e3a5f;
+}
+
+body[data-theme="dark"] .todo-app .tab-item.drag-over,
+[data-theme="dark"] .todo-app .tab-item.drag-over {
+  border-left-color: #90caf9;
+  background-color: #1e3a5f;
+}
+
+body[data-theme="dark"] .todo-app .delete-tab-btn,
+[data-theme="dark"] .todo-app .delete-tab-btn {
+  color: #757575;
+}
+
+body[data-theme="dark"] .todo-app .delete-tab-btn:hover,
+[data-theme="dark"] .todo-app .delete-tab-btn:hover {
+  color: #ef5350;
+  background-color: #2d2d2d;
+}
+
+body[data-theme="dark"] .todo-app #addTabBtn,
+[data-theme="dark"] .todo-app #addTabBtn {
+  background-color: #66bb6a;
+}
+
+body[data-theme="dark"] .todo-app .controls-container button,
+[data-theme="dark"] .todo-app .controls-container button {
+  background-color: #1976d2;
+}
+
+body[data-theme="dark"] .todo-app .controls-container button:hover,
+[data-theme="dark"] .todo-app .controls-container button:hover {
+  background-color: #1565c0;
+}
+
+body[data-theme="dark"] .todo-app .controls-container input,
+[data-theme="dark"] .todo-app .controls-container input {
+  border-color: #424242;
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .todo-app .empty-list-message,
+[data-theme="dark"] .todo-app .empty-list-message {
+  color: #b0bec5;
+}
+
+body[data-theme="dark"] .todo-app .modal,
+[data-theme="dark"] .todo-app .modal {
+  background-color: #1e1e1e;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+body[data-theme="dark"] .todo-app .modal h2,
+body[data-theme="dark"] .todo-app .modal h3,
+[data-theme="dark"] .todo-app .modal h2,
+[data-theme="dark"] .todo-app .modal h3 {
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .todo-app .modal p,
+[data-theme="dark"] .todo-app .modal p {
+  color: #b0bec5;
+}
+
+body[data-theme="dark"] .todo-app .modal textarea,
+body[data-theme="dark"] .todo-app .modal input[type="text"],
+[data-theme="dark"] .todo-app .modal textarea,
+[data-theme="dark"] .todo-app .modal input[type="text"] {
+  border-color: #424242;
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+}
 </style>

@@ -294,5 +294,147 @@ li.dragging {
 li.drag-over {
   border-top: 2px dashed #007bff !important;
 }
+
+/* 다크모드: 시스템 설정 */
+@media (prefers-color-scheme: dark) {
+  li {
+    border-bottom-color: #424242;
+  }
+
+  .subtask-list > li::before,
+  .subtask-list > li::after {
+    background-color: #424242;
+  }
+
+  .todo-state {
+    border-color: #424242;
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+  }
+
+  .add-subtask-btn,
+  .delete-todo-btn,
+  .collapse-subtask-btn {
+    color: #757575;
+  }
+
+  .add-subtask-btn:hover {
+    color: #66bb6a;
+    background-color: #2d2d2d;
+  }
+
+  .delete-todo-btn:hover {
+    color: #ef5350;
+    background-color: #2d2d2d;
+  }
+
+  .collapse-subtask-btn:hover {
+    color: #90caf9;
+    background-color: #2d2d2d;
+  }
+
+  .completed .todo-text {
+    color: #b0bec5;
+  }
+
+  .completed {
+    background-color: #2d2d2d;
+  }
+
+  .in-progress {
+    background-color: #1e3a5f;
+    border-left-color: #90caf9;
+  }
+
+  .in-progress .todo-text {
+    color: #90caf9;
+  }
+
+  li.dragging {
+    background: #1e3a5f;
+  }
+
+  li.drag-over {
+    border-top-color: #90caf9 !important;
+  }
+}
+
+/* 다크모드: 사용자 테마 (data-theme="dark") */
+body[data-theme="dark"] li,
+[data-theme="dark"] li {
+  border-bottom-color: #424242;
+}
+
+body[data-theme="dark"] .subtask-list > li::before,
+body[data-theme="dark"] .subtask-list > li::after,
+[data-theme="dark"] .subtask-list > li::before,
+[data-theme="dark"] .subtask-list > li::after {
+  background-color: #424242;
+}
+
+body[data-theme="dark"] .todo-state,
+[data-theme="dark"] .todo-state {
+  border-color: #424242;
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+}
+
+body[data-theme="dark"] .add-subtask-btn,
+body[data-theme="dark"] .delete-todo-btn,
+body[data-theme="dark"] .collapse-subtask-btn,
+[data-theme="dark"] .add-subtask-btn,
+[data-theme="dark"] .delete-todo-btn,
+[data-theme="dark"] .collapse-subtask-btn {
+  color: #757575;
+}
+
+body[data-theme="dark"] .add-subtask-btn:hover,
+[data-theme="dark"] .add-subtask-btn:hover {
+  color: #66bb6a;
+  background-color: #2d2d2d;
+}
+
+body[data-theme="dark"] .delete-todo-btn:hover,
+[data-theme="dark"] .delete-todo-btn:hover {
+  color: #ef5350;
+  background-color: #2d2d2d;
+}
+
+body[data-theme="dark"] .collapse-subtask-btn:hover,
+[data-theme="dark"] .collapse-subtask-btn:hover {
+  color: #90caf9;
+  background-color: #2d2d2d;
+}
+
+body[data-theme="dark"] .completed .todo-text,
+[data-theme="dark"] .completed .todo-text {
+  color: #b0bec5;
+}
+
+body[data-theme="dark"] .completed,
+[data-theme="dark"] .completed {
+  background-color: #2d2d2d;
+}
+
+body[data-theme="dark"] .in-progress,
+[data-theme="dark"] .in-progress {
+  background-color: #1e3a5f;
+  border-left-color: #90caf9;
+}
+
+body[data-theme="dark"] .in-progress .todo-text,
+[data-theme="dark"] .in-progress .todo-text {
+  color: #90caf9;
+}
+
+body[data-theme="dark"] li.dragging,
+[data-theme="dark"] li.dragging {
+  background: #1e3a5f;
+}
+
+body[data-theme="dark"] li.drag-over,
+[data-theme="dark"] li.drag-over {
+  border-top-color: #90caf9 !important;
+}
 </style>
 

@@ -101,7 +101,7 @@
                         <TodoIcon />
                     </div>
                     <div class="card-title">할 일 관리</div>
-                    <div class="card-desc">할 일 목록 관리 및 체크리스트</div>
+                    <div class="card-desc">할 일 목록 관리 및 체크리스트 <br/> Fast TODO List </div>
                 </div>
             </router-link>
 
