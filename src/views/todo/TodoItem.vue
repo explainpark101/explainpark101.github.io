@@ -24,7 +24,7 @@
             :state="todo.state"
             @change="newState => emit('toggle-state', todo.id, newState)"
           />
-          <span class="todo-text" @dblclick="$emit('edit-text', todo.id)">{{ todo.text }}</span>
+          <span class="todo-text" @click.stop @dblclick="$emit('edit-text', todo.id)">{{ todo.text }}</span>
         </label>
       </div>
       <div>
