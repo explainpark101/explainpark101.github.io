@@ -15,7 +15,7 @@
       </div>
 
       <div class="controls-container">
-        <button @click="openMarkdownModal">할일 목록 불러오기</button>
+        <button @click="openMarkdownModal">할 일 추가</button>
         <button @click="exportTodos">할일 목록 수정 및 내보내기</button>
         <button @click="resetAllTodosToNotStarted">모두 시작전으로</button>
         <button @click="deleteCompletedTodos">완료항목 삭제</button>
@@ -34,7 +34,7 @@
           '{{ searchQuery }}'에 대한 검색 결과가 없습니다.
         </template>
         <template v-else-if="currentTabId">
-          할일 목록이 없습니다.<br />'할일 목록 불러오기' 버튼으로 목록을추가하세요.
+          할일 목록이 없습니다.<br />'할 일 추가' 버튼으로 목록을추가하세요.
         </template>
         <template v-else>
           탭을 선택하거나 '+' 버튼을 눌러 새 탭을 만드세요.
@@ -44,7 +44,7 @@
 
     <!-- Markdown Import Modal -->
     <dialog ref="markdownModal" class="modal">
-      <h2>새 할일 목록 불러오기</h2>
+      <h2>새 할 일 추가</h2>
       <textarea ref="modalMarkdownInput" v-model="markdownInput"
         placeholder="여기에 할일 목록을 마크다운 형식으로 입력하세요.&#10;들여쓰기를 사용하여 하위 작업을 만들 수 있습니다."
         @keydown="handleMarkdownKeydown"></textarea>
