@@ -45,19 +45,19 @@
         <h3 class="text-[var(--primary-color)] font-medium">테이블 {{ index + 1 }}</h3>
         <div class="mb-4">
           <label class="block mb-2 text-[var(--text-secondary)] text-sm">부원 수</label>
-          <input type="number" v-model.number="table.memberCount" min="0" class="jungsan-input">
+          <input type="number" v-model.number="table.memberCount" min="0" class="w-32 p-3 my-1 border border-[var(--border-color)] rounded text-base bg-[var(--surface)] text-[var(--text-primary)] transition-all duration-300 focus:outline-none focus:border-[var(--primary-color)] box-border">
         </div>
         <div class="mb-4">
           <label class="block mb-2 text-[var(--text-secondary)] text-sm">난입 수</label>
-          <input type="number" v-model.number="table.guestCount" min="0" class="jungsan-input">
+          <input type="number" v-model.number="table.guestCount" min="0" class="w-32 p-3 my-1 border border-[var(--border-color)] rounded text-base bg-[var(--surface)] text-[var(--text-primary)] transition-all duration-300 focus:outline-none focus:border-[var(--primary-color)] box-border">
         </div>
         <div class="mb-4">
           <label class="block mb-2 text-[var(--text-secondary)] text-sm">메모</label>
-          <textarea v-model="table.memo" rows="2" placeholder="부원, 난입 이름을 입력하세요" class="jungsan-input w-full"></textarea>
+          <textarea v-model="table.memo" rows="2" placeholder="부원, 난입 이름을 입력하세요" class="w-full p-3 my-1 border border-[var(--border-color)] rounded text-base bg-[var(--surface)] text-[var(--text-primary)] transition-all duration-300 focus:outline-none focus:border-[var(--primary-color)] box-border"></textarea>
         </div>
         <div class="mb-4">
           <label class="block mb-2 text-[var(--text-secondary)] text-sm">음식 가격</label>
-          <input type="number" v-model.number="table.foodPrice" min="0" class="jungsan-input">
+          <input type="number" v-model.number="table.foodPrice" min="0" class="w-32 p-3 my-1 border border-[var(--border-color)] rounded text-base bg-[var(--surface)] text-[var(--text-primary)] transition-all duration-300 focus:outline-none focus:border-[var(--primary-color)] box-border">
         </div>
         <div class="flex items-center gap-2 my-2">
           <label class="flex gap-2 items-center cursor-pointer m-0">
@@ -68,7 +68,7 @@
       </div>
     </div>
 
-    <button @click="calculate" id="calc-button" class="jungsan-btn">
+    <button @click="calculate" id="calc-button" class="py-2.5 px-5 bg-[var(--primary-color)] text-[var(--surface)] border-none rounded cursor-pointer text-sm font-medium uppercase inline-flex items-center gap-2 transition-colors duration-300 hover:bg-[var(--primary-dark)]">
       <span class="material-icons">calculate</span>
       정산 계산하기
     </button>
@@ -95,13 +95,13 @@
     <a ref="downloadLink" :href="downloadUrl" :download="downloadFilename" class="hidden"></a>
     <input ref="fileInput" type="file" accept="application/json" class="hidden" @change="handleFileImport" />
 
-    <dialog ref="dialogRef" class="jungsan-dialog" @click="handleDialogClick">
+    <dialog ref="dialogRef" class="jungsan-dialog border-none rounded-lg p-0 max-w-md w-[90%] bg-[var(--surface)] shadow-2xl fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 transition-all duration-500" @click="handleDialogClick">
       <div class="p-6" @click.stop>
         <h3 class="m-0 mb-4 text-[var(--text-primary)] text-xl font-medium">{{ dialogTitle }}</h3>
         <p class="m-0 mb-6 text-[var(--text-secondary)] text-sm leading-relaxed">{{ dialogMessage }}</p>
         <div class="flex justify-end gap-3">
-          <button v-if="!isAlert" @click="handleCancel" class="jungsan-dialog-cancel">취소</button>
-          <button ref="confirmButtonRef" @click="handleConfirm" class="jungsan-dialog-confirm" autofocus>확인</button>
+          <button v-if="!isAlert" @click="handleCancel" class="py-2.5 px-5 border border-[var(--border-color)] rounded bg-transparent text-[var(--text-secondary)] text-sm font-medium cursor-pointer transition-colors duration-300 hover:bg-[var(--background)]">취소</button>
+          <button ref="confirmButtonRef" @click="handleConfirm" class="py-2.5 px-5 border-none rounded bg-[var(--primary-color)] text-[var(--surface)] text-sm font-medium cursor-pointer transition-colors duration-300 hover:bg-[var(--primary-dark)]" autofocus>확인</button>
         </div>
       </div>
     </dialog>
@@ -289,325 +289,10 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped>
-.jungsan-container {
-  font-family: 'Roboto', sans-serif;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: var(--background);
-  color: var(--text-primary);
-  transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
-}
-
-h1 {
-  color: var(--primary-color);
-  font-weight: 500;
-  margin-bottom: 24px;
-}
-
-.table-container {
-  margin-bottom: 20px;
-  padding: 20px;
-  background: var(--surface);
-  border-radius: 8px;
-  box-shadow: 0 2px 4px var(--shadow-color);
-  transition: box-shadow 0.3s ease, background-color 500ms ease-in-out;
-}
-
-.table-container:hover {
-  box-shadow: 0 4px 8px var(--shadow-color);
-}
-
-.input-group {
-  margin-bottom: 16px;
-}
-
-.input-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--text-secondary);
-  font-size: 14px;
-}
-
-.result {
-  margin-top: 24px;
-  padding: 20px;
-  background: var(--surface);
-  border-radius: 8px;
-  box-shadow: 0 2px 4px var(--shadow-color);
-  display: grid;
-  gap: .5rem;
-  transition: background-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
-}
-
-button {
-  padding: 10px 20px;
-  background-color: var(--primary-color);
-  color: var(--surface);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  text-transform: uppercase;
-  transition: background-color 0.3s ease, color 500ms ease-in-out;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-button:hover {
-  background-color: var(--primary-dark);
-}
-
-button .material-icons {
-  font-size: 20px;
-}
-
-input,
-textarea {
-  width: 100%;
-  padding: 12px;
-  margin: 4px 0;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 16px;
-  background-color: var(--surface);
-  color: var(--text-primary);
-  transition: border-color 0.3s ease, background-color 500ms ease-in-out, color 500ms ease-in-out;
-  box-sizing: border-box;
-}
-
-input:focus,
-textarea:focus {
-  outline: none;
-  border-color: var(--primary-color);
-}
-
-input[type="number"] {
-  width: 120px;
-}
-
-.result h2 {
-  color: var(--primary-color);
-  font-weight: 500;
-  margin-bottom: 16px;
-}
-
-.result p {
-  margin: 8px 0;
-  color: var(--text-secondary);
-}
-
-.result .table-container {
-  background: var(--background);
-}
-
-.result .table-container h3 {
-  color: var(--primary-color);
-  margin-top: 0;
-}
-
-.remaining-support {
-  color: var(--primary-color);
-  font-weight: 500;
-  margin-top: 12px;
-  padding: 8px;
-  background-color: rgba(25, 118, 210, 0.1);
-  border-radius: 4px;
-  transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
-}
-
-/* 다크모드에서 remaining-support 배경색 조정 */
-@media (prefers-color-scheme: dark) {
-  .remaining-support {
-    background-color: rgba(144, 202, 249, 0.1);
-  }
-}
-
-[data-theme="dark"] .remaining-support,
-body[data-theme="dark"] .remaining-support {
-  background-color: rgba(144, 202, 249, 0.1);
-}
-
-.support-per-person {
-  color: var(--success);
-  font-weight: 500;
-  margin-top: 12px;
-  padding: 8px;
-  background-color: rgba(67, 160, 71, 0.1);
-  border-radius: 4px;
-  transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
-}
-
-/* 다크모드에서 support-per-person 배경색 조정 */
-@media (prefers-color-scheme: dark) {
-  .support-per-person {
-    background-color: rgba(102, 187, 106, 0.1);
-  }
-}
-
-[data-theme="dark"] .support-per-person,
-body[data-theme="dark"] .support-per-person {
-  background-color: rgba(102, 187, 106, 0.1);
-}
-
-.error {
-  color: var(--error);
-  font-size: 14px;
-  margin-top: 4px;
-}
-
-.checkbox-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 8px 0;
-}
-
-.checkbox-group input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  margin: 0;
-}
-
-.checkbox-group label {
-  margin: 0;
-  cursor: pointer;
-  display: flex;
-  gap: .5rem;
-  align-items: center;
-}
-
-/* Material Design Button Style for <a> */
-a.md-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background-color: var(--primary-color);
-  color: var(--surface);
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  text-transform: uppercase;
-  text-decoration: none;
-  box-shadow: 0 2px 4px var(--shadow-color);
-  cursor: pointer;
-  transition: background-color 0.3s, box-shadow 0.3s, color 500ms ease-in-out;
-}
-
-a.md-btn:hover,
-a.md-btn:focus {
-  background-color: var(--primary-dark);
-  text-decoration: none;
-  box-shadow: 0 4px 8px var(--shadow-color);
-  color: var(--surface);
-}
-
-.home-button {
-  padding: 10px 20px;
-  background-color: #7B1FA2;
-  color: var(--surface);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.3s ease, color 500ms ease-in-out;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-transform: none;
-}
-
-.home-button:hover {
-  background-color: #6A1B9A;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px var(--shadow-color);
-}
-
-.home-button .material-icons {
-  font-size: 20px;
-}
-
-/* Confirm Dialog Styles */
-.confirm-dialog {
-  border: none;
-  border-radius: 8px;
-  padding: 0;
-  max-width: 400px;
-  width: 90%;
-  background: var(--surface);
-  box-shadow: 0 8px 32px var(--shadow-color);
-  transition: background-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  margin: 0;
-}
-
-.confirm-dialog::backdrop {
+<style>
+/* dialog::backdrop - Tailwind cannot style this */
+.jungsan-dialog::backdrop {
   background: var(--overlay-color);
   backdrop-filter: blur(2px);
-}
-
-.dialog-content {
-  padding: 24px;
-}
-
-.dialog-title {
-  margin: 0 0 16px 0;
-  color: var(--text-primary);
-  font-size: 20px;
-  font-weight: 500;
-  transition: color 500ms ease-in-out;
-}
-
-.dialog-message {
-  margin: 0 0 24px 0;
-  color: var(--text-secondary);
-  font-size: 14px;
-  line-height: 1.5;
-  transition: color 500ms ease-in-out;
-}
-
-.dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.dialog-btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 500ms ease-in-out;
-}
-
-.dialog-btn-cancel {
-  background-color: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-}
-
-.dialog-btn-cancel:hover {
-  background-color: var(--background);
-}
-
-.dialog-btn-confirm {
-  background-color: var(--primary-color);
-  color: var(--surface);
-}
-
-.dialog-btn-confirm:hover {
-  background-color: var(--primary-dark);
 }
 </style>

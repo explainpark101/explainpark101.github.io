@@ -1,20 +1,21 @@
 <template>
-  <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-    <div class="modal">
-      <h3>{{ modalTitle }}</h3>
-      <p>{{ modalMessage }}</p>
+  <div v-if="showModal" class="fixed inset-0 bg-gray-600/50 dark:bg-black/70 z-30 flex items-center justify-center transition-colors" @click.self="closeModal">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md transition-colors">
+      <h3 class="text-lg font-bold text-gray-900 dark:text-gray-200 mb-4">{{ modalTitle }}</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">{{ modalMessage }}</p>
       <input
         v-if="modalShowInput"
         ref="modalInput"
         type="text"
         :value="modalInputValue"
+        class="w-full border border-gray-300 dark:border-gray-600 rounded-md py-2 px-2 mb-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200"
         @input="handleInput"
         @keydown.enter="handleModalOk"
         @keydown.escape="handleModalCancel"
       />
-      <div class="modal-actions">
-        <button @click="handleModalCancel" class="btn-cancel">취소</button>
-        <button @click="handleModalOk" class="btn-ok">확인</button>
+      <div class="flex justify-end gap-3">
+        <button @click="handleModalCancel" class="py-2 px-4 rounded-md bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-gray-200 border-none cursor-pointer transition-colors hover:bg-gray-300 dark:hover:bg-gray-500">취소</button>
+        <button @click="handleModalOk" class="py-2 px-4 rounded-md bg-blue-600 text-white border-none cursor-pointer transition-colors hover:bg-blue-700">확인</button>
       </div>
     </div>
   </div>
@@ -76,111 +77,4 @@ watch(() => props.showModal, (newVal) => {
   }
 });
 </script>
-
-<style scoped>
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(75, 85, 99, 0.5);
-  z-index: 30;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.3s ease;
-}
-
-[data-theme="dark"] .modal-overlay {
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-.modal {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  padding: 24px;
-  width: 100%;
-  max-width: 28rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-[data-theme="dark"] .modal {
-  background: #1e1e1e;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
-  color: #e2e8f0;
-}
-
-.modal h3 {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 16px;
-  transition: color 0.3s ease;
-}
-
-[data-theme="dark"] .modal h3 {
-  color: #e2e8f0;
-}
-
-.modal p {
-  font-size: 0.875rem;
-  color: #4b5563;
-  margin-bottom: 16px;
-  transition: color 0.3s ease;
-}
-
-[data-theme="dark"] .modal p {
-  color: #cbd5e0;
-}
-
-.modal input {
-  width: 100%;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 8px;
-  margin-bottom: 16px;
-  background-color: white;
-  color: #1f2937;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
-[data-theme="dark"] .modal input {
-  background-color: #2d2d2d;
-  color: #e2e8f0;
-  border-color: #4a5568;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.btn-cancel {
-  background-color: #e5e7eb;
-  color: #1f2937;
-  padding: 8px 16px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-cancel:hover {
-  background-color: #d1d5db;
-}
-
-.btn-ok {
-  background-color: #2563eb;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-ok:hover {
-  background-color: #1d4ed8;
-}
-</style>
 

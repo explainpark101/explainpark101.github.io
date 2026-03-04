@@ -747,62 +747,28 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
-.flash-red {
-  animation: flash-red 0.3s ease-out;
-}
-
+<style>
 @keyframes flash-red {
-
-  0%,
-  100% {
-    background-color: transparent;
-  }
-
-  50% {
-    background-color: #991b1b;
-  }
+  0%, 100% { background-color: transparent; }
+  50% { background-color: #991b1b; }
 }
-
-.input-error {
-  animation: input-error-animation 0.2s ease-in-out;
-}
+.flash-red { animation: flash-red 0.3s ease-out; }
 
 @keyframes input-error-animation {
-
-  from,
-  to {
-    transform: translate3d(0, 0, 0);
-  }
-
-  10%,
-  30%,
-  50%,
-  70%,
-  90% {
-    transform: translate3d(-5px, 0, 0);
-  }
-
-  20%,
-  40%,
-  60%,
-  80% {
-    transform: translate3d(5px, 0, 0);
-  }
-
-  50% {
-    background-color: #991b1b;
-    border-color: #ef4444;
-  }
+  from, to { transform: translate3d(0, 0, 0); }
+  10%, 30%, 50%, 70%, 90% { transform: translate3d(-5px, 0, 0); }
+  20%, 40%, 60%, 80% { transform: translate3d(5px, 0, 0); }
+  50% { background-color: #991b1b; border-color: #ef4444; }
 }
+.input-error { animation: input-error-animation 0.2s ease-in-out; }
 
-
-input:focus,
-textarea:focus {
+/* Tailwind cannot style caret-color per-element in template */
+#game-container input:focus,
+#game-container textarea:focus {
   caret-color: #34d399;
 }
 
-textarea {
+#game-container textarea {
   background-color: #1e293b;
   border: 1px solid #475569;
   border-radius: 0.5rem;
@@ -811,12 +777,6 @@ textarea {
   resize: vertical;
 }
 
-#settings-modal,
-#game-over-modal {
-  z-index: 20000;
-}
-
-* {
-  user-select: none;
-}
+#settings-modal, #game-over-modal { z-index: 20000; }
+#game-container * { user-select: none; }
 </style>

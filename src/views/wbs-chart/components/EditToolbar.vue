@@ -1,28 +1,30 @@
 <template>
   <div
-    class="edit-toolbar"
-    :class="{ hidden: !isVisible, '-translate-x-full': !isVisible }"
+    class="absolute top-0 left-0 h-full w-80 bg-white dark:bg-gray-800 shadow-xl z-20 p-6 overflow-y-auto transition-all duration-300"
+    :class="[!isVisible ? 'hidden -translate-x-full' : 'translate-x-0']"
   >
-    <div class="toolbar-header">
-      <h2>노드 편집</h2>
-      <button @click="handleClose" class="close-btn">×</button>
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">노드 편집</h2>
+      <button @click="handleClose" class="text-gray-500 dark:text-gray-400 bg-transparent border-none cursor-pointer text-2xl p-0 w-6 h-6 flex items-center justify-center hover:text-gray-800 dark:hover:text-gray-200">×</button>
     </div>
-    <div class="toolbar-content">
+    <div class="flex flex-col gap-4">
       <div>
-        <label for="node-name-input">노드 이름</label>
+        <label for="node-name-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">노드 이름</label>
         <textarea
           id="node-name-input"
           v-model="nodeName"
           rows="3"
+          class="w-full py-2 px-3 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 min-h-[60px] resize-y"
           @keydown="handleKeydown"
         />
       </div>
       <div>
-        <label for="node-parent-select">부모 노드 변경</label>
+        <label for="node-parent-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">부모 노드 변경</label>
         <select
           id="node-parent-select"
           v-model="selectedParentId"
           :disabled="isRootNode"
+          class="w-full py-2 px-3 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
         >
           <option v-for="option in parentOptions" :key="option.id" :value="option.id">
             {{ option.label }}
@@ -30,17 +32,11 @@
         </select>
       </div>
     </div>
-    <div class="toolbar-actions">
-      <button @click="handleSave" class="btn-save">변경 사항 저장</button>
-      <button v-if="!isTaskOrLower" @click="handleAddChild" class="btn-add-child">
-        자식 노드 추가
-      </button>
-      <button v-if="!isRootNode" @click="handleAddSibling" class="btn-add-sibling">
-        형제 노드 추가
-      </button>
-      <button @click="handleDelete" class="btn-delete" :disabled="isRootNode">
-        노드 삭제
-      </button>
+    <div class="mt-8 flex flex-col gap-3">
+      <button @click="handleSave" class="w-full py-2 px-4 rounded-md text-white font-medium border-none cursor-pointer transition-colors bg-blue-600 hover:bg-blue-700">변경 사항 저장</button>
+      <button v-if="!isTaskOrLower" @click="handleAddChild" class="w-full py-2 px-4 rounded-md text-white font-medium border-none cursor-pointer transition-colors bg-green-600 hover:bg-green-700">자식 노드 추가</button>
+      <button v-if="!isRootNode" @click="handleAddSibling" class="w-full py-2 px-4 rounded-md text-white font-medium border-none cursor-pointer transition-colors bg-indigo-600 hover:bg-indigo-700">형제 노드 추가</button>
+      <button @click="handleDelete" class="w-full py-2 px-4 rounded-md text-white font-medium border-none cursor-pointer transition-colors bg-red-600 hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed" :disabled="isRootNode">노드 삭제</button>
     </div>
   </div>
 </template>
@@ -135,174 +131,4 @@ watch(() => props.isVisible, (newVal) => {
   }
 });
 </script>
-
-<style scoped>
-.edit-toolbar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 320px;
-  background: white;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  z-index: 20;
-  padding: 24px;
-  transform: translateX(0);
-  transition: transform 0.3s, background-color 0.3s ease, color 0.3s ease;
-  overflow-y: auto;
-}
-
-[data-theme="dark"] .edit-toolbar {
-  background: #1e1e1e;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
-  color: #e2e8f0;
-}
-
-.edit-toolbar.hidden {
-  display: none;
-}
-
-.toolbar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.toolbar-header h2 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1f2937;
-  transition: color 0.3s ease;
-}
-
-[data-theme="dark"] .toolbar-header h2 {
-  color: #e2e8f0;
-}
-
-.close-btn {
-  color: #6b7280;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.5rem;
-  padding: 0;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.3s ease;
-}
-
-.close-btn:hover {
-  color: #1f2937;
-}
-
-[data-theme="dark"] .close-btn {
-  color: #9ca3af;
-}
-
-[data-theme="dark"] .close-btn:hover {
-  color: #e2e8f0;
-}
-
-.toolbar-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.toolbar-content label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 4px;
-  transition: color 0.3s ease;
-}
-
-[data-theme="dark"] .toolbar-content label {
-  color: #cbd5e0;
-}
-
-.toolbar-content textarea,
-.toolbar-content select {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  background-color: white;
-  color: #1f2937;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
-[data-theme="dark"] .toolbar-content textarea,
-[data-theme="dark"] .toolbar-content select {
-  background-color: #2d2d2d;
-  color: #e2e8f0;
-  border-color: #4a5568;
-}
-
-.toolbar-content textarea {
-  resize: vertical;
-  min-height: 60px;
-}
-
-.toolbar-actions {
-  margin-top: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.toolbar-actions button {
-  width: 100%;
-  padding: 8px 16px;
-  border-radius: 6px;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  font-weight: 500;
-}
-
-.btn-save {
-  background-color: #2563eb;
-}
-
-.btn-save:hover {
-  background-color: #1d4ed8;
-}
-
-.btn-add-child {
-  background-color: #16a34a;
-}
-
-.btn-add-child:hover {
-  background-color: #15803d;
-}
-
-.btn-add-sibling {
-  background-color: #4f46e5;
-}
-
-.btn-add-sibling:hover {
-  background-color: #4338ca;
-}
-
-.btn-delete {
-  background-color: #dc2626;
-}
-
-.btn-delete:hover {
-  background-color: #b91c1c;
-}
-
-.btn-delete:disabled {
-  background-color: #9ca3af;
-  cursor: not-allowed;
-}
-</style>
 

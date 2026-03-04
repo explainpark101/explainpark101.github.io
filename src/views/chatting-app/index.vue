@@ -1,54 +1,52 @@
 <template>
-  <div class="chatting-app" @beforeunload="handleBeforeUnload">
-    <div class="main-container">
-      <!-- 1. 홈 뷰 (초기 화면 - 이름 입력) -->
-      <div id="home-view" class="home-view" :class="{ hidden: currentView !== 'home' }">
-        <h1>WebRTC P2P 채팅</h1>
-        <p>서버 없이 QR 코드로 연결하는 P2P 채팅방</p>
+  <div class="font-sans bg-gray-900 text-gray-100 min-h-screen flex items-center justify-center p-4" @beforeunload="handleBeforeUnload">
+    <div class="w-full max-w-4xl mx-auto">
+      <div id="home-view" class="text-center max-w-md mx-auto flex flex-col gap-6" :class="{ '!hidden': currentView !== 'home' }">
+        <h1 class="text-3xl font-bold text-white">WebRTC P2P 채팅</h1>
+        <p class="text-gray-400">서버 없이 QR 코드로 연결하는 P2P 채팅방</p>
         <input
           id="username-input"
           v-model="usernameInput"
           type="text"
           placeholder="이름을 입력하세요..."
+          class="w-full py-3 px-4 text-white bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           @keydown.enter="handleStart"
           autocomplete="off"
           autocapitalize="off"
         />
-        <button id="start-btn" @click="handleStart">
+        <button id="start-btn" class="w-full py-3 px-6 font-semibold text-white bg-blue-600 rounded-lg border-none cursor-pointer transition-colors hover:bg-blue-700" @click="handleStart">
           {{ isHost ? '새 채팅방 만들기' : '채팅방 참여하기' }}
         </button>
       </div>
 
-      <!-- 2. 대기 뷰 (호스트가 QR 코드 보여주는 화면) -->
-      <div id="waiting-view" class="waiting-view" :class="{ hidden: currentView !== 'waiting' }">
-        <h2 v-if="isHost">채팅방 생성됨</h2>
-        <p v-if="isHost">아래 QR 코드를 상대방이 스캔하게 하세요.</p>
-        <div v-if="isHost" id="qrcode-container" class="qrcode-container">
+      <div id="waiting-view" class="text-center max-w-md mx-auto flex flex-col gap-4" :class="{ '!hidden': currentView !== 'waiting' }">
+        <h2 v-if="isHost" class="text-2xl font-semibold">채팅방 생성됨</h2>
+        <p v-if="isHost" class="text-gray-400">아래 QR 코드를 상대방이 스캔하게 하세요.</p>
+        <div v-if="isHost" id="qrcode-container" class="flex justify-center p-4 bg-white rounded-lg shadow-inner">
           <div id="qrcode" ref="qrcodeContainer"></div>
         </div>
-        <a v-if="isHost && hostRoomUrl" :href="hostRoomUrl" target="_blank" class="room-link">{{ hostRoomUrl }}</a>
-        <div v-if="isHost && myPeerId" class="room-id-display">
+        <a v-if="isHost && hostRoomUrl" :href="hostRoomUrl" target="_blank" class="block text-sm text-blue-400 underline break-all mt-2 hover:text-blue-300">{{ hostRoomUrl }}</a>
+        <div v-if="isHost && myPeerId" class="py-3 text-sm text-gray-300 bg-gray-800 rounded-lg break-all">
           내 룸 ID: {{ myPeerId }}
         </div>
-        <div class="status-container">
-          <svg class="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <div class="flex items-center justify-center gap-2 text-blue-400">
+          <svg class="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
           <span id="status-text">{{ statusText }}</span>
         </div>
-        <p v-if="wittyMessage" class="witty-message">{{ wittyMessage }}</p>
+        <p v-if="wittyMessage" class="text-gray-500 text-sm h-5">{{ wittyMessage }}</p>
       </div>
 
-      <!-- 3. 채팅 뷰 -->
-      <div id="chat-view" class="chat-view" :class="{ hidden: currentView !== 'chat' }">
-        <div class="chat-main">
-          <header class="chat-header">
-            <span class="chat-header-title">{{ chatHeaderTitle }}</span>
+      <div id="chat-view" class="w-full h-[90vh] flex flex-col md:flex-row bg-gray-800 rounded-lg shadow-xl overflow-hidden" :class="{ '!hidden': currentView !== 'chat' }">
+        <div class="flex-1 flex flex-col h-full overflow-hidden">
+          <header class="flex items-center justify-between p-4 font-semibold text-center text-white bg-gray-900 border-b border-gray-700">
+            <span class="w-full text-center overflow-hidden text-ellipsis whitespace-nowrap">{{ chatHeaderTitle }}</span>
             <button
               v-if="isHost"
               id="options-btn"
-              class="options-btn md:hidden"
+              class="hidden max-md:block p-1 rounded-md bg-transparent border-none text-white cursor-pointer hover:bg-gray-700"
               @click="toggleSidebar"
             >
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,44 +55,45 @@
             </button>
           </header>
 
-          <div v-if="isHost" id="host-controls" class="host-controls">
-            <button @click="toggleReveal" class="btn-reveal">
+          <div v-if="isHost" id="host-controls" class="flex p-2 bg-gray-900 border-b border-gray-700 flex-wrap justify-center gap-2">
+            <button @click="toggleReveal" class="py-1 px-3 text-sm font-semibold text-white rounded-lg border-none cursor-pointer transition-colors bg-green-600 hover:bg-green-700">
               {{ messagesVisibleByHost ? '메시지 숨기기' : '모든 메시지 보이기' }}
             </button>
-            <button @click="toggleHostLocalReveal" class="btn-host-local-reveal">
+            <button @click="toggleHostLocalReveal" class="py-1 px-3 text-sm font-semibold text-white rounded-lg border-none cursor-pointer transition-colors bg-purple-600 hover:bg-purple-700">
               {{ hostLocalReveal ? '내 화면 보기 끄기' : '내 화면에서만 보기' }}
             </button>
-            <button @click="handleReset" class="btn-reset">메시지 초기화</button>
+            <button @click="handleReset" class="py-1 px-3 text-sm font-semibold text-white rounded-lg border-none cursor-pointer transition-colors bg-red-600 hover:bg-red-700">메시지 초기화</button>
           </div>
 
-          <div id="messages" ref="messagesContainer" class="messages">
+          <div id="messages" ref="messagesContainer" class="chat-messages flex-1 h-full p-4 overflow-y-auto flex flex-col gap-3">
             <div
               v-for="(msg, index) in sortedMessages"
               :key="index"
-              class="message-item"
-              :class="{ 'message-right': msg.senderId === myPeerId, 'message-left': msg.senderId !== myPeerId }"
+              class="flex"
+              :class="{ 'justify-end': msg.senderId === myPeerId, 'justify-start': msg.senderId !== myPeerId }"
             >
-              <div class="message-bubble" :class="{ 'bg-blue-600': msg.senderId === myPeerId, 'bg-gray-700': msg.senderId !== myPeerId }">
-                <div v-if="msg.senderId !== myPeerId" class="message-name">
+              <div class="p-4 rounded-lg max-w-72 break-words shadow" :class="{ 'bg-blue-600': msg.senderId === myPeerId, 'bg-gray-700': msg.senderId !== myPeerId }">
+                <div v-if="msg.senderId !== myPeerId" class="font-semibold text-sm text-gray-300 mb-1">
                   {{ msg.displayName }} <span class="text-xs text-gray-400">#{{ msg.shortId }}</span>
                 </div>
-                <div class="message-text" :class="{ 'italic text-gray-400': !shouldShowMessage(msg) }">
+                <div class="break-words" :class="{ 'italic text-gray-400': !shouldShowMessage(msg) }">
                   {{ shouldShowMessage(msg) ? msg.text : '메시지를 보냈습니다.' }}
                 </div>
-                <div class="message-time">{{ formatTime(msg.timestamp) }}</div>
+                <div class="text-xs text-right mt-1">{{ formatTime(msg.timestamp) }}</div>
               </div>
             </div>
           </div>
 
-          <form @submit.prevent="handleSendMessage" class="chat-form">
+          <form @submit.prevent="handleSendMessage" class="flex p-4 bg-gray-900 border-t border-gray-700">
             <input
               id="message-input"
               v-model="messageInput"
               type="text"
               placeholder="메시지 입력..."
+              class="flex-1 py-2 px-4 text-white bg-gray-700 border border-gray-600 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               autocomplete="off"
             />
-            <button type="submit">
+            <button type="submit" class="py-2 px-4 font-semibold text-white bg-blue-600 rounded-r-lg border-none cursor-pointer transition-colors hover:bg-blue-700 [&_svg]:rotate-90">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
               </svg>
@@ -102,18 +101,18 @@
           </form>
         </div>
 
-        <div id="sidebar" ref="sidebar" class="sidebar" :class="{ hidden: isSidebarHidden }">
+        <div id="sidebar" ref="sidebar" class="w-full md:w-1/3 bg-gray-900 p-4 overflow-y-auto border-t md:border-t-0 md:border-l border-gray-700 flex flex-col gap-4" :class="{ '!hidden': isSidebarHidden }">
           <div>
-            <h3>참여 QR 코드</h3>
-            <div id="qrcode-chat-container" class="qrcode-chat-container">
+            <h3 class="text-lg font-semibold text-white text-center">참여 QR 코드</h3>
+            <div id="qrcode-chat-container" class="flex justify-center p-2 bg-white rounded-lg shadow-inner mt-2">
               <div id="qrcode-chat" ref="qrcodeChatContainer"></div>
             </div>
-            <a v-if="roomUrl" :href="roomUrl" target="_blank" class="sidebar-room-link">{{ roomUrl }}</a>
+            <a v-if="roomUrl" :href="roomUrl" target="_blank" class="block text-sm text-blue-400 underline break-all text-center mt-2 hover:text-blue-300">{{ roomUrl }}</a>
           </div>
           <div>
-            <h3>참여자 목록</h3>
-            <ul id="guest-list" class="guest-list">
-              <li class="guest-item host">
+            <h3 class="text-lg font-semibold text-white text-center">참여자 목록</h3>
+            <ul id="guest-list" class="guest-list mt-2 flex flex-col gap-1 text-gray-300 max-h-[200px] overflow-y-auto pr-1">
+              <li class="guest-item flex items-center justify-between overflow-hidden text-ellipsis whitespace-nowrap py-1 font-semibold text-white">
                 👑 {{ hostName || localUsername }} <span class="text-xs text-gray-400">#{{ hostShortId || localShortId }}</span>
                 <span v-if="(hostShortId || localShortId) === localShortId">(나)</span>
                 <span v-else>(방장)</span>
@@ -121,14 +120,14 @@
               <li
                 v-for="guest in guests"
                 :key="guest.id"
-                class="guest-item"
-                :class="{ 'is-me': guest.shortId === localShortId }"
+                class="flex items-center justify-between overflow-hidden text-ellipsis whitespace-nowrap py-1"
+                :class="{ 'font-semibold text-white': guest.shortId === localShortId }"
               >
                 <span>👤 {{ guest.name }} <span class="text-xs text-gray-400">#{{ guest.shortId }}</span></span>
                 <span v-if="guest.shortId === localShortId">(나)</span>
-                <div v-if="isHost && guest.shortId !== localShortId" class="guest-actions">
-                  <button @click="handleKick(guest)" class="btn-kick">추방</button>
-                  <button @click="handleBan(guest)" class="btn-ban">밴</button>
+                <div v-if="isHost && guest.shortId !== localShortId" class="flex items-center gap-1">
+                  <button @click="handleKick(guest)" class="py-0.5 px-2 text-xs font-semibold text-white rounded bg-amber-600 hover:bg-amber-700 border-none cursor-pointer transition-colors">추방</button>
+                  <button @click="handleBan(guest)" class="py-0.5 px-2 text-xs font-semibold text-white rounded bg-red-600 hover:bg-red-700 border-none cursor-pointer transition-colors">밴</button>
                 </div>
               </li>
             </ul>
@@ -136,21 +135,20 @@
         </div>
       </div>
 
-      <!-- 4. 모달 (알림용) -->
       <div
         id="modal"
-        class="modal-overlay"
-        :class="{ hidden: !showModal }"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 transition-opacity"
+        :class="{ '!hidden': !showModal }"
         @click.self="closeModal"
       >
-        <div class="modal-content">
-          <h3>{{ modalTitle }}</h3>
-          <p>{{ modalMessage }}</p>
-          <div class="modal-actions">
-            <button v-if="!modalNeedsConfirm" @click="closeModal" class="btn-modal-ok">확인</button>
+        <div class="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-xl text-center flex flex-col gap-4 scale-95 transition-transform">
+          <h3 class="text-xl font-semibold text-white">{{ modalTitle }}</h3>
+          <p class="text-gray-300">{{ modalMessage }}</p>
+          <div class="flex justify-center gap-4 pt-2">
+            <button v-if="!modalNeedsConfirm" @click="closeModal" class="py-2 px-6 font-semibold rounded-lg border-none cursor-pointer transition-colors text-white bg-blue-600 hover:bg-blue-700 w-full">확인</button>
             <template v-else>
-              <button @click="handleModalConfirm" class="btn-modal-confirm">확인</button>
-              <button @click="closeModal" class="btn-modal-cancel">취소</button>
+              <button @click="handleModalConfirm" class="py-2 px-6 font-semibold rounded-lg border-none cursor-pointer transition-colors text-white bg-blue-600 hover:bg-blue-700 w-full">확인</button>
+              <button @click="closeModal" class="py-2 px-6 font-semibold rounded-lg border-none cursor-pointer transition-colors text-gray-800 bg-gray-300 hover:bg-gray-400 w-1/2">취소</button>
             </template>
           </div>
         </div>
@@ -878,574 +876,11 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
-.chatting-app {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #111827;
-  color: #f3f4f6;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.main-container {
-  width: 100%;
-  max-width: 64rem;
-  margin: 0 auto;
-}
-
-.hidden {
-  display: none !important;
-}
-
-.home-view {
-  text-align: center;
-  max-width: 28rem;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.home-view h1 {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: white;
-}
-
-.home-view p {
-  color: #9ca3af;
-}
-
-.home-view input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  color: white;
-  background-color: #374151;
-  border: 1px solid #4b5563;
-  border-radius: 0.5rem;
-}
-
-.home-view input:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px #3b82f6;
-}
-
-.home-view button {
-  width: 100%;
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
-  color: white;
-  background-color: #2563eb;
-  border-radius: 0.5rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.home-view button:hover {
-  background-color: #1d4ed8;
-}
-
-.waiting-view {
-  text-align: center;
-  max-width: 28rem;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.waiting-view h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.waiting-view p {
-  color: #9ca3af;
-}
-
-.qrcode-container {
-  display: flex;
-  justify-content: center;
-  padding: 1rem;
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-}
-
-.room-link {
-  display: block;
-  font-size: 0.875rem;
-  color: #60a5fa;
-  text-decoration: underline;
-  word-break: break-all;
-  margin-top: 0.5rem;
-}
-
-.room-link:hover {
-  color: #93c5fd;
-}
-
-.room-id-display {
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  color: #d1d5db;
-  background-color: #1f2937;
-  border-radius: 0.5rem;
-  word-break: break-all;
-}
-
-.status-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  color: #60a5fa;
-}
-
-.spinner {
-  width: 1.25rem;
-  height: 1.25rem;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.witty-message {
-  color: #6b7280;
-  font-size: 0.875rem;
-  height: 1.25rem;
-}
-
-.chat-view {
-  width: 100%;
-  height: 90vh;
-  display: flex;
-  flex-direction: column;
-  background-color: #1f2937;
-  border-radius: 0.5rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  overflow: hidden;
-}
-
-@media (min-width: 768px) {
-  .chat-view {
-    flex-direction: row;
-  }
-}
-
-.chat-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-.chat-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  font-weight: 600;
-  text-align: center;
-  color: white;
-  background-color: #111827;
-  border-bottom: 1px solid #374151;
-}
-
-.chat-header-title {
-  width: 100%;
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.options-btn {
-  display: none;
-  padding: 0.25rem;
-  border-radius: 0.375rem;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-}
-
-.options-btn:hover {
-  background-color: #374151;
-}
-
-@media (max-width: 767px) {
-  .options-btn {
-    display: block;
-  }
-}
-
-.host-controls {
-  display: none;
-  padding: 0.5rem;
-  background-color: #111827;
-  border-bottom: 1px solid #374151;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.host-controls:not(.hidden) {
-  display: flex;
-}
-
-.btn-reveal,
-.btn-host-local-reveal,
-.btn-reset {
-  padding: 0.25rem 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: white;
-  border-radius: 0.5rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-reveal {
-  background-color: #16a34a;
-}
-
-.btn-reveal:hover {
-  background-color: #15803d;
-}
-
-.btn-host-local-reveal {
-  background-color: #9333ea;
-}
-
-.btn-host-local-reveal:hover {
-  background-color: #7e22ce;
-}
-
-.btn-reset {
-  background-color: #dc2626;
-}
-
-.btn-reset:hover {
-  background-color: #b91c1c;
-}
-
-.messages {
-  flex: 1;
-  height: 100%;
-  padding: 1rem;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.messages::-webkit-scrollbar {
-  width: 8px;
-}
-
-.messages::-webkit-scrollbar-track {
-  background: #374151;
-}
-
-.messages::-webkit-scrollbar-thumb {
-  background: #4b5563;
-  border-radius: 4px;
-}
-
-.message-item {
-  display: flex;
-}
-
-.message-right {
-  justify-content: flex-end;
-}
-
-.message-left {
-  justify-content: flex-start;
-}
-
-.message-bubble {
-  padding: 1rem;
-  border-radius: 0.5rem;
-  max-width: 18rem;
-  word-break: break-words;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-}
-
-.message-name {
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: #d1d5db;
-  margin-bottom: 0.25rem;
-}
-
-.message-text {
-  word-break: break-word;
-}
-
-.message-time {
-  font-size: 0.75rem;
-  text-align: right;
-  margin-top: 0.25rem;
-}
-
-.chat-form {
-  display: flex;
-  padding: 1rem;
-  background-color: #111827;
-  border-top: 1px solid #374151;
-}
-
-.chat-form input {
-  flex: 1;
-  padding: 0.5rem 1rem;
-  color: white;
-  background-color: #374151;
-  border: 1px solid #4b5563;
-  border-radius: 0.5rem 0 0 0.5rem;
-}
-
-.chat-form input:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px #3b82f6;
-}
-
-.chat-form button {
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-  color: white;
-  background-color: #2563eb;
-  border-radius: 0 0.5rem 0.5rem 0;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.chat-form button:hover {
-  background-color: #1d4ed8;
-}
-
-.chat-form button svg {
-  transform: rotate(0.25turn);
-}
-
-.sidebar {
-  width: 100%;
-  background-color: #111827;
-  padding: 1rem;
-  overflow-y: auto;
-  border-top: 1px solid #374151;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-@media (min-width: 768px) {
-  .sidebar {
-    width: 33.333333%;
-    height: 100%;
-    border-top: none;
-    border-left: 1px solid #374151;
-  }
-}
-
-.sidebar h3 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: white;
-  text-align: center;
-}
-
-.qrcode-chat-container {
-  display: flex;
-  justify-content: center;
-  padding: 0.5rem;
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-  margin-top: 0.5rem;
-}
-
-.sidebar-room-link {
-  display: block;
-  font-size: 0.875rem;
-  color: #60a5fa;
-  text-decoration: underline;
-  word-break: break-all;
-  text-align: center;
-  margin-top: 0.5rem;
-}
-
-.sidebar-room-link:hover {
-  color: #93c5fd;
-}
-
-.guest-list {
-  margin-top: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  color: #d1d5db;
-  max-height: 200px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.guest-list::-webkit-scrollbar {
-  width: 8px;
-}
-
-.guest-list::-webkit-scrollbar-track {
-  background: #374151;
-}
-
-.guest-list::-webkit-scrollbar-thumb {
-  background: #4b5563;
-  border-radius: 4px;
-}
-
-.guest-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding: 0.25rem 0;
-}
-
-.guest-item.host {
-  font-weight: 600;
-  color: white;
-}
-
-.guest-item.is-me {
-  font-weight: 600;
-  color: white;
-}
-
-.guest-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.btn-kick,
-.btn-ban {
-  padding: 0.125rem 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: white;
-  border-radius: 0.25rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-kick {
-  background-color: #ca8a04;
-}
-
-.btn-kick:hover {
-  background-color: #a16207;
-}
-
-.btn-ban {
-  background-color: #dc2626;
-}
-
-.btn-ban:hover {
-  background-color: #b91c1c;
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background-color: rgba(0, 0, 0, 0.75);
-  transition: opacity 0.3s;
-}
-
-.modal-content {
-  width: 100%;
-  max-width: 24rem;
-  padding: 1.5rem;
-  background-color: #1f2937;
-  border-radius: 0.5rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  transform: scale(0.95);
-  transition: transform 0.3s;
-}
-
-.modal-content h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: white;
-}
-
-.modal-content p {
-  color: #d1d5db;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  padding-top: 0.5rem;
-}
-
-.btn-modal-ok,
-.btn-modal-confirm,
-.btn-modal-cancel {
-  padding: 0.5rem 1.5rem;
-  font-weight: 600;
-  border-radius: 0.5rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-modal-ok,
-.btn-modal-confirm {
-  color: white;
-  background-color: #2563eb;
-  width: 100%;
-}
-
-.btn-modal-ok:hover,
-.btn-modal-confirm:hover {
-  background-color: #1d4ed8;
-}
-
-.btn-modal-cancel {
-  color: #1f2937;
-  background-color: #d1d5db;
-  width: 50%;
-}
-
-.btn-modal-cancel:hover {
-  background-color: #9ca3af;
-}
+<style>
+.chat-messages::-webkit-scrollbar { width: 8px; }
+.chat-messages::-webkit-scrollbar-track { background: #374151; }
+.chat-messages::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+.guest-list::-webkit-scrollbar { width: 8px; }
+.guest-list::-webkit-scrollbar-track { background: #374151; }
+.guest-list::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
 </style>

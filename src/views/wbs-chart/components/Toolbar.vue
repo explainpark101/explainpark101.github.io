@@ -1,8 +1,8 @@
 <template>
-  <div class="toolbar">
+  <div class="absolute top-4 right-4 z-10 flex gap-2">
     <button
       @click="toggleDarkMode"
-      class="toolbar-btn"
+      class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm flex items-center cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
       :title="isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'"
     >
       <svg v-if="isDarkMode" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,7 +23,7 @@
       </svg>
       <span>{{ isDarkMode ? '라이트 모드' : '다크 모드' }}</span>
     </button>
-    <button @click="importJSON" class="toolbar-btn">
+    <button @click="importJSON" class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm flex items-center cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           stroke-linecap="round"
@@ -34,7 +34,7 @@
       </svg>
       <span>불러오기</span>
     </button>
-    <button @click="exportJSON" class="toolbar-btn">
+    <button @click="exportJSON" class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm flex items-center cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           stroke-linecap="round"
@@ -45,7 +45,7 @@
       </svg>
       <span>내보내기</span>
     </button>
-    <button @click="exportPNG" class="toolbar-btn">
+    <button @click="exportPNG" class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm flex items-center cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           stroke-linecap="round"
@@ -56,7 +56,7 @@
       </svg>
       <span>PNG로 저장</span>
     </button>
-    <button @click="fitToView" class="toolbar-btn" title="전체 보기">
+    <button @click="fitToView" class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm flex items-center cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700" title="전체 보기">
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           stroke-linecap="round"
@@ -100,44 +100,4 @@ const fitToView = () => {
   emit('fit-to-view');
 };
 </script>
-
-<style scoped>
-.toolbar {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 10;
-  display: flex;
-  gap: 8px;
-}
-
-.toolbar-btn {
-  background: white;
-  color: #374151;
-  font-weight: 600;
-  padding: 8px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-}
-
-.toolbar-btn:hover {
-  background-color: #f9fafb;
-}
-
-[data-theme="dark"] .toolbar-btn {
-  background: #1e1e1e;
-  color: #e2e8f0;
-  border-color: #4a5568;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-}
-
-[data-theme="dark"] .toolbar-btn:hover {
-  background-color: #2d2d2d;
-}
-</style>
 

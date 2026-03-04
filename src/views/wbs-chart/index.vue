@@ -1,5 +1,5 @@
 <template>
-  <div class="wbs-chart-app">
+  <div class="m-0 p-0 w-full h-screen overflow-hidden font-sans relative">
     <!-- 편집 툴바 -->
     <EditToolbar :is-visible="isToolbarVisible" :selected-node="selectedNode" :parent-options="parentOptions"
       :selected-parent-id="selectedParentId" :node-name="nodeNameInput" @update:nodeName="nodeNameInput = $event"
@@ -91,16 +91,3 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-
-.wbs-chart-app {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  font-family: 'Inter', sans-serif;
-  position: relative;
-}
-</style>

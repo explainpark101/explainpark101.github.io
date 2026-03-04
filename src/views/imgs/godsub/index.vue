@@ -1,14 +1,13 @@
 <template>
-  <div class="godsub-container">
-    <!-- 홈으로 돌아가기 버튼 -->
-    <router-link to="/" class="home-button">
-      <i class="material-icons" style="font-size: 18px;">home</i>
+  <div class="font-sans bg-[var(--background)] pb-10 min-h-screen">
+    <router-link to="/" class="fixed top-5 left-5 bg-[var(--surface)]/95 rounded-full py-3 px-5 cursor-pointer transition-all duration-200 flex items-center gap-2 text-sm font-medium text-[var(--primary-color)] no-underline shadow-lg z-[1000] hover:bg-[var(--surface)] hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0">
+      <i class="material-icons text-lg">home</i>
       앱 목록
     </router-link>
 
-    <div class="container z-depth-2 white" style="padding:32px 24px 24px 24px;">
-      <h1 class="center-align">
-        <i class="material-icons left">layers</i>마작부장 강의장면 만들기
+    <div class="mt-10 max-w-[600px] mx-auto rounded-lg shadow-lg bg-[var(--surface)] p-8 pt-6">
+      <h1 class="text-center text-2xl font-bold text-[var(--primary-color)] mb-8 flex items-center justify-center gap-2">
+        <i class="material-icons">layers</i>마작부장 강의장면 만들기
       </h1>
       <form id="img-form">
         <div class="file-field input-field">
@@ -21,24 +20,22 @@
           </div>
         </div>
       </form>
-      <div class="center-align" style="margin: 24px 0;">
-        <button id="make-btn" class="btn waves-effect waves-light" @click="makeImage">
-          <i class="material-icons left">layers</i>최종 이미지 만들기
+      <div class="text-center my-6 flex flex-wrap justify-center gap-2">
+        <button id="make-btn" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-[var(--primary-color)] text-white hover:bg-[var(--primary-dark)] transition-colors" @click="makeImage">
+          <i class="material-icons">layers</i>최종 이미지 만들기
         </button>
-        <button id="save-btn" class="btn green waves-effect waves-light" @click="saveImage">
-          <i class="material-icons left">file_download</i>PNG로 저장
+        <button id="save-btn" class="inline-flex items-center gap-2 px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 transition-colors" @click="saveImage">
+          <i class="material-icons">file_download</i>PNG로 저장
         </button>
       </div>
-      <canvas id="result-canvas" ref="resultCanvas"></canvas>
-      <!-- 슬라이더 추가 -->
-      <div class="range-field" style="margin-bottom:24px;">
-        <label for="humanPosition" style="color:#1976d2;font-weight:500;">인물 X 위치</label>
-        <input type="range" id="humanPosition" min="0" max="1000" step="0.1" :value="humanX"
-          @input="handleSliderChange">
-        <span id="humanPositionValue" style="margin-left:8px;color:#1976d2;font-weight:500;">{{ humanX }}</span>
+      <canvas id="result-canvas" ref="resultCanvas" class="bg-white rounded-lg shadow-md mb-6 w-full max-w-full h-auto"></canvas>
+      <div class="mb-6">
+        <label for="humanPosition" class="text-[var(--primary-color)] font-medium">인물 X 위치</label>
+        <input type="range" id="humanPosition" min="0" max="1000" step="0.1" :value="humanX" @input="handleSliderChange" class="mx-2">
+        <span id="humanPositionValue" class="ml-2 text-[var(--primary-color)] font-medium">{{ humanX }}</span>
       </div>
-      <a id="download-link" class="download-link btn blue" style="display:none;" ref="downloadLink">
-        <i class="material-icons left">file_download</i>다운로드
+      <a id="download-link" class="mt-4 block hidden bg-blue-600 text-white px-4 py-2 rounded inline-flex items-center gap-2" ref="downloadLink">
+        <i class="material-icons">file_download</i>다운로드
       </a>
     </div>
   </div>
@@ -345,100 +342,13 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
-.godsub-container {
-  font-family: 'Roboto', sans-serif;
-  background: #f5f5f5;
-  padding-bottom: 40px;
-  min-height: 100vh;
-}
-
-.container {
-  margin-top: 40px;
-  max-width: 600px;
-}
-
-canvas {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin-bottom: 24px;
-  width: 100%;
-  height: auto;
-  max-width: 100%;
-}
-
-.file-field .btn {
-  background: #1976d2;
-}
-
-.btn,
-.btn-large {
-  background: #1976d2;
-}
-
-.btn:focus,
-.btn-large:focus {
-  background: #1565c0;
-}
-
-h1 {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #1976d2;
-  margin-bottom: 32px;
-}
-
-.input-field label {
-  color: #1976d2 !important;
-}
-
-.input-field input[type=file]::file-selector-button {
-  background: #1976d2;
+<style>
+.file-field input[type=file]::file-selector-button {
+  background: var(--primary-color);
   color: #fff;
   border: none;
   border-radius: 4px;
   padding: 6px 16px;
   cursor: pointer;
-}
-
-.input-field input[type=file] {
-  color: #1976d2;
-}
-
-.download-link {
-  margin-top: 16px;
-  display: block;
-}
-
-.home-button {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: rgba(255, 255, 255, 0.95);
-  border: none;
-  border-radius: 50px;
-  padding: 12px 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #1976d2;
-  text-decoration: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-}
-
-.home-button:hover {
-  background: rgba(255, 255, 255, 1);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-.home-button:active {
-  transform: translateY(0);
 }
 </style>
