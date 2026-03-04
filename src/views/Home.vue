@@ -167,6 +167,15 @@
                     <div class="card-desc">시험 응시 및 채점 도우미</div>
                 </div>
             </a>
+            <a href="/s3haim" class="app-card" target="_blank" rel="noopener noreferrer">
+                <div class="card">
+                    <div class="icon">
+                        <S3HaimIcon />
+                    </div>
+                    <div class="card-title">S3 Haim</div>
+                    <div class="card-desc">S3 활용 Note Taking App</div>
+                </div>
+            </a>
         </div>
     </div>
 </template>
@@ -188,7 +197,8 @@ import TypingGameIcon from '@/components/icons/TypingGameIcon.vue';
 import ChattingAppIcon from '@/components/icons/ChattingAppIcon.vue';
 import WebRTCVideoIcon from '@/components/icons/WebRTCVideoIcon.vue';
 import QRCodeScannerIcon from '@/components/icons/QrCodeScannerIcon.vue';
-import ExamPaperIcon from '../components/icons/ExamPaperIcon.vue';
+import ExamPaperIcon from '@/components/icons/ExamPaperIcon.vue';
+import S3HaimIcon from '@/components/icons/S3HaimIcon.vue';
 
 let deferredPrompt = null;
 const pwaInstallContainer = document.getElementById('pwa-install-container');
