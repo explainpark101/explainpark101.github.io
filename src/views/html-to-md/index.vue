@@ -285,6 +285,42 @@ function convertNodes(node, indent) {
         case 'br':
           markdown += '\n';
           break;
+        case 'hr':
+          markdown += '\n---\n';
+          break;
+        case 'del':
+        case 's':
+        case 'strike':
+          markdown += `~~${convertNodes(child, '')}~~`;
+          break;
+        case 'mark':
+          markdown += `==${convertNodes(child, '')}==`;
+          break;
+        case 'sub':
+          markdown += `<sub>${convertNodes(child, '')}</sub>`;
+          break;
+        case 'sup':
+          markdown += `<sup>${convertNodes(child, '')}</sup>`;
+          break;
+        case 'u':
+          markdown += `<u>${convertNodes(child, '')}</u>`;
+          break;
+        case 'ins':
+          markdown += `<ins>${convertNodes(child, '')}</ins>`;
+          break;
+        case 'kbd':
+          markdown += `<kbd>${convertNodes(child, '')}</kbd>`;
+          break;
+        case 'small':
+          markdown += `<small>${convertNodes(child, '')}</small>`;
+          break;
+        case 'abbr': {
+          const title = (child.getAttribute('title') || '').replace(/"/g, '&quot;');
+          markdown += title ? `<abbr title="${title}">${convertNodes(child, '')}</abbr>` : convertNodes(child, '');
+          break;
+        }
+        case 'input':
+          break;
         case 'strong':
         case 'b':
           markdown += `**${convertNodes(child, '')}**`;
@@ -311,10 +347,28 @@ function convertNodes(node, indent) {
           markdown += `\n${convertNodes(child, indent)}\n`;
           break;
         case 'li': {
-          const prefix = child.parentNode.tagName.toLowerCase() === 'ol' ? '1. ' : '- ';
-          markdown += `${indent}${prefix}${convertNodes(child, indent + '  ')}\n`;
+          const checkbox = child.querySelector('input[type="checkbox"]');
+          if (checkbox) {
+            const checkPrefix = checkbox.checked ? '[x] ' : '[ ] ';
+            const clone = child.cloneNode(true);
+            clone.querySelector('input[type="checkbox"]')?.remove();
+            const content = convertNodes(clone, indent + '  ').trim();
+            markdown += `${indent}- ${checkPrefix}${content}\n`;
+          } else {
+            const prefix = child.parentNode.tagName.toLowerCase() === 'ol' ? '1. ' : '- ';
+            markdown += `${indent}${prefix}${convertNodes(child, indent + '  ')}\n`;
+          }
           break;
         }
+        case 'dl':
+          markdown += `\n${convertNodes(child, indent)}\n`;
+          break;
+        case 'dt':
+          markdown += `\n${indent}${convertNodes(child, '')}\n`;
+          break;
+        case 'dd':
+          markdown += `${indent}:   ${convertNodes(child, '').trim().replace(/\n/g, '\n    ')}\n`;
+          break;
         case 'a':
           markdown += `[${convertNodes(child, '')}](${child.getAttribute('href') || ''})`;
           break;
