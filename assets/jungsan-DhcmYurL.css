@@ -1,0 +1,1 @@
+.jungsan-dialog::backdrop{background:var(--overlay-color);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
