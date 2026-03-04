@@ -1,35 +1,88 @@
 <template>
-  <div class="todo-app">
-    <div class="container">
-      <h1 @dblclick="editTitle" id="mainTitle">{{ appTitle }}</h1>
+  <div class="min-h-screen p-5 bg-(--background) text-(--text-primary) leading-relaxed transition-[background-color,color] duration-500">
+    <div class="max-w-[800px] mx-auto bg-(--surface) p-8 rounded-xl shadow-[0_4px_15px_var(--shadow-color)] transition-[background-color,box-shadow] duration-500">
+      <h1
+        @dblclick="editTitle"
+        id="mainTitle"
+        class="text-center text-(--text-primary) border-b-2 border-(--text-primary) pb-4 mb-8 text-3xl cursor-pointer transition-colors rounded-lg hover:bg-(--background)"
+      >{{ appTitle }}</h1>
 
-      <div id="tabsContainer" class="tabs-container">
-        <div v-for="tab in sortedTabs" :key="tab.id" class="tab-item" :class="{ active: tab.id === currentTabId }"
-          :draggable="true" @dragstart="handleTabDragStart($event, tab.id)" @dragend="handleTabDragEnd"
-          @dragover.prevent="handleTabDragOver($event, tab.id)" @dragleave="handleTabDragLeave($event, tab.id)"
-          @drop.prevent="handleTabDrop($event, tab.id)" @click="switchTab(tab.id)">
+      <div
+        id="tabsContainer"
+        class="flex items-center gap-1.5 border-b border-(--border-color) mb-5 pb-2.5 overflow-x-auto"
+      >
+        <div
+          v-for="tab in sortedTabs"
+          :key="tab.id"
+          class="flex items-center gap-2 px-4 py-2 rounded-t-lg cursor-grab select-none whitespace-nowrap border border-transparent border-b-0 transition-all active:cursor-grabbing"
+          :class="[
+            tab.id === currentTabId
+              ? 'bg-(--surface) text-(--primary-color) border border-(--border-color) border-b border-(--surface) translate-y-px'
+              : 'bg-gray-200 text-gray-600 hover:bg-gray-300',
+            { 'opacity-50 bg-blue-100 rotate-[5deg] z-[1000]': tab.id === draggedTabId },
+            { 'border-l-[3px] border-l-(--primary-color) bg-blue-50': tab.id === dragOverTabId && tab.id !== currentTabId }
+          ]"
+          :draggable="true"
+          @dragstart="handleTabDragStart($event, tab.id)"
+          @dragend="handleTabDragEnd"
+          @dragover.prevent="handleTabDragOver($event, tab.id)"
+          @dragleave="handleTabDragLeave($event, tab.id)"
+          @drop.prevent="handleTabDrop($event, tab.id)"
+          @click="switchTab(tab.id)"
+        >
           <span @dblclick.stop="renameTab(tab)">{{ tab.name }}</span>
-          <button class="delete-tab-btn" @click.stop="deleteTab(tab.id)">×</button>
+          <button
+            type="button"
+            class="bg-transparent border-none text-gray-400 text-xl cursor-pointer p-0 px-1 rounded-full hover:text-red-500 hover:bg-gray-200"
+            @click.stop="deleteTab(tab.id)"
+          >×</button>
         </div>
-        <button id="addTabBtn" @click="addNewTab">+</button>
+        <button
+          id="addTabBtn"
+          type="button"
+          @click="addNewTab"
+          class="w-8 h-8 flex items-center justify-center rounded-full border-none bg-green-600 text-white text-xl cursor-pointer ml-2.5"
+        >+</button>
       </div>
 
-      <div class="controls-container">
-        <button @click="openMarkdownModal">할 일 추가</button>
-        <button @click="exportTodos">할일 목록 수정 및 내보내기</button>
-        <button @click="resetAllTodosToNotStarted">모두 시작전으로</button>
-        <button @click="deleteCompletedTodos">완료항목 삭제</button>
-        <input type="text" v-model="searchQuery" placeholder="할일 검색..." aria-label="할일 검색" />
+      <div class="flex justify-between items-center mb-6 gap-2.5 flex-wrap">
+        <button
+          type="button"
+          class="py-2.5 px-5 bg-(--primary-color) text-white border-none rounded-lg cursor-pointer text-base transition-colors shadow-md hover:bg-(--primary-dark) whitespace-nowrap"
+          @click="openMarkdownModal"
+        >할 일 추가</button>
+        <button
+          type="button"
+          class="py-2.5 px-5 bg-(--primary-color) text-white border-none rounded-lg cursor-pointer text-base transition-colors shadow-md hover:bg-(--primary-dark) whitespace-nowrap"
+          @click="exportTodos"
+        >할일 목록 수정 및 내보내기</button>
+        <button
+          type="button"
+          class="py-2.5 px-5 bg-(--primary-color) text-white border-none rounded-lg cursor-pointer text-base transition-colors shadow-md hover:bg-(--primary-dark) whitespace-nowrap"
+          @click="resetAllTodosToNotStarted"
+        >모두 시작전으로</button>
+        <button
+          type="button"
+          class="py-2.5 px-5 bg-(--primary-color) text-white border-none rounded-lg cursor-pointer text-base transition-colors shadow-md hover:bg-(--primary-dark) whitespace-nowrap"
+          @click="deleteCompletedTodos"
+        >완료항목 삭제</button>
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="할일 검색..."
+          aria-label="할일 검색"
+          class="flex-grow min-w-[200px] py-3 px-3 border border-(--border-color) rounded-lg text-base bg-(--surface) text-(--text-primary) shadow-[inset_0_1px_3px_rgba(0,0,0,0.08)] focus:outline-none focus:border-(--primary-color)"
+        />
       </div>
 
-      <ul id="todoList" v-if="displayedTodos.length > 0">
-        <TodoItem v-for="todo in displayedTodoTree" :key="todo.id" :todo="todo" :collapsed-subtasks="collapsedSubtasks"
+      <ul id="todoList" class="list-none p-0" v-if="displayedTodos.length > 0">
+        <TodoItem v-for="todo in displayedTodoTree" :key="todo.id" :todo="todo" :collapsed-subtasks="collapsedSubtasks" :drag-over-todo-id="dragOverTodoId"
           @toggle-state="handleStateChange" @add-subtask="addSubtask" @delete-todo="deleteTodo"
           @edit-text="editTodoText" @toggle-collapse="toggleSubtaskCollapse" @drag-start="handleTodoDragStart"
           @drag-end="handleTodoDragEnd" @drag-over="handleTodoDragOver" @drag-leave="handleTodoDragLeave"
           @drop="handleTodoDrop" />
       </ul>
-      <div v-else class="empty-list-message">
+      <div v-else class="text-center text-gray-500 py-10 px-5 text-lg">
         <template v-if="searchQuery">
           '{{ searchQuery }}'에 대한 검색 결과가 없습니다.
         </template>
@@ -43,23 +96,33 @@
     </div>
 
     <!-- Markdown Import Modal -->
-    <dialog ref="markdownModal" class="modal">
-      <h2>새 할 일 추가</h2>
-      <textarea ref="modalMarkdownInput" v-model="markdownInput"
+    <dialog
+      ref="markdownModal"
+      class="border-none rounded-xl p-8 shadow-[0_8px_25px_rgba(0,0,0,0.2)] w-[90%] max-w-[600px] bg-(--surface) text-(--text-primary) max-h-[80vh] overflow-y-auto fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 [&[open]]:flex [&[open]]:flex-col [&[open]]:gap-2.5 [&::backdrop]:bg-black/50 [&::backdrop]:backdrop-blur-[5px]"
+    >
+      <h2 class="mt-0 text-(--text-primary) text-center">새 할 일 추가</h2>
+      <textarea
+        ref="modalMarkdownInput"
+        v-model="markdownInput"
+        class="w-full p-3 border border-(--border-color) rounded-lg text-base box-border min-h-[300px] resize-y font-mono bg-(--surface) text-(--text-primary)"
         placeholder="여기에 할일 목록을 마크다운 형식으로 입력하세요.&#10;들여쓰기를 사용하여 하위 작업을 만들 수 있습니다."
-        @keydown="handleMarkdownKeydown"></textarea>
-      <div class="dialog-actions">
-        <button @click="loadTodosFromMarkdown" id="confirmLoadBtn">불러오기</button>
-        <button @click="closeMarkdownModal" id="closeModalBtn">취소</button>
+        @keydown="handleMarkdownKeydown"
+      ></textarea>
+      <div class="flex justify-end gap-2.5 mt-2.5">
+        <button type="button" class="py-2.5 px-5 rounded-lg cursor-pointer text-base transition-colors shadow-[0_2px_5px_rgba(0,0,0,0.1)] border-none bg-green-600 text-white hover:bg-[#218838]" @click="loadTodosFromMarkdown" id="confirmLoadBtn">불러오기</button>
+        <button type="button" class="py-2.5 px-5 rounded-lg cursor-pointer text-base transition-colors shadow-[0_2px_5px_rgba(0,0,0,0.1)] border-none bg-red-600 text-white hover:bg-[#c82333]" @click="closeMarkdownModal" id="closeModalBtn">취소</button>
       </div>
     </dialog>
 
     <!-- Export Todos Modal (진행상황 포함 마크다운, 편집 후 적용 가능) -->
-    <dialog ref="exportModal" class="modal">
-      <h2>할일 목록 수정 및 내보내기</h2>
-      <p>진행상황 포함 마크다운: <code>- [ ]</code> 시작전, <code>- [o]</code> 진행중, <code>- [x]</code> 완료. 내용을 수정한 뒤 적용할 수 있습니다.</p>
+    <dialog
+      ref="exportModal"
+      class="border-none rounded-xl p-8 shadow-[0_8px_25px_rgba(0,0,0,0.2)] w-[90%] max-w-[600px] bg-(--surface) text-(--text-primary) max-h-[80vh] overflow-y-auto fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 [&[open]]:flex [&[open]]:flex-col [&[open]]:gap-2.5 [&::backdrop]:bg-black/50 [&::backdrop]:backdrop-blur-[5px]"
+    >
+      <h2 class="mt-0 text-(--text-primary) text-center">할일 목록 수정 및 내보내기</h2>
+      <p class="[&_code]:font-mono [&_code]:bg-black/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-[0.9em]">진행상황 포함 마크다운: <code>- [ ]</code> 시작전, <code>- [o]</code> 진행중, <code>- [x]</code> 완료. 내용을 수정한 뒤 적용할 수 있습니다.</p>
       <p
-        class="export-textarea-hint"
+        class="m-0 mb-2 text-[0.85em] text-gray-600 [&_mark]:inline-block [&_mark]:px-1.5 [&_mark]:py-0.5 [&_mark]:mx-0.5 [&_mark]:font-sans [&_mark]:text-sm [&_mark]:font-semibold [&_mark]:leading-snug [&_mark]:text-gray-800 [&_mark]:bg-gradient-to-b [&_mark]:from-[#f7f7f7] [&_mark]:to-[#e8e8e8] [&_mark]:border [&_mark]:border-gray-300 [&_mark]:rounded [&_mark]:shadow-[0_1px_0_0_rgba(255,255,255,0.8)_inset,0_1px_2px_rgba(0,0,0,0.1)]"
         title="Ctrl+Enter: 편집 내용 적용 · Esc: 닫기 · Tab/Shift+Tab: 들여쓰기 · Alt+↑/↓: 줄 이동 · Ctrl+Shift+K/Ctrl+D: 줄 삭제"
       >
         <mark>Ctrl</mark>+<mark>Enter</mark>: 적용 ·
@@ -71,28 +134,38 @@
       <textarea
         ref="exportTextarea"
         v-model="exportText"
+        class="w-full p-3 border border-(--border-color) rounded-lg text-base box-border min-h-[300px] resize-y font-mono bg-(--surface) text-(--text-primary)"
         placeholder="내보낼 할일 목록이 여기에 표시됩니다."
         title="Ctrl+Enter: 편집 내용 적용 · Esc: 닫기 · Tab/Shift+Tab: 들여쓰기 · Alt+↑/↓: 줄 이동 · Ctrl+Shift+K/Ctrl+D: 줄 삭제"
         @keydown="handleExportTextareaKeydown"
       ></textarea>
-      <div class="dialog-actions">
-        <button @click="applyExportMarkdown" class="apply-export-btn">편집 내용 적용</button>
-        <button @click="copyToClipboard">클립보드에 복사</button>
-        <button @click="closeExportModal">닫기</button>
+      <div class="flex justify-end gap-2.5 mt-2.5">
+        <button type="button" class="py-2.5 px-5 rounded-lg cursor-pointer text-base transition-colors shadow-[0_2px_5px_rgba(0,0,0,0.1)] border-none bg-blue-600 text-white hover:bg-[#0056b3]" @click="applyExportMarkdown">편집 내용 적용</button>
+        <button type="button" class="py-2.5 px-5 rounded-lg cursor-pointer text-base transition-colors shadow-[0_2px_5px_rgba(0,0,0,0.1)] border-none bg-gray-600 text-white hover:bg-gray-700" @click="copyToClipboard">클립보드에 복사</button>
+        <button type="button" class="py-2.5 px-5 rounded-lg cursor-pointer text-base transition-colors shadow-[0_2px_5px_rgba(0,0,0,0.1)] border-none bg-gray-500 text-white hover:bg-gray-600" @click="closeExportModal">닫기</button>
       </div>
     </dialog>
 
     <!-- Custom Interaction Modal -->
-    <dialog ref="customModal" class="modal">
+    <dialog
+      ref="customModal"
+      class="border-none rounded-xl p-8 shadow-[0_8px_25px_rgba(0,0,0,0.2)] w-[90%] max-w-[600px] bg-(--surface) text-(--text-primary) max-h-[80vh] overflow-y-auto fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 [&[open]]:flex [&[open]]:flex-col [&[open]]:gap-2.5 [&::backdrop]:bg-black/50 [&::backdrop]:backdrop-blur-[5px]"
+    >
       <h3>{{ customModalTitle }}</h3>
       <p>{{ customModalMessage }}</p>
-      <input v-if="customModalType === 'prompt'" type="text" ref="customModalInput" v-model="customModalInputValue"
-        @keydown.enter="handleCustomModalOk" />
-      <div class="dialog-actions">
-        <button v-if="showCustomModalOk" ref="customModalOkBtn" class="custom-modal-ok" @click="handleCustomModalOk">
+      <input
+        v-if="customModalType === 'prompt'"
+        type="text"
+        ref="customModalInput"
+        v-model="customModalInputValue"
+        class="w-full p-3 border border-(--border-color) rounded-lg bg-(--surface) text-(--text-primary)"
+        @keydown.enter="handleCustomModalOk"
+      />
+      <div class="flex justify-end gap-2.5 mt-2.5">
+        <button v-if="showCustomModalOk" ref="customModalOkBtn" type="button" class="py-2.5 px-5 rounded-lg cursor-pointer text-base transition-colors shadow-[0_2px_5px_rgba(0,0,0,0.1)] border-none bg-green-600 text-white hover:bg-[#218838]" @click="handleCustomModalOk">
           {{ customModalOkText }}
         </button>
-        <button v-if="showCustomModalCancel" class="custom-modal-cancel" @click="handleCustomModalCancel">
+        <button v-if="showCustomModalCancel" type="button" class="py-2.5 px-5 rounded-lg cursor-pointer text-base transition-colors shadow-[0_2px_5px_rgba(0,0,0,0.1)] border-none bg-red-600 text-white hover:bg-[#c82333]" @click="handleCustomModalCancel">
           {{ customModalCancelText }}
         </button>
       </div>
@@ -135,7 +208,9 @@ const showCustomModalCancel = ref(false);
 const customModalOkText = ref('확인');
 const customModalCancelText = ref('취소');
 const draggedTabId = ref(null);
+const dragOverTabId = ref(null);
 const draggedTodoId = ref(null);
+const dragOverTodoId = ref(null);
 
 const sortedTabs = computed(() => {
   return [...tabs.value].sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -380,29 +455,26 @@ const handleTabDragStart = (e, tabId) => {
   draggedTabId.value = tabId;
   e.dataTransfer.effectAllowed = 'move';
   e.dataTransfer.setData('text/plain', tabId);
-  e.target.classList.add('dragging');
 };
 
-const handleTabDragEnd = (e) => {
-  e.target.classList.remove('dragging');
-  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+const handleTabDragEnd = () => {
   draggedTabId.value = null;
+  dragOverTabId.value = null;
 };
 
 const handleTabDragOver = (e, tabId) => {
   if (tabId !== draggedTabId.value) {
-    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-    e.target.closest('.tab-item')?.classList.add('drag-over');
+    dragOverTabId.value = tabId;
   }
 };
 
-const handleTabDragLeave = (e, tabId) => {
-  e.target.closest('.tab-item')?.classList.remove('drag-over');
+const handleTabDragLeave = () => {
+  dragOverTabId.value = null;
 };
 
 const handleTabDrop = async (e, targetTabId) => {
   e.preventDefault();
-  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+  dragOverTabId.value = null;
   const draggedId = draggedTabId.value;
   if (!targetTabId || draggedId === targetTabId) return;
   await reorderTabs(draggedId, targetTabId);
@@ -942,26 +1014,24 @@ const handleTodoDragStart = (e, todoId) => {
   e.dataTransfer.setData('text/plain', todoId);
 };
 
-const handleTodoDragEnd = (e) => {
-  e.target.closest('li')?.classList.remove('dragging');
-  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+const handleTodoDragEnd = () => {
   draggedTodoId.value = null;
+  dragOverTodoId.value = null;
 };
 
 const handleTodoDragOver = (e, todoId) => {
   if (todoId !== draggedTodoId.value) {
-    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-    e.target.closest('li')?.classList.add('drag-over');
+    dragOverTodoId.value = todoId;
   }
 };
 
-const handleTodoDragLeave = (e) => {
-  e.target.closest('li')?.classList.remove('drag-over');
+const handleTodoDragLeave = () => {
+  dragOverTodoId.value = null;
 };
 
 const handleTodoDrop = async (e, targetTodoId) => {
   e.preventDefault();
-  document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+  dragOverTodoId.value = null;
   const draggedId = draggedTodoId.value;
   if (!targetTodoId || draggedId === targetTodoId) return;
   await reorderTodos(draggedId, targetTodoId);
@@ -1082,569 +1152,3 @@ onMounted(() => {
   initializeApp();
 });
 </script>
-
-<style scoped>
-.todo-app {
-  font-family: 'Inter', Arial, sans-serif;
-  line-height: 1.6;
-  padding: 20px;
-  background-color: #f4f4f4;
-  color: #333;
-  box-sizing: border-box;
-  min-height: 100vh;
-}
-
-.container {
-  max-width: 800px;
-  margin: auto;
-  background: #fff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-  text-align: center;
-  color: #2c3e50;
-  border-bottom: 2px solid #2c3e50;
-  padding-bottom: 15px;
-  margin-bottom: 30px;
-  font-size: 2em;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-h1:hover {
-  background-color: #f8f9fa;
-  border-radius: 8px;
-}
-
-.tabs-container {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  border-bottom: 1px solid #ddd;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  overflow-x: auto;
-}
-
-.tab-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 8px 8px 0 0;
-  cursor: grab;
-  background-color: #f0f0f0;
-  color: #555;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  border: 1px solid transparent;
-  border-bottom: none;
-  user-select: none;
-}
-
-.tab-item:active {
-  cursor: grabbing;
-}
-
-.tab-item:hover {
-  background-color: #e0e0e0;
-}
-
-.tab-item.active {
-  background-color: #fff;
-  color: #007bff;
-  border-color: #ddd;
-  border-bottom: 1px solid #fff;
-  transform: translateY(1px);
-}
-
-.tab-item.dragging {
-  opacity: 0.5;
-  background: #cce5ff;
-  transform: rotate(5deg);
-  z-index: 1000;
-}
-
-.tab-item.drag-over {
-  border-left: 3px solid #007bff;
-  background-color: #e7f3ff;
-}
-
-.delete-tab-btn {
-  background: none;
-  border: none;
-  color: #aaa;
-  font-size: 1.2em;
-  cursor: pointer;
-  padding: 0 4px;
-  border-radius: 50%;
-}
-
-.delete-tab-btn:hover {
-  color: #dc3545;
-  background-color: #f0f0f0;
-}
-
-#addTabBtn {
-  padding: 5px 10px;
-  font-size: 1.2em;
-  border-radius: 50%;
-  border: none;
-  background-color: #28a745;
-  color: white;
-  cursor: pointer;
-  margin-left: 10px;
-}
-
-.controls-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.controls-container button {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  white-space: nowrap;
-}
-
-.controls-container button:hover {
-  background-color: #0056b3;
-}
-
-.controls-container input {
-  flex-grow: 1;
-  min-width: 200px;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-.empty-list-message {
-  text-align: center;
-  color: #7f8c8d;
-  padding: 40px 20px;
-  font-size: 1.1em;
-}
-
-.modal {
-  border: none;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-  width: 90%;
-  max-width: 600px;
-  background-color: #fff;
-  max-height: 80vh;
-  overflow-y: auto;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  margin: 0;
-}
-
-.modal[open] {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.modal::backdrop {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(5px);
-}
-
-.modal h2 {
-  margin-top: 0;
-  color: #2c3e50;
-  text-align: center;
-}
-
-.modal textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-  box-sizing: border-box;
-  min-height: 300px;
-  resize: vertical;
-  font-family: monospace;
-}
-
-.dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.dialog-actions button {
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  border: none;
-}
-
-#confirmLoadBtn {
-  background-color: #28a745;
-  color: white;
-}
-
-#confirmLoadBtn:hover {
-  background-color: #218838;
-}
-
-.apply-export-btn {
-  background-color: #007bff;
-  color: white;
-}
-
-.apply-export-btn:hover {
-  background-color: #0056b3;
-}
-
-.modal code {
-  font-family: monospace;
-  background: rgba(0, 0, 0, 0.08);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.9em;
-}
-
-.export-textarea-hint {
-  margin: 0 0 8px 0;
-  font-size: 0.85em;
-  color: #6c757d;
-}
-
-.export-textarea-hint mark {
-  display: inline-block;
-  padding: 2px 6px;
-  margin: 0 1px;
-  font-family: inherit;
-  font-size: 0.9em;
-  font-weight: 600;
-  line-height: 1.3;
-  color: #333;
-  background: linear-gradient(180deg, #f7f7f7 0%, #e8e8e8 100%);
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.8) inset, 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.export-textarea-hint mark + mark {
-  margin-left: 0;
-}
-
-#closeModalBtn {
-  background-color: #dc3545;
-  color: white;
-}
-
-#closeModalBtn:hover {
-  background-color: #c82333;
-}
-
-.custom-modal-ok {
-  background-color: #28a745;
-  color: white;
-}
-
-.custom-modal-ok:hover {
-  background-color: #218838;
-}
-
-.custom-modal-cancel {
-  background-color: #dc3545;
-  color: white;
-}
-
-.custom-modal-cancel:hover {
-  background-color: #c82333;
-}
-
-/* 다크모드: 시스템 설정 */
-@media (prefers-color-scheme: dark) {
-  .todo-app {
-    background-color: #121212;
-    color: #e0e0e0;
-  }
-
-  .container {
-    background: #1e1e1e;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  }
-
-  h1 {
-    color: #e0e0e0;
-    border-bottom-color: #424242;
-  }
-
-  h1:hover {
-    background-color: #2d2d2d;
-  }
-
-  .tabs-container {
-    border-bottom-color: #424242;
-  }
-
-  .tab-item {
-    background-color: #2d2d2d;
-    color: #b0bec5;
-  }
-
-  .tab-item:hover {
-    background-color: #383838;
-  }
-
-  .tab-item.active {
-    background-color: #1e1e1e;
-    color: #90caf9;
-    border-color: #424242;
-    border-bottom-color: #1e1e1e;
-  }
-
-  .tab-item.dragging {
-    background: #1e3a5f;
-  }
-
-  .tab-item.drag-over {
-    border-left-color: #90caf9;
-    background-color: #1e3a5f;
-  }
-
-  .delete-tab-btn {
-    color: #757575;
-  }
-
-  .delete-tab-btn:hover {
-    color: #ef5350;
-    background-color: #2d2d2d;
-  }
-
-  #addTabBtn {
-    background-color: #66bb6a;
-  }
-
-  .controls-container button {
-    background-color: #1976d2;
-  }
-
-  .controls-container button:hover {
-    background-color: #1565c0;
-  }
-
-  .controls-container input {
-    border-color: #424242;
-    background-color: #2d2d2d;
-    color: #e0e0e0;
-  }
-
-  .controls-container input::placeholder {
-    color: #757575;
-  }
-
-  .empty-list-message {
-    color: #b0bec5;
-  }
-
-  .modal {
-    background-color: #1e1e1e;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-  }
-
-  .modal h2,
-  .modal h3 {
-    color: #e0e0e0;
-  }
-
-  .modal p {
-    color: #b0bec5;
-  }
-
-  .modal textarea {
-    border-color: #424242;
-    background-color: #2d2d2d;
-    color: #e0e0e0;
-  }
-
-  .modal input[type="text"] {
-    border-color: #424242;
-    background-color: #2d2d2d;
-    color: #e0e0e0;
-  }
-
-  .export-textarea-hint {
-    color: #b0bec5;
-  }
-
-  .export-textarea-hint mark {
-    color: #e0e0e0;
-    background: linear-gradient(180deg, #3d3d3d 0%, #2d2d2d 100%);
-    border-color: #555;
-    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05) inset, 0 1px 2px rgba(0, 0, 0, 0.3);
-  }
-}
-
-/* 다크모드: 사용자 테마 (data-theme="dark") */
-body[data-theme="dark"] .todo-app,
-[data-theme="dark"] .todo-app {
-  background-color: #121212;
-  color: #e0e0e0;
-}
-
-body[data-theme="dark"] .todo-app .container,
-[data-theme="dark"] .todo-app .container {
-  background: #1e1e1e;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-body[data-theme="dark"] .todo-app h1,
-[data-theme="dark"] .todo-app h1 {
-  color: #e0e0e0;
-  border-bottom-color: #424242;
-}
-
-body[data-theme="dark"] .todo-app h1:hover,
-[data-theme="dark"] .todo-app h1:hover {
-  background-color: #2d2d2d;
-}
-
-body[data-theme="dark"] .todo-app .tabs-container,
-[data-theme="dark"] .todo-app .tabs-container {
-  border-bottom-color: #424242;
-}
-
-body[data-theme="dark"] .todo-app .tab-item,
-[data-theme="dark"] .todo-app .tab-item {
-  background-color: #2d2d2d;
-  color: #b0bec5;
-}
-
-body[data-theme="dark"] .todo-app .tab-item:hover,
-[data-theme="dark"] .todo-app .tab-item:hover {
-  background-color: #383838;
-}
-
-body[data-theme="dark"] .todo-app .tab-item.active,
-[data-theme="dark"] .todo-app .tab-item.active {
-  background-color: #1e1e1e;
-  color: #90caf9;
-  border-color: #424242;
-  border-bottom-color: #1e1e1e;
-}
-
-body[data-theme="dark"] .todo-app .tab-item.dragging,
-[data-theme="dark"] .todo-app .tab-item.dragging {
-  background: #1e3a5f;
-}
-
-body[data-theme="dark"] .todo-app .tab-item.drag-over,
-[data-theme="dark"] .todo-app .tab-item.drag-over {
-  border-left-color: #90caf9;
-  background-color: #1e3a5f;
-}
-
-body[data-theme="dark"] .todo-app .delete-tab-btn,
-[data-theme="dark"] .todo-app .delete-tab-btn {
-  color: #757575;
-}
-
-body[data-theme="dark"] .todo-app .delete-tab-btn:hover,
-[data-theme="dark"] .todo-app .delete-tab-btn:hover {
-  color: #ef5350;
-  background-color: #2d2d2d;
-}
-
-body[data-theme="dark"] .todo-app #addTabBtn,
-[data-theme="dark"] .todo-app #addTabBtn {
-  background-color: #66bb6a;
-}
-
-body[data-theme="dark"] .todo-app .controls-container button,
-[data-theme="dark"] .todo-app .controls-container button {
-  background-color: #1976d2;
-}
-
-body[data-theme="dark"] .todo-app .controls-container button:hover,
-[data-theme="dark"] .todo-app .controls-container button:hover {
-  background-color: #1565c0;
-}
-
-body[data-theme="dark"] .todo-app .controls-container input,
-[data-theme="dark"] .todo-app .controls-container input {
-  border-color: #424242;
-  background-color: #2d2d2d;
-  color: #e0e0e0;
-}
-
-body[data-theme="dark"] .todo-app .empty-list-message,
-[data-theme="dark"] .todo-app .empty-list-message {
-  color: #b0bec5;
-}
-
-body[data-theme="dark"] .todo-app .modal,
-[data-theme="dark"] .todo-app .modal {
-  background-color: #1e1e1e;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-}
-
-body[data-theme="dark"] .todo-app .modal h2,
-body[data-theme="dark"] .todo-app .modal h3,
-[data-theme="dark"] .todo-app .modal h2,
-[data-theme="dark"] .todo-app .modal h3 {
-  color: #e0e0e0;
-}
-
-body[data-theme="dark"] .todo-app .modal p,
-[data-theme="dark"] .todo-app .modal p {
-  color: #b0bec5;
-}
-
-body[data-theme="dark"] .todo-app .modal textarea,
-body[data-theme="dark"] .todo-app .modal input[type="text"],
-[data-theme="dark"] .todo-app .modal textarea,
-[data-theme="dark"] .todo-app .modal input[type="text"] {
-  border-color: #424242;
-  background-color: #2d2d2d;
-  color: #e0e0e0;
-}
-
-body[data-theme="dark"] .todo-app .export-textarea-hint,
-[data-theme="dark"] .todo-app .export-textarea-hint {
-  color: #b0bec5;
-}
-
-body[data-theme="dark"] .todo-app .export-textarea-hint mark,
-[data-theme="dark"] .todo-app .export-textarea-hint mark {
-  color: #e0e0e0;
-  background: linear-gradient(180deg, #3d3d3d 0%, #2d2d2d 100%);
-  border-color: #555;
-  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05) inset, 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-</style>

@@ -1,6 +1,9 @@
 <template>
-  <div class="clipboard-img-save">
-    <router-link to="/" class="home-button">
+  <div class="min-h-screen flex items-center justify-center p-5 bg-gradient-to-br from-indigo-500 to-purple-600">
+    <router-link
+      to="/"
+      class="fixed top-5 left-5 flex items-center gap-2 px-5 py-3 rounded-full bg-white/90 text-gray-800 font-medium text-sm no-underline shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 z-10"
+    >
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
         <polyline points="9,22 9,12 15,12 15,22"/>
@@ -8,51 +11,57 @@
       앱 목록
     </router-link>
 
-    <div class="container">
-      <h1>🖼️ 클립보드 이미지 저장기</h1>
+    <div class="w-full max-w-[600px] bg-white rounded-[20px] shadow-2xl p-10 text-center">
+      <h1 class="text-gray-800 text-3xl font-bold mb-8">🖼️ 클립보드 이미지 저장기</h1>
 
-      <button class="paste-button" @click="pasteFromClipboard">
+      <button
+        @click="pasteFromClipboard"
+        class="w-full py-4 px-6 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-base border-none cursor-pointer mb-8 transition-all hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0"
+      >
         📋 클립보드에서 이미지 가져오기
       </button>
 
-      <div class="preview-container" :class="{ 'has-image': currentImageData }">
-        <div v-if="!currentImageData" class="preview-placeholder">
+      <div
+        class="min-h-[200px] my-8 flex items-center justify-center relative rounded-xl border-2 border-dashed transition-all"
+        :class="currentImageData ? 'border-indigo-500 bg-indigo-50/50' : 'border-gray-300'"
+      >
+        <div v-if="!currentImageData" class="text-gray-500 text-lg">
           이미지를 클립보드에 복사한 후 위 버튼을 클릭하세요
         </div>
-        <img v-if="imageUrl" :src="imageUrl" alt="클립보드 이미지" class="preview-image">
+        <img v-if="imageUrl" :src="imageUrl" alt="클립보드 이미지" class="max-w-full max-h-[400px] rounded-lg shadow-md">
       </div>
 
-      <div class="controls">
-        <div class="format-toggle">
-          <span class="format-label">PNG</span>
-          <label class="toggle-switch">
-            <input type="checkbox" v-model="isWebP">
-            <span class="slider"></span>
+      <div class="flex items-center justify-center gap-5 mb-8">
+        <div class="flex items-center gap-2.5">
+          <span class="font-bold text-gray-800">PNG</span>
+          <label class="relative inline-block w-[60px] h-[30px] cursor-pointer">
+            <input type="checkbox" v-model="isWebP" class="sr-only peer">
+            <span class="absolute inset-0 bg-gray-300 rounded-full transition-colors peer-checked:bg-indigo-500"></span>
+            <span class="absolute left-1 bottom-1 w-[22px] h-[22px] bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-[30px] pointer-events-none"></span>
           </label>
-          <span class="format-label">WEBP</span>
+          <span class="font-bold text-gray-800">WEBP</span>
         </div>
       </div>
 
-      <button class="save-button" :class="{ enabled: currentImageData }" @click="saveImage" :disabled="!currentImageData">
+      <button
+        @click="saveImage"
+        :disabled="!currentImageData"
+        class="w-full py-4 px-10 rounded-full text-lg border-none cursor-pointer transition-all"
+        :class="currentImageData ? 'bg-gradient-to-r from-green-500 to-green-600 text-white opacity-100 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0' : 'bg-gradient-to-r from-green-500 to-green-600 text-white opacity-50 pointer-events-none'"
+      >
         💾 이미지 저장하기
       </button>
 
-      <div v-if="errorMessage" class="error-message">
+      <div v-if="errorMessage" class="mt-5 p-2.5 rounded-lg bg-red-100 text-red-600">
         {{ errorMessage }}
       </div>
 
-      <div class="info-message">
+      <div class="mt-5 p-2.5 text-sm text-gray-600 rounded-lg bg-sky-50">
         💡 팁: 이 기능은 HTTPS 또는 localhost 환경에서만 작동합니다.
       </div>
     </div>
     
-    <!-- Hidden download link -->
-    <a
-      ref="downloadLink"
-      :href="downloadUrl"
-      :download="downloadFilename"
-      style="display: none"
-    ></a>
+    <a ref="downloadLink" :href="downloadUrl" :download="downloadFilename" class="hidden"></a>
   </div>
 </template>
 
@@ -178,228 +187,3 @@ onUnmounted(() => {
   }
 });
 </script>
-
-<style scoped>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.clipboard-img-save {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.container {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  padding: 40px;
-  max-width: 600px;
-  width: 100%;
-  text-align: center;
-}
-
-h1 {
-  color: #333;
-  margin-bottom: 30px;
-  font-size: 2em;
-}
-
-.paste-button {
-  background: linear-gradient(45deg, #667eea, #764ba2);
-  color: white;
-  border: none;
-  padding: 15px 30px;
-  border-radius: 50px;
-  font-size: 16px;
-  cursor: pointer;
-  margin-bottom: 30px;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.paste-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-}
-
-.paste-button:active {
-  transform: translateY(0);
-}
-
-.preview-container {
-  margin: 30px 0;
-  min-height: 200px;
-  border: 2px dashed #ddd;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.preview-container.has-image {
-  border: 2px solid #667eea;
-  background: #f8f9ff;
-}
-
-.preview-image {
-  max-width: 100%;
-  max-height: 400px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.preview-placeholder {
-  color: #999;
-  font-size: 18px;
-}
-
-.controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.format-toggle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.toggle-switch {
-  position: relative;
-  width: 60px;
-  height: 30px;
-}
-
-.toggle-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: .4s;
-  border-radius: 30px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 22px;
-  width: 22px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: .4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: #667eea;
-}
-
-input:checked + .slider:before {
-  transform: translateX(30px);
-}
-
-.format-label {
-  font-weight: bold;
-  color: #333;
-}
-
-.save-button {
-  background: linear-gradient(45deg, #4CAF50, #45a049);
-  color: white;
-  border: none;
-  padding: 15px 40px;
-  border-radius: 50px;
-  font-size: 18px;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.save-button.enabled {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.save-button.enabled:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(76, 175, 80, 0.4);
-}
-
-.save-button.enabled:active {
-  transform: translateY(0);
-}
-
-.save-button:disabled {
-  cursor: not-allowed;
-}
-
-.error-message {
-  color: #e74c3c;
-  margin-top: 20px;
-  padding: 10px;
-  background: #ffeaea;
-  border-radius: 8px;
-}
-
-.info-message {
-  color: #666;
-  font-size: 14px;
-  margin-top: 20px;
-  padding: 10px;
-  background: #f0f8ff;
-  border-radius: 8px;
-}
-
-.home-button {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
-  border-radius: 50px;
-  padding: 12px 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
-  text-decoration: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-}
-
-.home-button:hover {
-  background: rgba(255, 255, 255, 1);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-.home-button:active {
-  transform: translateY(0);
-}
-</style>

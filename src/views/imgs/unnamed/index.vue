@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, onBeforeUnmount } from 'vue';
 
 let boardImg = null;
 let targetImg = null;
@@ -254,6 +254,9 @@ const handlePaste = async (e) => {
   }
 };
 
+// 동적 로드 요소 (onBeforeUnmount에서 제거용)
+const dynamicLoadElements = [];
+
 // CDN 라이브러리 로드
 const loadLibraries = () => {
   return new Promise((resolve) => {
@@ -263,6 +266,7 @@ const loadLibraries = () => {
       materialIcons.rel = 'stylesheet';
       materialIcons.href = 'https://fonts.googleapis.com/icon?family=Material+Icons';
       document.head.appendChild(materialIcons);
+      dynamicLoadElements.push(materialIcons);
     }
 
     // Materialize CSS
@@ -271,6 +275,7 @@ const loadLibraries = () => {
       materializeCSS.rel = 'stylesheet';
       materializeCSS.href = 'https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css';
       document.head.appendChild(materializeCSS);
+      dynamicLoadElements.push(materializeCSS);
     }
 
     // Materialize JS
@@ -282,6 +287,7 @@ const loadLibraries = () => {
         resolve();
       };
       document.head.appendChild(materializeJS);
+      dynamicLoadElements.push(materializeJS);
     } else {
       M = window.M;
       resolve();
@@ -307,6 +313,7 @@ const loadGlfx = () => {
       resolve();
     };
     document.head.appendChild(glfxScript);
+    dynamicLoadElements.push(glfxScript);
   });
 };
 
@@ -328,6 +335,15 @@ onMounted(async () => {
   
   // 클립보드 이벤트 리스너
   window.addEventListener('paste', handlePaste);
+});
+
+onBeforeUnmount(() => {
+  dynamicLoadElements.forEach((el) => {
+    if (el && el.parentNode) {
+      el.parentNode.removeChild(el);
+    }
+  });
+  dynamicLoadElements.length = 0;
 });
 
 onUnmounted(() => {

@@ -1,29 +1,33 @@
 <template>
-  <div class="communication-survey">
-    <div class="container">
-      <router-link to="/surveys" class="back-link">검사 목록으로 가기</router-link>
-      <h1>의사소통 유형 검사</h1>
-      <h2>Verginia Satir 버지니아 사티어</h2>
+  <div class="font-sans bg-[var(--background)] text-[var(--text-primary)] leading-relaxed m-0 p-5">
+    <div class="max-w-3xl mx-auto bg-[var(--surface)] p-6 md:p-8 rounded-xl shadow-lg">
+      <router-link to="/surveys" class="inline-block text-left mb-5 py-2.5 px-5 bg-[var(--primary-color)] text-[var(--surface)] no-underline rounded-lg font-bold transition-colors duration-300 hover:bg-[var(--primary-dark)]">검사 목록으로 가기</router-link>
+      <h1 class="text-center text-[var(--text-primary)] mb-2.5">의사소통 유형 검사</h1>
+      <h2 class="text-center text-[var(--text-primary)]">Verginia Satir 버지니아 사티어</h2>
 
-      <div class="instructions">
+      <div class="text-center text-[var(--text-secondary)] bg-blue-50 dark:bg-blue-900/20 py-4 px-4 rounded-lg mb-8">
         <p>⚛ 다음 문장을 읽고 자신에게 해당되면 오른쪽의 동그라미(체크박스)에 표시 하세요.</p>
       </div>
 
       <form @submit.prevent="calculateResults">
-        <ol>
+        <ol class="list-none p-0">
           <li v-for="(question, index) in questions" :key="index" 
-              :class="{ selected: selectedQuestions[index] }"
+              :class="[
+                'bg-[var(--surface)] mb-3 py-4 px-4 rounded-lg border-l-4 border-gray-400 flex justify-between items-center cursor-pointer transition-all duration-300',
+                selectedQuestions[index] ? 'bg-blue-50 dark:bg-blue-900/20 border-l-[var(--primary-color)] shadow-md translate-x-0.5' : 'hover:border-[var(--primary-color)]'
+              ]"
               @click="toggleQuestion(index, $event)">
-            {{ question.text }}
-            <input type="checkbox" :value="question.value" v-model="selectedQuestions[index]" @change="updateSelectedState(index)">
+            <span class="flex-1">{{ question.text }}</span>
+            <input type="checkbox" :value="question.value" v-model="selectedQuestions[index]" @change="updateSelectedState(index)"
+              class="scale-150 ml-5 cursor-pointer accent-[var(--primary-color)]">
           </li>
         </ol>
-        <button type="submit" class="submit-btn">결과 보기</button>
+        <button type="submit" class="block w-full py-4 text-xl font-bold text-white bg-[var(--primary-color)] border-none rounded-lg cursor-pointer mt-8 transition-colors duration-300 hover:bg-[var(--primary-dark)]">결과 보기</button>
       </form>
 
-      <div v-if="showResults" id="results">
-        <h2>📊 검사 결과</h2>
-        <div class="score-summary">
+      <div v-if="showResults" id="results" class="mt-10 p-5 bg-[var(--surface)] border border-[var(--border-color)] rounded-lg">
+        <h2 class="text-center text-[var(--text-primary)]">📊 검사 결과</h2>
+        <div class="text-xl font-bold text-center mb-8 py-4 px-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
           회유형(a): <span>{{ scores.a }}</span>개 &nbsp;/&nbsp;
           비난형(b): <span>{{ scores.b }}</span>개 &nbsp;/&nbsp;
           초이성형(c): <span>{{ scores.c }}</span>개 &nbsp;/&nbsp;
@@ -33,13 +37,16 @@
 
         <div v-for="(result, type) in resultTypes" :key="type" 
              :id="`result-${type}`" 
-             :class="['result-type', { highlight: highlightedTypes.includes(type) }]">
-          <h3>{{ result.title }}</h3>
-          <p>{{ result.description }}</p>
+             :class="[
+               'mb-5 p-5 rounded-lg border border-gray-200 dark:border-gray-600 transition-all duration-300',
+               highlightedTypes.includes(type) ? 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-l-[var(--primary-color)] scale-[1.02] shadow-md' : ''
+             ]">
+          <h3 class="mt-0 text-[var(--primary-color)]">{{ result.title }}</h3>
+          <p class="text-[var(--text-secondary)]">{{ result.description }}</p>
         </div>
 
-        <div class="footer-note">
-          <p>유형별로 합산하여 높은 점수가 나올수록 그 사람이 주로 쓰는 의사소통 유형 방식입니다. <strong>일치형 외에는 역기능적 의사소통 방식</strong>입니다. 역기능적 의사소통 방식(a, b, c, d)을 반복적으로 사용하여 관계를 그르칠 때는 자신의 의사소통을 변화시키도록 노력하여야 합니다. 두 개의 유형이 동점일 경우도 있으며, 이는 상황이나 대상에 따라 선별하여 사용하는 것을 의미합니다.</p>
+        <div class="mt-8 py-4 px-4 bg-amber-100 dark:bg-amber-900/20 border-l-4 border-l-amber-500 rounded-lg text-center">
+          <p class="text-[var(--text-primary)]">유형별로 합산하여 높은 점수가 나올수록 그 사람이 주로 쓰는 의사소통 유형 방식입니다. <strong>일치형 외에는 역기능적 의사소통 방식</strong>입니다. 역기능적 의사소통 방식(a, b, c, d)을 반복적으로 사용하여 관계를 그르칠 때는 자신의 의사소통을 변화시키도록 노력하여야 합니다. 두 개의 유형이 동점일 경우도 있으며, 이는 상황이나 대상에 따라 선별하여 사용하는 것을 의미합니다.</p>
         </div>
       </div>
     </div>
@@ -162,164 +169,3 @@ function calculateResults() {
   }, 100);
 }
 </script>
-
-<style scoped>
-.communication-survey {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: #f4f4f9;
-  color: #333;
-  line-height: 1.6;
-  margin: 0;
-  padding: 20px;
-}
-
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  background: #fff;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-h1, h2 {
-  text-align: center;
-  color: #2c3e50;
-}
-
-h1 {
-  margin-bottom: 10px;
-}
-
-.instructions {
-  text-align: center;
-  color: #555;
-  background-color: #eaf2f8;
-  padding: 15px;
-  border-radius: 5px;
-  margin-bottom: 30px;
-}
-
-ol {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  background: #f9f9f9;
-  margin-bottom: 12px;
-  padding: 15px;
-  border-radius: 5px;
-  border-left: 5px solid #bdc3c7;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-li:hover {
-  border-left-color: #3498db;
-}
-
-li.selected {
-  background: #e3f2fd;
-  border-left: 5px solid #2196f3;
-  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
-  transform: translateX(2px);
-}
-
-input[type="checkbox"] {
-  transform: scale(1.5);
-  margin-left: 20px;
-  cursor: pointer;
-  accent-color: #2196f3;
-}
-
-li.selected input[type="checkbox"] {
-  accent-color: #2196f3;
-}
-
-.submit-btn {
-  display: block;
-  width: 100%;
-  padding: 15px;
-  font-size: 1.2em;
-  font-weight: bold;
-  color: #fff;
-  background-color: #3498db;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 30px;
-  transition: background-color 0.3s;
-}
-
-.submit-btn:hover {
-  background-color: #2980b9;
-}
-
-#results {
-  margin-top: 40px;
-  padding: 20px;
-  background: #fdfefe;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-}
-
-.score-summary {
-  font-size: 1.2em;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 30px;
-  padding: 15px;
-  background-color: #ecf0f1;
-  border-radius: 5px;
-}
-
-.result-type {
-  margin-bottom: 20px;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  transition: all 0.3s ease-in-out;
-}
-
-.result-type h3 {
-  margin-top: 0;
-  color: #2980b9;
-}
-
-.result-type.highlight {
-  background-color: #e8f6fd;
-  border-left: 5px solid #3498db;
-  transform: scale(1.02);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-}
-
-.footer-note {
-  margin-top: 30px;
-  padding: 15px;
-  background-color: #fcf3cf;
-  border-left: 5px solid #f1c40f;
-  border-radius: 5px;
-  text-align: center;
-}
-
-.back-link {
-  display: inline-block;
-  text-align: left;
-  margin-bottom: 20px;
-  padding: 10px 20px;
-  background-color: #3498db;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-  font-weight: bold;
-  transition: background-color 0.3s;
-}
-
-.back-link:hover {
-  background-color: #2980b9;
-}
-</style>

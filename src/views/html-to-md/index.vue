@@ -85,7 +85,12 @@
       </main>
 
       <!-- Toast Message -->
-      <Transition name="toast">
+      <Transition
+        enter-active-class="transition duration-300 ease-out"
+        enter-from-class="opacity-0 translate-y-3"
+        leave-active-class="transition duration-300 ease-in"
+        leave-to-class="opacity-0 translate-y-3"
+      >
         <div
           v-if="showToast"
           class="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full text-sm font-medium bg-(--text-primary) text-(--background) shadow-2xl transition-all duration-300"
@@ -269,16 +274,3 @@ async function copyToClipboard() {
   }
 }
 </script>
-
-<style scoped>
-.toast-enter-active,
-.toast-leave-active {
-  transition: all 0.3s ease;
-}
-
-.toast-enter-from,
-.toast-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(0.75rem);
-}
-</style>

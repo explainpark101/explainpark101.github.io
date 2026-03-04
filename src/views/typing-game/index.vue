@@ -1,5 +1,5 @@
 <template>
-  <div class="typing-game-container">
+  <div class="min-h-screen flex items-center justify-center overflow-hidden font-mono bg-gradient-to-br from-blue-900 via-indigo-900 to-gray-900" style="font-family: 'Fira Code', monospace;">
 
     <div id="game-container" class="relative w-full max-w-4xl mx-auto p-4 md:p-6 flex flex-col items-center gap-4">
       <!-- 게임 UI -->
@@ -97,7 +97,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, onBeforeUnmount, nextTick } from 'vue';
 import GameItem from '@/views/typing-game/GameItem.vue';
 
 // UI 상태
@@ -628,32 +628,30 @@ const onFullscreenChange = () => {
   isFullscreen.value = !!document.fullscreenElement;
 };
 
-// Tailwind CSS 및 폰트 로드
-const loadExternalResources = () => {
-  // Tailwind CSS가 이미 로드되었는지 확인
-  if (!document.querySelector('script[src*="tailwindcss"]')) {
-    const tailwindScript = document.createElement('script');
-    tailwindScript.src = 'https://cdn.tailwindcss.com';
-    document.head.appendChild(tailwindScript);
-  }
+// 폰트 로드 (onBeforeUnmount에서 제거용으로 참조 저장)
+let dynamicFontLinks = [];
 
+const loadExternalResources = () => {
   // Fira Code 폰트가 이미 로드되었는지 확인
   if (!document.querySelector('link[href*="Fira+Code"]')) {
     const preconnect1 = document.createElement('link');
     preconnect1.rel = 'preconnect';
     preconnect1.href = 'https://fonts.googleapis.com';
     document.head.appendChild(preconnect1);
+    dynamicFontLinks.push(preconnect1);
 
     const preconnect2 = document.createElement('link');
     preconnect2.rel = 'preconnect';
     preconnect2.href = 'https://fonts.gstatic.com';
     preconnect2.crossOrigin = 'anonymous';
     document.head.appendChild(preconnect2);
+    dynamicFontLinks.push(preconnect2);
 
     const fontLink = document.createElement('link');
     fontLink.href = 'https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap';
     fontLink.rel = 'stylesheet';
     document.head.appendChild(fontLink);
+    dynamicFontLinks.push(fontLink);
   }
 };
 
@@ -731,6 +729,15 @@ onMounted(() => {
   securityCleanup = setupSecurity();
 });
 
+onBeforeUnmount(() => {
+  dynamicFontLinks.forEach((el) => {
+    if (el && el.parentNode) {
+      el.parentNode.removeChild(el);
+    }
+  });
+  dynamicFontLinks = [];
+});
+
 onUnmounted(() => {
   stopGame();
   document.removeEventListener('fullscreenchange', onFullscreenChange);
@@ -741,16 +748,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.typing-game-container {
-  font-family: 'Fira Code', monospace;
-  background: linear-gradient(135deg, #1e3a8a, #312e81, #111827);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
 .flash-red {
   animation: flash-red 0.3s ease-out;
 }

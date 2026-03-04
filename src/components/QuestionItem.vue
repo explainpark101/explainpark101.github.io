@@ -1,17 +1,18 @@
 <template>
-  <div v-show="isVisible" class="question">
-    <label :for="`ans-${question.abbr}`">{{ question.index }}. {{ question.abbr }}</label>
+  <div v-show="isVisible" class="w-[calc(50%-0.5rem)] bg-[var(--surface)] p-4 rounded shadow-sm transition-all duration-500 focus-within:ring-2 focus-within:ring-[var(--primary-color)]">
+    <label :for="`ans-${question.abbr}`" class="block font-medium mb-2 text-[var(--text-primary)]">{{ question.index }}. {{ question.abbr }}</label>
     <input
       :id="`ans-${question.abbr}`"
       type="text"
       v-model="inputValue"
       autocomplete="off"
+      class="w-full py-3 px-3 border border-[var(--border-color)] rounded text-base bg-[var(--surface)] text-[var(--text-primary)] transition-all duration-500 focus:outline-none focus:border-[var(--primary-color)] focus:ring-2 focus:ring-[var(--primary-color)]/20 dark:bg-gray-800 dark:focus:bg-gray-700"
       @focus="handleFocus"
       @blur="handleBlur"
       @input="handleInput"
       @keydown="handleKeydown"
     />
-    <div :class="resultClass">{{ resultText }}</div>
+    <div :class="['mt-2 text-sm py-2 px-2 rounded transition-all duration-500', resultClass]">{{ resultText }}</div>
   </div>
 </template>
 
@@ -122,7 +123,14 @@ const calculateGrade = () => {
 const gradeResult = ref({ result: null, text: '', class: 'result', isIncorrect: false });
 
 const resultText = computed(() => isGraded.value ? gradeResult.value.text : '');
-const resultClass = computed(() => isGraded.value ? gradeResult.value.class : 'result');
+const resultClass = computed(() => {
+  if (!isGraded.value) return '';
+  return gradeResult.value.class === 'result correct'
+    ? 'text-[var(--success)] bg-[var(--success)]/10'
+    : gradeResult.value.class === 'result incorrect'
+      ? 'text-[var(--error)] bg-[var(--error)]/10'
+      : '';
+});
 
 // 채점 함수 (외부에서 호출 가능)
 const grade = () => {
@@ -260,82 +268,4 @@ watch(inputValue, (newVal) => {
 });
 </script>
 
-<style scoped>
-.question {
-  width: calc(50% - 0.5rem);
-  background-color: var(--surface);
-  padding: 1rem;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px var(--shadow-color);
-  transition: box-shadow 500ms ease-in-out, background-color 500ms ease-in-out;
-}
-
-.question:focus-within {
-  box-shadow: 0 0 0 2px var(--primary-color);
-}
-
-.question label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
-  transition: color 500ms ease-in-out;
-}
-
-.question input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 500ms ease-in-out, background-color 500ms ease-in-out, color 500ms ease-in-out;
-}
-
-.question input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
-}
-
-.result {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  padding: 0.5rem;
-  border-radius: 4px;
-  transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
-}
-
-.correct {
-  color: var(--success);
-  background-color: rgba(56, 142, 60, 0.1);
-  transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
-}
-
-.incorrect {
-  color: var(--error);
-  background-color: rgba(211, 47, 47, 0.1);
-  transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
-}
-
-/* Dark mode input styles */
-[data-theme="dark"] .question input {
-  background-color: #2d2d2d;
-  color: var(--text-primary);
-}
-
-[data-theme="dark"] .question input:focus {
-  background-color: #333333;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .question input {
-    background-color: #2d2d2d;
-    color: var(--text-primary);
-  }
-
-  :root:not([data-theme]) .question input:focus {
-    background-color: #333333;
-  }
-}
-</style>
 

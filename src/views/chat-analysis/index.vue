@@ -1,67 +1,63 @@
 <template>
-    <div class="container">
-        <div class="card">
-            <div class="header">
-                <h1 class="title">말 많은 사람 찾아내기</h1>
-                <p class="description">
-                    카카오톡 등에서 백업한 <code class="code-text">.txt</code> 파일을 업로드하면, 대화 라인에서 이름을 추출하여 채팅횟수를 집계합니다.
+    <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 flex justify-center items-center py-12 px-4 md:py-12 md:px-4">
+        <div class="bg-[var(--surface)]/95 backdrop-blur-md p-6 md:p-10 rounded-2xl shadow-xl w-full max-w-3xl transition-all duration-300 border border-white/20 dark:border-white/10">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl md:text-4xl font-extrabold mb-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">말 많은 사람 찾아내기</h1>
+                <p class="text-[var(--text-secondary)] text-base leading-7">
+                    카카오톡 등에서 백업한 <code class="px-1 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-indigo-600 dark:text-indigo-400 font-mono text-sm">.txt</code> 파일을 업로드하면, 대화 라인에서 이름을 추출하여 채팅횟수를 집계합니다.
                 </p>
             </div>
 
             <!-- 파일 업로드 영역 -->
-            <div class="upload-section">
-                <div class="file-input-wrapper">
-                    <label for="file-upload" class="file-label">
+            <div class="flex flex-col gap-5 mb-8">
+                <div class="relative">
+                    <label for="file-upload" class="block text-sm font-semibold text-[var(--text-secondary)] mb-2">
                         텍스트 파일 (.txt)
                     </label>
-                    <!-- @change로 파일 선택 이벤트를 감지 -->
                     <input id="file-upload" name="file-upload" type="file" accept=".txt" @change="onFileChange"
-                        class="file-input">
-                    <div v-if="selectedFile" class="selected-file">
-                        <span class="file-indicator"></span>
+                        class="chat-analysis-file-input block w-full text-sm text-gray-500 p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer transition-all duration-200 hover:border-indigo-400 hover:bg-indigo-50/5 dark:hover:bg-indigo-500/5">
+                    <div v-if="selectedFile" class="mt-2 text-sm text-indigo-600 dark:text-indigo-400 font-medium flex items-center gap-2">
+                        <span class="file-indicator inline-block w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
                         {{ selectedFile.name }}
                     </div>
                 </div>
 
-                <!-- @click으로 분석 함수 호출 -->
-                <button @click="processFile" :disabled="!selectedFile" class="analyze-button">
+                <button @click="processFile" :disabled="!selectedFile"
+                    class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-4 px-6 rounded-xl border-none cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/30 hover:enabled:from-indigo-600 hover:enabled:via-purple-600 hover:enabled:to-pink-600 hover:enabled:-translate-y-0.5 hover:enabled:shadow-indigo-500/40 active:enabled:translate-y-0 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
                     분석 시작
                 </button>
             </div>
 
             <!-- 결과 표시 영역 -->
-            <div class="results-section">
-                <!-- v-if로 메시지가 있을 때만 표시 -->
-                <div v-if="message" :class="['message', messageClasses]">
-                    <span class="message-icon" v-if="messageType === 'error'">⚠️</span>
-                    <span class="message-icon" v-else>ℹ️</span>
+            <div class="mt-8">
+                <div v-if="message" :class="['message flex items-center justify-center gap-2 p-4 rounded-xl text-center transition-all duration-300 border-2 animate-fade-in', messageClasses]">
+                    <span class="text-xl" v-if="messageType === 'error'">⚠️</span>
+                    <span class="text-xl" v-else>ℹ️</span>
                     <span>{{ message }}</span>
                 </div>
 
-                <!-- v-if로 결과가 있을 때만 테이블 표시 -->
-                <div v-if="results.length > 0" class="table-wrapper">
-                    <table class="results-table">
+                <div v-if="results.length > 0" class="mt-6 animate-fade-in">
+                    <table class="w-full border-collapse bg-[var(--surface)] rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700">
                         <thead>
                             <tr>
-                                <th scope="col" class="table-header">순위</th>
-                                <th scope="col" class="table-header">이름</th>
-                                <th scope="col" class="table-header">횟수</th>
+                                <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-b-2 border-gray-200 dark:border-gray-600">순위</th>
+                                <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-b-2 border-gray-200 dark:border-gray-600">이름</th>
+                                <th scope="col" class="px-4 py-4 text-left text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-b-2 border-gray-200 dark:border-gray-600">횟수</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- v-for로 결과 배열을 순회하며 행 생성 -->
-                            <tr v-for="([name, count], index) in results" :key="name" class="table-row">
-                                <td class="table-cell rank-cell">
-                                    <span v-if="index < 3" :class="['rank-badge', `rank-${index + 1}`]">
+                            <tr v-for="([name, count], index) in results" :key="name" class="transition-all duration-200 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-950/30 dark:hover:to-purple-950/30 group">
+                                <td class="px-4 py-4 whitespace-nowrap border-b border-gray-100 dark:border-gray-700 text-center">
+                                    <span v-if="index < 3" :class="['rank-badge inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full font-bold text-xs md:text-sm shadow', index === 0 ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white' : index === 1 ? 'bg-gradient-to-br from-gray-400 to-gray-600 text-white' : 'bg-gradient-to-br from-amber-600 to-amber-800 text-white']">
                                         {{ index + 1 }}
                                     </span>
-                                    <span v-else class="rank-badge rank-other">
+                                    <span v-else class="rank-badge inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full font-bold text-xs md:text-sm shadow bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-600">
                                         {{ index + 1 }}
                                     </span>
                                 </td>
-                                <td class="table-cell name-cell">{{ name }}</td>
-                                <td class="table-cell count-cell">
-                                    <span class="count-badge">{{ count }}개</span>
+                                <td class="px-4 py-4 whitespace-nowrap border-b border-gray-100 dark:border-gray-700 text-sm font-semibold text-[var(--text-primary)] group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{{ name }}</td>
+                                <td class="px-4 py-4 whitespace-nowrap border-b border-gray-100 dark:border-gray-700 text-left">
+                                    <span class="count-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 text-indigo-600 dark:text-indigo-400 transition-all duration-200 group-hover:from-indigo-100 group-hover:to-purple-100 dark:group-hover:from-indigo-900/50 dark:group-hover:to-purple-900/50">{{ count }}개</span>
                                 </td>
                             </tr>
                         </tbody>
@@ -90,8 +86,8 @@ const messageType = ref('info');
 // 메시지 종류에 따라 동적으로 CSS 클래스를 반환
 const messageClasses = computed(() => {
     return messageType.value === 'error'
-        ? 'message-error'
-        : 'message-info';
+        ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 border-red-300 dark:border-red-700'
+        : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700';
 });
 
 // --- Methods ---
@@ -176,99 +172,9 @@ function processLog(logContent) {
 }
 </script>
 
-<style scoped>
-/* 컨테이너 */
-.container {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #eef2ff 0%, #f3e8ff 50%, #fce7f3 100%);
-    padding: 3rem 1rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* 카드 */
-.card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 2.5rem;
-    border-radius: 1.5rem;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    width: 100%;
-    max-width: 48rem;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* 헤더 */
-.header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 0.75rem;
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.description {
-    color: #4b5563;
-    font-size: 1rem;
-    line-height: 1.75;
-}
-
-.code-text {
-    padding: 0.25rem 0.5rem;
-    background-color: #f3f4f6;
-    border-radius: 0.25rem;
-    color: #4f46e5;
-    font-family: 'Courier New', monospace;
-    font-size: 0.875rem;
-}
-
-/* 업로드 섹션 */
-.upload-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    margin-bottom: 2rem;
-}
-
-.file-input-wrapper {
-    position: relative;
-}
-
-.file-label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 0.5rem;
-}
-
-.file-input {
-    display: block;
-    width: 100%;
-    font-size: 0.875rem;
-    color: #6b7280;
-    padding: 1rem;
-    border: 2px dashed #d1d5db;
-    border-radius: 0.75rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.file-input:hover {
-    border-color: #818cf8;
-    background-color: rgba(99, 102, 241, 0.05);
-}
-
-.file-input::file-selector-button {
+<style>
+/* ::file-selector-button - Tailwind cannot style this */
+.chat-analysis-file-input::file-selector-button {
     margin-right: 1rem;
     padding: 0.75rem 1.5rem;
     border-radius: 0.75rem;
@@ -281,274 +187,17 @@ function processLog(logContent) {
     transition: all 0.2s ease;
     box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
 }
-
-.file-input::file-selector-button:hover {
+.chat-analysis-file-input::file-selector-button:hover {
     background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
     transform: translateY(-1px);
     box-shadow: 0 6px 8px -1px rgba(99, 102, 241, 0.4);
 }
 
-.selected-file {
-    margin-top: 0.5rem;
-    font-size: 0.875rem;
-    color: #4f46e5;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
-
-.file-indicator {
-    display: inline-block;
-    width: 0.5rem;
-    height: 0.5rem;
-    background-color: #6366f1;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.5;
-    }
-}
-
-/* 분석 버튼 */
-.analyze-button {
-    width: 100%;
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
-    color: white;
-    font-weight: 700;
-    padding: 1rem 1.5rem;
-    border-radius: 0.75rem;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.analyze-button:hover:not(:disabled) {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 15px 20px -3px rgba(99, 102, 241, 0.4);
-}
-
-.analyze-button:active:not(:disabled) {
-    transform: translateY(0);
-}
-
-.analyze-button:focus {
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2), 0 10px 15px -3px rgba(99, 102, 241, 0.3);
-}
-
-.analyze-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* 결과 섹션 */
-.results-section {
-    margin-top: 2rem;
-}
-
-/* 메시지 */
-.message {
-    padding: 1rem;
-    border-radius: 0.75rem;
-    text-align: center;
-    transition: all 0.3s ease;
-    border: 2px solid;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    animation: fadeIn 0.3s ease;
-}
-
-.message-info {
-    background-color: #dbeafe;
-    color: #1e40af;
-    border-color: #93c5fd;
-}
-
-.message-error {
-    background-color: #fee2e2;
-    color: #991b1b;
-    border-color: #fca5a5;
-}
-
-.message-icon {
-    font-size: 1.25rem;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* 테이블 래퍼 */
-.table-wrapper {
-    margin-top: 1.5rem;
-    animation: fadeIn 0.3s ease;
-}
-
-/* 테이블 */
-.results-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    border-radius: 0.75rem;
-    overflow: hidden;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    border: 1px solid #f3f4f6;
-}
-
-.table-header {
-    padding: 1rem 1.5rem;
-    text-align: left;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #374151;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-    border-bottom: 2px solid #e5e7eb;
-}
-
-.table-row {
-    transition: all 0.2s ease;
-}
-
-.table-row:hover {
-    background: linear-gradient(90deg, #eef2ff 0%, #f3e8ff 100%);
-}
-
-.table-cell {
-    padding: 1rem 1.5rem;
-    white-space: nowrap;
-    border-bottom: 1px solid #f3f4f6;
-}
-
-.rank-cell {
-    text-align: center;
-}
-
-.name-cell {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #111827;
-}
-
-.table-row:hover .name-cell {
-    color: #4f46e5;
-}
-
-.count-cell {
-    text-align: left;
-}
-
-/* 순위 배지 */
-.rank-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    font-weight: 700;
-    font-size: 0.875rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.rank-1 {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    color: white;
-}
-
-.rank-2 {
-    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
-    color: white;
-}
-
-.rank-3 {
-    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-    color: white;
-}
-
-.rank-other {
-    background-color: #f3f4f6;
-    color: #4b5563;
-}
-
-.table-row:hover .rank-other {
-    background-color: #e5e7eb;
-}
-
-/* 횟수 배지 */
-.count-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.875rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #eef2ff 0%, #f3e8ff 100%);
-    color: #4f46e5;
-    transition: all 0.2s ease;
-}
-
-.table-row:hover .count-badge {
-    background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%);
-}
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-    .container {
-        padding: 1.5rem 0.75rem;
-    }
-
-    .card {
-        padding: 1.5rem;
-        border-radius: 1rem;
-    }
-
-    .title {
-        font-size: 2rem;
-    }
-
-    .description {
-        font-size: 0.875rem;
-    }
-
-    .table-header,
-    .table-cell {
-        padding: 0.75rem 1rem;
-        font-size: 0.75rem;
-    }
-
-    .rank-badge {
-        width: 1.75rem;
-        height: 1.75rem;
-        font-size: 0.75rem;
-    }
+.animate-fade-in {
+    animation: fade-in 0.3s ease;
 }
 </style>

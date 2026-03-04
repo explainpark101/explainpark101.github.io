@@ -1,110 +1,107 @@
 <template>
-  <div class="jungsan-container">
-    <div class="d-flex">
-      <router-link to="/jungsan/alchol" class="md-btn">일반인 / 술고래 구분 정산기</router-link>
+  <div class="font-sans max-w-6xl mx-auto p-5 bg-[var(--background)] text-[var(--text-primary)] transition-colors duration-500">
+    <div class="flex">
+      <router-link to="/jungsan/alchol" class="inline-flex items-center gap-2 py-2.5 px-5 bg-[var(--primary-color)] text-[var(--surface)] rounded cursor-pointer text-sm font-medium uppercase no-underline shadow transition-all duration-300 hover:bg-[var(--primary-dark)] hover:shadow-lg">일반인 / 술고래 구분 정산기</router-link>
     </div>
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h1>언네임드 회식 정산 계산기</h1>
-      <div style="display: flex; align-items: center; justify-content: end; gap: 0.2rem; flex-wrap: wrap;">
-        <router-link to="/" class="home-button">
+    <div class="flex justify-between items-center">
+      <h1 class="text-[var(--primary-color)] font-medium mb-6">언네임드 회식 정산 계산기</h1>
+      <div class="flex items-center justify-end gap-1 flex-wrap">
+        <router-link to="/" class="py-2.5 px-5 bg-purple-700 text-[var(--surface)] rounded cursor-pointer text-sm font-medium inline-flex items-center gap-2 no-underline transition-all duration-300 hover:bg-purple-800 hover:-translate-y-px hover:shadow-lg">
           <span class="material-icons">home</span>앱 목록
         </router-link>
-        <button @click="resetForm" style="margin-left: 1rem;">
+        <button @click="resetForm" class="ml-4 py-2.5 px-5 bg-[var(--primary-color)] text-[var(--surface)] border-none rounded cursor-pointer text-sm font-medium uppercase inline-flex items-center gap-2 transition-colors duration-300 hover:bg-[var(--primary-dark)]">
           <span class="material-icons">restart_alt</span>초기화
         </button>
-        <button @click="exportJson" style="margin-left: 0.5rem;">
+        <button @click="exportJson" class="ml-2 py-2.5 px-5 bg-[var(--primary-color)] text-[var(--surface)] border-none rounded cursor-pointer text-sm font-medium uppercase inline-flex items-center gap-2 transition-colors duration-300 hover:bg-[var(--primary-dark)]">
           <span class="material-icons">file_upload</span>JSON 내보내기
         </button>
-        <button @click="importJson" style="margin-left: 0.5rem;">
+        <button @click="importJson" class="ml-2 py-2.5 px-5 bg-[var(--primary-color)] text-[var(--surface)] border-none rounded cursor-pointer text-sm font-medium uppercase inline-flex items-center gap-2 transition-colors duration-300 hover:bg-[var(--primary-dark)]">
           <span class="material-icons">file_download</span>JSON 가져오기
         </button>
-        <button @click="shareLink" style="margin-left: 0.5rem;">
+        <button @click="shareLink" class="ml-2 py-2.5 px-5 bg-[var(--primary-color)] text-[var(--surface)] border-none rounded cursor-pointer text-sm font-medium uppercase inline-flex items-center gap-2 transition-colors duration-300 hover:bg-[var(--primary-dark)]">
           <span class="material-icons">link</span>링크로 공유
         </button>
       </div>
     </div>
 
-    <div class="input-group">
-      <label for="tableCount">테이블 개수</label>
-      <input type="number" id="tableCount" v-model.number="tableCount" min="1" @input="handleTableCountChange">
-      <button @click="createTables">
+    <div class="mb-4 flex flex-wrap items-end gap-2">
+      <div>
+        <label for="tableCount" class="block mb-2 text-[var(--text-secondary)] text-sm">테이블 개수</label>
+        <input type="number" id="tableCount" v-model.number="tableCount" min="1" @input="handleTableCountChange" class="w-32 p-3 my-1 border border-[var(--border-color)] rounded text-base bg-[var(--surface)] text-[var(--text-primary)] transition-all duration-300 focus:outline-none focus:border-[var(--primary-color)] box-border">
+      </div>
+      <button @click="createTables" class="py-2.5 px-5 bg-[var(--primary-color)] text-[var(--surface)] border-none rounded cursor-pointer text-sm font-medium uppercase inline-flex items-center gap-2 transition-colors duration-300 hover:bg-[var(--primary-dark)]">
         <span class="material-icons">add_circle</span>
         테이블 생성
       </button>
     </div>
 
-    <div class="input-group">
-      <label for="totalSupport">총 회식 지원비</label>
-      <input type="number" id="totalSupport" v-model.number="totalSupport" min="0">
+    <div class="mb-4">
+      <label for="totalSupport" class="block mb-2 text-[var(--text-secondary)] text-sm">총 회식 지원비</label>
+      <input type="number" id="totalSupport" v-model.number="totalSupport" min="0" class="w-32 p-3 my-1 border border-[var(--border-color)] rounded text-base bg-[var(--surface)] text-[var(--text-primary)] transition-all duration-300 focus:outline-none focus:border-[var(--primary-color)] box-border">
     </div>
 
     <div id="tablesContainer">
-      <div v-for="(table, index) in tables" :key="index" class="table-container">
-        <h3>테이블 {{ index + 1 }}</h3>
-        <div class="input-group">
-          <label>부원 수</label>
-          <input type="number" v-model.number="table.memberCount" min="0">
+      <div v-for="(table, index) in tables" :key="index" class="mb-5 p-5 bg-[var(--surface)] rounded-lg shadow transition-all duration-300 hover:shadow-lg">
+        <h3 class="text-[var(--primary-color)] font-medium">테이블 {{ index + 1 }}</h3>
+        <div class="mb-4">
+          <label class="block mb-2 text-[var(--text-secondary)] text-sm">부원 수</label>
+          <input type="number" v-model.number="table.memberCount" min="0" class="jungsan-input">
         </div>
-        <div class="input-group">
-          <label>난입 수</label>
-          <input type="number" v-model.number="table.guestCount" min="0">
+        <div class="mb-4">
+          <label class="block mb-2 text-[var(--text-secondary)] text-sm">난입 수</label>
+          <input type="number" v-model.number="table.guestCount" min="0" class="jungsan-input">
         </div>
-        <div class="input-group">
-          <label>메모</label>
-          <textarea v-model="table.memo" rows="2" placeholder="부원, 난입 이름을 입력하세요"></textarea>
+        <div class="mb-4">
+          <label class="block mb-2 text-[var(--text-secondary)] text-sm">메모</label>
+          <textarea v-model="table.memo" rows="2" placeholder="부원, 난입 이름을 입력하세요" class="jungsan-input w-full"></textarea>
         </div>
-        <div class="input-group">
-          <label>음식 가격</label>
-          <input type="number" v-model.number="table.foodPrice" min="0">
+        <div class="mb-4">
+          <label class="block mb-2 text-[var(--text-secondary)] text-sm">음식 가격</label>
+          <input type="number" v-model.number="table.foodPrice" min="0" class="jungsan-input">
         </div>
-        <div class="checkbox-group">
-          <label>
-            <input type="checkbox" v-model="table.hasAlcohol">
+        <div class="flex items-center gap-2 my-2">
+          <label class="flex gap-2 items-center cursor-pointer m-0">
+            <input type="checkbox" v-model="table.hasAlcohol" class="w-[18px] h-[18px] m-0">
             술 섭취
           </label>
         </div>
       </div>
     </div>
 
-    <button @click="calculate" id="calc-button">
+    <button @click="calculate" id="calc-button" class="jungsan-btn">
       <span class="material-icons">calculate</span>
       정산 계산하기
     </button>
 
-    <div id="result" ref="resultRef" class="result"
+    <div id="result" ref="resultRef" class="mt-6 p-5 bg-[var(--surface)] rounded-lg shadow grid gap-2 transition-all duration-500"
       v-if="formattedResults && formattedResults.formattedResults && formattedResults.formattedResults.length > 0">
-      <h2>정산 결과</h2>
-      <div class="support-per-person">인당 지원금: {{ formattedResults.formattedSupportPerMember }}원</div>
-      <div v-if="formattedResults.formattedRemainingSupportSum" class="remaining-support" style="font-size: 1.2rem;">
+      <h2 class="text-[var(--primary-color)] font-medium mb-4">정산 결과</h2>
+      <div class="support-per-person text-[var(--success)] font-medium mt-3 py-2 px-2 rounded bg-[var(--success)]/10 dark:bg-[var(--success)]/10">인당 지원금: {{ formattedResults.formattedSupportPerMember }}원</div>
+      <div v-if="formattedResults.formattedRemainingSupportSum" class="remaining-support text-[var(--primary-color)] font-medium mt-3 py-2 px-2 rounded bg-[var(--primary-color)]/10 text-xl">
         <strong>총 남은 지원금: </strong> {{ formattedResults.formattedRemainingSupportSum }}원
       </div>
-      <div v-for="(result, index) in formattedResults.formattedResults" :key="index" class="table-container">
-        <h3>테이블 {{ result.tableNumber }} {{ result.hasAlcohol ? '🍺' : '' }}</h3>
-        <p><strong>메모:</strong> {{ result.memo || '없음' }}</p>
-        <p><strong>부원({{ result.memberCount }}명) 정산금액:</strong> {{ result.formattedMemberPayment }}원</p>
-        <p><strong>난입({{ result.guestCount }}명) 정산금액:</strong> {{ result.formattedGuestPayment }}원</p>
-        <p v-if="result.hasAlcohol"><strong>술 섭취:</strong> 예</p>
-        <p v-if="result.formattedRemainingSupport" class="remaining-support">
+      <div v-for="(result, index) in formattedResults.formattedResults" :key="index" class="mb-5 p-5 bg-[var(--background)] rounded-lg">
+        <h3 class="text-[var(--primary-color)] mt-0">테이블 {{ result.tableNumber }} {{ result.hasAlcohol ? '🍺' : '' }}</h3>
+        <p class="my-2 text-[var(--text-secondary)]"><strong>메모:</strong> {{ result.memo || '없음' }}</p>
+        <p class="my-2 text-[var(--text-secondary)]"><strong>부원({{ result.memberCount }}명) 정산금액:</strong> {{ result.formattedMemberPayment }}원</p>
+        <p class="my-2 text-[var(--text-secondary)]"><strong>난입({{ result.guestCount }}명) 정산금액:</strong> {{ result.formattedGuestPayment }}원</p>
+        <p v-if="result.hasAlcohol" class="my-2 text-[var(--text-secondary)]"><strong>술 섭취:</strong> 예</p>
+        <p v-if="result.formattedRemainingSupport" class="remaining-support text-[var(--primary-color)] font-medium mt-3 py-2 px-2 rounded bg-[var(--primary-color)]/10">
           <strong>남은 지원금:</strong> {{ result.formattedRemainingSupport }}원
         </p>
       </div>
     </div>
 
-    <!-- Hidden download link -->
-    <a ref="downloadLink" :href="downloadUrl" :download="downloadFilename" style="display: none"></a>
+    <a ref="downloadLink" :href="downloadUrl" :download="downloadFilename" class="hidden"></a>
+    <input ref="fileInput" type="file" accept="application/json" class="hidden" @change="handleFileImport" />
 
-    <!-- Hidden file input -->
-    <input ref="fileInput" type="file" accept="application/json" style="display: none" @change="handleFileImport" />
-
-    <!-- Confirm/Alert Dialog -->
-    <dialog ref="dialogRef" class="confirm-dialog" @click="handleDialogClick">
-      <div class="dialog-content" @click.stop>
-        <h3 class="dialog-title">{{ dialogTitle }}</h3>
-        <p class="dialog-message">{{ dialogMessage }}</p>
-        <div class="dialog-actions">
-          <button v-if="!isAlert" @click="handleCancel" class="dialog-btn dialog-btn-cancel">취소</button>
-          <button ref="confirmButtonRef" @click="handleConfirm" class="dialog-btn dialog-btn-confirm"
-            autofocus>확인</button>
+    <dialog ref="dialogRef" class="jungsan-dialog" @click="handleDialogClick">
+      <div class="p-6" @click.stop>
+        <h3 class="m-0 mb-4 text-[var(--text-primary)] text-xl font-medium">{{ dialogTitle }}</h3>
+        <p class="m-0 mb-6 text-[var(--text-secondary)] text-sm leading-relaxed">{{ dialogMessage }}</p>
+        <div class="flex justify-end gap-3">
+          <button v-if="!isAlert" @click="handleCancel" class="jungsan-dialog-cancel">취소</button>
+          <button ref="confirmButtonRef" @click="handleConfirm" class="jungsan-dialog-confirm" autofocus>확인</button>
         </div>
       </div>
     </dialog>

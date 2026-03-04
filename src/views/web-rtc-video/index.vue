@@ -255,7 +255,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, onBeforeUnmount, nextTick, watch } from 'vue';
 
 const currentView = ref('home');
 const usernameInput = ref('');
@@ -1371,17 +1371,24 @@ function handleBeforeUnload(event) {
     return '정말 나가시겠습니까?';
 }
 
+const dynamicScripts = [];
+const dynamicMetaTags = [];
+let originalDocumentTitle = '';
+
 function loadScript(src) {
     return new Promise((resolve, reject) => {
         const existingScript = document.querySelector(`script[src="${src}"]`);
         if (existingScript) {
-            resolve();
+            resolve(null);
             return;
         }
 
         const script = document.createElement('script');
         script.src = src;
-        script.onload = resolve;
+        script.onload = () => {
+            dynamicScripts.push(script);
+            resolve(script);
+        };
         script.onerror = reject;
         document.head.appendChild(script);
     });
@@ -1389,7 +1396,7 @@ function loadScript(src) {
 
 // HTML head 설정 함수
 function setupHead() {
-    // Title 설정
+    originalDocumentTitle = document.title;
     document.title = 'ezlive';
 
     // 기존 meta 태그 제거 (중복 방지)
@@ -1434,6 +1441,7 @@ function setupHead() {
             }
         });
         document.head.appendChild(meta);
+        dynamicMetaTags.push(meta);
     };
 
     // 모든 메타 태그 추가
@@ -1453,10 +1461,9 @@ onMounted(async () => {
     setupHead();
 
     // 외부 스크립트 로드
-    try {
-        await Promise.all([
-            loadScript('https://cdn.tailwindcss.com'),
-            loadScript('https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js'),
+  try {
+    await Promise.all([
+      loadScript('https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js'),
             loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js')
         ]);
     } catch (error) {
@@ -1473,6 +1480,24 @@ onMounted(async () => {
         isHost.value = true;
     }
     showView('home');
+});
+
+onBeforeUnmount(() => {
+    dynamicScripts.forEach((el) => {
+        if (el && el.parentNode) {
+            el.parentNode.removeChild(el);
+        }
+    });
+    dynamicScripts.length = 0;
+    dynamicMetaTags.forEach((el) => {
+        if (el && el.parentNode) {
+            el.parentNode.removeChild(el);
+        }
+    });
+    dynamicMetaTags.length = 0;
+    if (originalDocumentTitle) {
+        document.title = originalDocumentTitle;
+    }
 });
 
 onUnmounted(() => {

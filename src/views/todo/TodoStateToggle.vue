@@ -1,13 +1,16 @@
 <template>
   <button
     type="button"
-    class="todo-state-toggle"
-    :class="`todo-state-${state}`"
+    class="shrink-0 inline-flex items-center justify-center w-[22px] h-[22px] mr-4 p-0 border border-gray-400 rounded bg-(--surface) text-base font-bold text-(--text-primary) cursor-pointer transition-colors hover:border-(--primary-color) hover:bg-blue-50"
+    :class="{
+      'border-(--primary-color) text-(--primary-color) bg-blue-50': state === 'in-progress',
+      'border-green-600 text-green-600 bg-green-50': state === 'completed'
+    }"
     :title="stateTitle"
     aria-label="상태 변경"
     @click.stop="handleClick"
   >
-    <span class="todo-state-toggle-icon" aria-hidden="true">
+    <span class="leading-none select-none" aria-hidden="true">
       {{ icon }}
     </span>
   </button>
@@ -46,99 +49,3 @@ const handleClick = () => {
   emit('change', STATE_ORDER[nextIdx]);
 };
 </script>
-
-<style scoped>
-.todo-state-toggle {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  margin-right: 15px;
-  padding: 0;
-  border: 1px solid #999;
-  border-radius: 4px;
-  background-color: #fff;
-  font-size: 0.9em;
-  font-weight: bold;
-  color: #333;
-  cursor: pointer;
-  transition: border-color 0.2s, background-color 0.2s, color 0.2s;
-}
-
-.todo-state-toggle:hover {
-  border-color: #007bff;
-  background-color: #f0f8ff;
-}
-
-.todo-state-toggle-icon {
-  line-height: 1;
-  user-select: none;
-}
-
-.todo-state-toggle.todo-state-in-progress {
-  border-color: #007bff;
-  color: #007bff;
-  background-color: #e7f3ff;
-}
-
-.todo-state-toggle.todo-state-completed {
-  border-color: #28a745;
-  color: #28a745;
-  background-color: #e8f5e9;
-}
-
-@media (prefers-color-scheme: dark) {
-  .todo-state-toggle {
-    border-color: #555;
-    background-color: #2d2d2d;
-    color: #e0e0e0;
-  }
-
-  .todo-state-toggle:hover {
-    border-color: #90caf9;
-    background-color: #1e3a5f;
-  }
-
-  .todo-state-toggle.todo-state-in-progress {
-    border-color: #90caf9;
-    color: #90caf9;
-    background-color: #1e3a5f;
-  }
-
-  .todo-state-toggle.todo-state-completed {
-    border-color: #66bb6a;
-    color: #66bb6a;
-    background-color: #1b3d1f;
-  }
-}
-
-body[data-theme='dark'] .todo-state-toggle,
-[data-theme='dark'] .todo-state-toggle {
-  border-color: #555;
-  background-color: #2d2d2d;
-  color: #e0e0e0;
-}
-
-body[data-theme='dark'] .todo-state-toggle:hover,
-[data-theme='dark'] .todo-state-toggle:hover {
-  border-color: #90caf9;
-  background-color: #1e3a5f;
-}
-
-body[data-theme='dark'] .todo-state-toggle.todo-state-in-progress,
-[data-theme='dark'] .todo-state-toggle.todo-state-in-progress {
-  border-color: #90caf9;
-  color: #90caf9;
-  background-color: #1e3a5f;
-}
-
-body[data-theme='dark'] .todo-state-toggle.todo-state-completed,
-[data-theme='dark'] .todo-state-toggle.todo-state-completed {
-  border-color: #66bb6a;
-  color: #66bb6a;
-  background-color: #1b3d1f;
-}
-</style>
-

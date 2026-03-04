@@ -1,33 +1,41 @@
 <template>
-  <div class="love-lang-survey">
-    <div class="container">
-      <router-link to="/surveys" class="back-link">검사 목록으로 가기</router-link>
-      <h1>5가지 사랑의 언어 평가지</h1>
+  <div class="font-sans bg-red-50 dark:bg-red-950/20 text-[var(--text-primary)] leading-relaxed m-0 p-5">
+    <div class="max-w-3xl mx-auto bg-[var(--surface)] p-6 md:p-8 rounded-xl shadow-lg">
+      <router-link to="/surveys" class="inline-block text-left mb-5 py-2.5 px-5 bg-red-600 text-white no-underline rounded-lg font-bold transition-colors duration-300 hover:bg-red-800">검사 목록으로 가기</router-link>
+      <h1 class="text-center text-red-600 dark:text-red-500">5가지 사랑의 언어 평가지</h1>
 
-      <div class="instructions">
+      <div class="text-center text-[var(--text-secondary)] bg-red-100 dark:bg-red-900/20 py-4 px-4 rounded-lg mb-8">
         <p>각 문항을 읽고, 두 가지 보기 중 자신에게 더 와닿는 것을 선택해주세요.</p>
       </div>
 
       <form @submit.prevent="calculateResults">
-        <ol>
-          <li v-for="(question, index) in questions" :key="index">
-            <div class="question-number">{{ index + 1 }}</div>
+        <ol class="list-none p-0">
+          <li v-for="(question, index) in questions" :key="index" class="mb-4 p-5 rounded-lg border-l-4 border-l-amber-500 bg-red-50/50 dark:bg-red-950/10">
+            <div class="font-bold text-lg text-red-800 dark:text-red-400 mb-2.5">{{ index + 1 }}</div>
             <label 
               v-for="(option, optIndex) in question.options" 
               :key="optIndex"
-              :class="{ selected: selectedAnswers[index] === option.value, 'fade-other': selectedAnswers[index] && selectedAnswers[index] !== option.value }"
+              :class="[
+                'block my-2 py-4 px-5 rounded-lg cursor-pointer transition-all duration-300 border-2 relative font-medium shadow-sm',
+                selectedAnswers[index] === option.value 
+                  ? 'bg-red-600 text-white border-red-800 shadow-lg shadow-red-600/30' 
+                  : selectedAnswers[index] && selectedAnswers[index] !== option.value
+                    ? 'opacity-50 grayscale-[40%] scale-95 border-gray-200 dark:border-gray-600 bg-[var(--surface)]'
+                    : 'border-gray-200 dark:border-gray-600 bg-[var(--surface)] hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-red-600 hover:-translate-y-px hover:shadow-md hover:opacity-80 hover:grayscale-[10%]'
+              ]"
               @click="selectAnswer(index, option.value)">
-              <input type="radio" :name="`q${index + 1}`" :value="option.value" v-model="selectedAnswers[index]">
-              {{ option.text }}
+              <input type="radio" :name="`q${index + 1}`" :value="option.value" v-model="selectedAnswers[index]" class="mr-3 scale-125">
+              <span class="pr-8">{{ option.text }}</span>
+              <span v-if="selectedAnswers[index] === option.value" class="absolute right-4 top-1/2 -translate-y-1/2 text-lg font-bold">✓</span>
             </label>
           </li>
         </ol>
-        <button type="submit" class="submit-btn">결과 보기</button>
+        <button type="submit" class="block w-full py-4 text-xl font-bold text-white bg-red-600 border-none rounded-lg cursor-pointer mt-8 transition-colors duration-300 hover:bg-red-800">결과 보기</button>
       </form>
 
-      <div v-if="showResults" id="results">
-        <h2>❤️ 나의 사랑의 언어는?</h2>
-        <div class="score-summary">
+      <div v-if="showResults" id="results" class="mt-10 pt-5 border-t-2 border-amber-500">
+        <h2 class="text-center text-red-600 dark:text-red-500">❤️ 나의 사랑의 언어는?</h2>
+        <div class="text-xl font-bold text-center mb-8 py-4 px-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
           인정하는 말(A): <span>{{ scores.A }}</span>점 &nbsp;|&nbsp;
           함께하는 시간(B): <span>{{ scores.B }}</span>점 &nbsp;|&nbsp;
           선물(C): <span>{{ scores.C }}</span>점 &nbsp;|&nbsp;
@@ -37,9 +45,14 @@
 
         <div v-for="(result, type) in resultTypes" :key="type" 
              :id="`result-${type}`" 
-             :class="['result-type', { highlight: highlightedTypes.includes(type) }]">
-          <h3>{{ result.title }}</h3>
-          <p>{{ result.description }}</p>
+             :class="[
+               'mb-5 p-5 rounded-lg border transition-all duration-300',
+               highlightedTypes.includes(type) 
+                 ? 'bg-red-50 dark:bg-red-900/20 border-2 border-red-600 scale-[1.02] shadow-md' 
+                 : 'border-gray-200 dark:border-gray-600'
+             ]">
+          <h3 class="mt-0 text-red-600 dark:text-red-500 border-b-2 border-red-100 dark:border-red-900/50 pb-2.5">{{ result.title }}</h3>
+          <p class="text-[var(--text-secondary)]">{{ result.description }}</p>
         </div>
       </div>
     </div>
@@ -241,191 +254,3 @@ function calculateResults() {
   }, 100);
 }
 </script>
-
-<style scoped>
-.love-lang-survey {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: #fdf2f2;
-  color: #444;
-  line-height: 1.7;
-  margin: 0;
-  padding: 20px;
-}
-
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  background: #fff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-}
-
-h1, h2 {
-  text-align: center;
-  color: #d9534f;
-}
-
-.instructions {
-  text-align: center;
-  color: #555;
-  background-color: #f9e6e5;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 30px;
-}
-
-ol {
-  list-style: none;
-  padding: 0;
-}
-
-li {
-  background: #fff9f9;
-  margin-bottom: 18px;
-  padding: 20px;
-  border-radius: 8px;
-  border-left: 5px solid #f0ad4e;
-}
-
-.question-number {
-  font-weight: bold;
-  font-size: 1.1em;
-  color: #c9302c;
-  margin-bottom: 10px;
-}
-
-li label {
-  display: block;
-  margin: 8px 0;
-  padding: 15px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid #e0e0e0;
-  background: #ffffff;
-  position: relative;
-  font-weight: 500;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-li label:hover {
-  background-color: #f8f9fa;
-  border-color: #d9534f;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-li label.selected {
-  background-color: #d9534f;
-  color: #ffffff;
-  border-color: #c9302c;
-  box-shadow: 0 4px 12px rgba(217, 83, 79, 0.3);
-}
-
-li label.selected::after {
-  content: "✓";
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 18px;
-  font-weight: bold;
-}
-
-li label:not(.selected) {
-  opacity: 0.6;
-  filter: grayscale(20%);
-}
-
-li label:not(.selected):hover {
-  opacity: 0.8;
-  filter: grayscale(10%);
-}
-
-li label.fade-other {
-  opacity: 0.5;
-  filter: grayscale(40%);
-  transform: scale(0.95);
-  transition: all 0.3s ease;
-}
-
-input[type="radio"] {
-  margin-right: 12px;
-  transform: scale(1.2);
-}
-
-.submit-btn {
-  display: block;
-  width: 100%;
-  padding: 15px;
-  font-size: 1.2em;
-  font-weight: bold;
-  color: #fff;
-  background-color: #d9534f;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 30px;
-  transition: background-color 0.3s;
-}
-
-.submit-btn:hover {
-  background-color: #c9302c;
-}
-
-#results {
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 2px solid #f0ad4e;
-}
-
-.score-summary {
-  font-size: 1.2em;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 30px;
-  padding: 15px;
-  background-color: #fef5e7;
-  border-radius: 5px;
-}
-
-.result-type {
-  margin-bottom: 20px;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  transition: all 0.3s ease-in-out;
-}
-
-.result-type h3 {
-  margin-top: 0;
-  color: #d9534f;
-  border-bottom: 2px solid #f9e6e5;
-  padding-bottom: 10px;
-}
-
-.result-type.highlight {
-  background-color: #fff6f6;
-  border: 2px solid #d9534f;
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.back-link {
-  display: inline-block;
-  text-align: left;
-  margin-bottom: 20px;
-  padding: 10px 20px;
-  background-color: #d9534f;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-  font-weight: bold;
-  transition: background-color 0.3s;
-}
-
-.back-link:hover {
-  background-color: #c9302c;
-}
-</style>

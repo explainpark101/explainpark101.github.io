@@ -160,7 +160,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, onBeforeUnmount, nextTick, watch } from 'vue';
 
 const currentView = ref('home');
 const usernameInput = ref('');
@@ -791,18 +791,23 @@ function handleBeforeUnload(event) {
   return '정말 나가시겠습니까?';
 }
 
+const dynamicScripts = [];
+
 function loadScript(src) {
   return new Promise((resolve, reject) => {
     // 이미 로드되어 있는지 확인
     const existingScript = document.querySelector(`script[src="${src}"]`);
     if (existingScript) {
-      resolve();
+      resolve(null);
       return;
     }
 
     const script = document.createElement('script');
     script.src = src;
-    script.onload = resolve;
+    script.onload = () => {
+      dynamicScripts.push(script);
+      resolve(script);
+    };
     script.onerror = reject;
     document.head.appendChild(script);
   });
@@ -820,7 +825,6 @@ onMounted(async () => {
   // 외부 스크립트 로드
   try {
     await Promise.all([
-      loadScript('https://cdn.tailwindcss.com'),
       loadScript('https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js'),
       loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js')
     ]);
@@ -838,6 +842,15 @@ onMounted(async () => {
     isHost.value = true;
   }
   showView('home');
+});
+
+onBeforeUnmount(() => {
+  dynamicScripts.forEach((el) => {
+    if (el && el.parentNode) {
+      el.parentNode.removeChild(el);
+    }
+  });
+  dynamicScripts.length = 0;
 });
 
 onUnmounted(() => {
