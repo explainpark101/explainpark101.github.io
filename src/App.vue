@@ -9,12 +9,6 @@
 </script>
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 :root {
     --primary-color: #1976d2;
     --primary-light: #42a5f5;

@@ -1,9 +1,13 @@
 <template>
-    <div class="home-page">
+    <div class="min-h-screen w-full flex flex-col justify-center items-center bg-(--background) text-(--text-primary) transition-[background-color,color] duration-500 ease-in-out">
         <!-- PWA 설치 버튼 -->
-        <div class="pwa-install-wrapper">
+        <div class="flex justify-between items-center mx-auto mb-5 max-w-[900px] w-full">
             <div id="pwa-install-container" style="display: none">
-                <button id="pwa-install-btn" class="pwa-install-button" @click="handleInstallClick">
+                <button
+                    id="pwa-install-btn"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-white text-[0.9rem] font-medium cursor-pointer border-none bg-(--primary-color) shadow-[0_2px_8px_rgba(25,118,210,0.3)] transition-all duration-200 hover:bg-(--primary-dark) hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(25,118,210,0.4)] active:translate-y-0 active:shadow-[0_2px_8px_rgba(25,118,210,0.3)]"
+                    @click="handleInstallClick"
+                >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
                     </svg>
@@ -12,168 +16,182 @@
             </div>
         </div>
 
-        <h1 class="main-title">explainpark101 Apps</h1>
+        <h1 class="text-center text-[2.2rem] font-bold text-(--text-primary) m-0 mb-8 transition-colors duration-500">
+            explainpark101 Apps
+        </h1>
 
-        <div class="container">
-            <router-link to="/arch-graphic" class="app-card">
-                <div class="card">
-                    <div class="icon">
+        <div class="max-w-[900px] mx-auto flex flex-wrap gap-8 justify-center">
+            <router-link to="/arch-graphic" class="no-underline text-inherit">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <ArchGraphicIcon />
                     </div>
-                    <div class="card-title">건설 그래픽 커뮤니케이션</div>
-                    <div class="card-desc">건설 그래픽 커뮤니케이션 단어 외우기</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">건설 그래픽 커뮤니케이션</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">건설 그래픽 커뮤니케이션 단어 외우기</div>
                 </div>
             </router-link>
 
-            <router-link to="/dijkstra" class="app-card">
-                <div class="card">
-                    <div class="icon">
+            <router-link to="/dijkstra" class="no-underline text-inherit">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <DijkstraIcon />
                     </div>
-                    <div class="card-title">다익스트라 알고리즘</div>
-                    <div class="card-desc">다익스트라 알고리즘 테스트</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">다익스트라 알고리즘</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">다익스트라 알고리즘 테스트</div>
                 </div>
             </router-link>
 
-            <router-link to="/imgs/unnamed" class="app-card">
-                <div class="card">
-                    <div class="icon">
+            <router-link to="/imgs/unnamed" class="no-underline text-inherit">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <UnnamedIcon />
                     </div>
-                    <div class="card-title">마작부장 강의장면 만들기</div>
-                    <div class="card-desc">합성짤 만들기</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">마작부장 강의장면 만들기</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">합성짤 만들기</div>
                 </div>
             </router-link>
 
-            <router-link to="/jungsan" class="app-card">
-                <div class="card">
-                    <div class="icon">
+            <router-link to="/jungsan" class="no-underline text-inherit">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <JungsanIcon />
                     </div>
-                    <div class="card-title">회식 정산 계산기</div>
-                    <div class="card-desc">테이블별 회식비 정산</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">회식 정산 계산기</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">테이블별 회식비 정산</div>
                 </div>
             </router-link>
 
-            <router-link to="/password" class="app-card">
-                <div class="card">
-                    <div class="icon">
+            <router-link to="/password" class="no-underline text-inherit">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <PasswordIcon />
                     </div>
-                    <div class="card-title">강력한 비밀번호 생성기</div>
-                    <div class="card-desc">안전한 비밀번호 생성</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">강력한 비밀번호 생성기</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">안전한 비밀번호 생성</div>
                 </div>
             </router-link>
 
-            <router-link to="/surveys" class="app-card">
-                <div class="card">
-                    <div class="icon">
+            <router-link to="/surveys" class="no-underline text-inherit">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <SurveysIcon />
                     </div>
-                    <div class="card-title">검사 모음</div>
-                    <div class="card-desc">각종 검사 모음</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">검사 모음</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">각종 검사 모음</div>
                 </div>
             </router-link>
 
-            <router-link to="/clipboard-img-save" class="app-card">
-                <div class="card">
-                    <div class="icon">
+            <router-link to="/clipboard-img-save" class="no-underline text-inherit">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <ClipboardImgSaveIcon />
                     </div>
-                    <div class="card-title">클립보드 이미지 저장기</div>
-                    <div class="card-desc">클립보드 이미지를 PNG/WEBP로 저장</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">클립보드 이미지 저장기</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">클립보드 이미지를 PNG/WEBP로 저장</div>
                 </div>
             </router-link>
 
-            <router-link to="/pdf-to-png" class="app-card">
-                <div class="card">
-                    <div class="icon">
+            <router-link to="/pdf-to-png" class="no-underline text-inherit">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <PdfToPngIcon />
                     </div>
-                    <div class="card-title">PDF to PNG</div>
-                    <div class="card-desc">PDF를 고화질 PNG 이미지로 변환</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">PDF to PNG</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">PDF를 고화질 PNG 이미지로 변환</div>
                 </div>
             </router-link>
 
-            <router-link to="/todo" class="app-card">
-                <div class="card">
-                    <div class="icon">
+            <router-link to="/todo" class="no-underline text-inherit">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <TodoIcon />
                     </div>
-                    <div class="card-title">할 일 관리</div>
-                    <div class="card-desc">할 일 목록 관리 및 체크리스트 <br/> Fast TODO List </div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">할 일 관리</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">할 일 목록 관리 및 체크리스트 <br/> Fast TODO List </div>
                 </div>
             </router-link>
 
-            <router-link to="/wbs-chart" class="app-card">
-                <div class="card">
-                    <div class="icon">
+            <router-link to="/wbs-chart" class="no-underline text-inherit">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <WBSChartIcon />
                     </div>
-                    <div class="card-title">WBS 차트 편집기</div>
-                    <div class="card-desc">프로젝트 구조를 시각적으로 계획하고 편집하세요.</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">WBS 차트 편집기</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">프로젝트 구조를 시각적으로 계획하고 편집하세요.</div>
                 </div>
             </router-link>
 
-            <router-link to="/typing-game" class="app-card">
-                <div class="card">
-                    <div class="icon">
+            <router-link to="/typing-game" class="no-underline text-inherit">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <TypingGameIcon />
                     </div>
-                    <div class="card-title">타자 게임</div>
-                    <div class="card-desc">한컴 타자 연습 소나기 비슷한거</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">타자 게임</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">한컴 타자 연습 소나기 비슷한거</div>
                 </div>
             </router-link>
 
-            <router-link to="/chatting-app" class="app-card">
-                <div class="card">
-                    <div class="icon">
+            <router-link to="/chatting-app" class="no-underline text-inherit">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <ChattingAppIcon />
                     </div>
-                    <div class="card-title">WebRTC 채팅</div>
-                    <div class="card-desc">QR코드로 연결하는 퀴즈용 P2P 실시간채팅</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">WebRTC 채팅</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">QR코드로 연결하는 퀴즈용 P2P 실시간채팅</div>
                 </div>
             </router-link>
 
-            <router-link to="/web-rtc-video" class="app-card">
-                <div class="card">
-                    <div class="icon">
+            <router-link to="/web-rtc-video" class="no-underline text-inherit">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <WebRTCVideoIcon />
                     </div>
-                    <div class="card-title">WebRTC 비디오</div>
-                    <div class="card-desc">WebRTC 비디오 통화 테스트</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">WebRTC 비디오</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">WebRTC 비디오 통화 테스트</div>
+                </div>
+            </router-link>
+
+            <router-link to="/html-to-md" class="no-underline text-inherit">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
+                        <HTML2MDIcon />
+                    </div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">HTML to MD</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">HTML을 MD로 변환</div>
                 </div>
             </router-link>
         </div>
 
-        <hr />
-        <h3 class="section-title">External Apps</h3>
-        <div class="container">
-            <a href="https://qrscan101.onrender.com/" class="app-card" target="_blank" rel="noopener noreferrer">
-                <div class="card">
-                    <div class="icon">
+        <hr class="w-full max-w-[900px] mx-auto my-8 border-0 border-t border-(--border-color) transition-[border-color] duration-500" />
+        <h3 class="text-center text-2xl font-bold text-(--text-primary) my-8 transition-colors duration-500">
+            External Apps
+        </h3>
+        <div class="max-w-[900px] mx-auto flex flex-wrap gap-8 justify-center pb-8">
+            <a href="https://qrscan101.onrender.com/" class="no-underline text-inherit" target="_blank" rel="noopener noreferrer">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <QRCodeScannerIcon />
                     </div>
-                    <div class="card-title">QR Scanner</div>
-                    <div class="card-desc">QR 코드 스캐너 / 클립보드 qr코드 인식</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">QR Scanner</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">QR 코드 스캐너 / 클립보드 qr코드 인식</div>
                 </div>
             </a>
-            <a href="/test-paper/" class="app-card" target="_blank" rel="noopener noreferrer">
-                <div class="card">
-                    <div class="icon">
+            <a href="/test-paper/" class="no-underline text-inherit" target="_blank" rel="noopener noreferrer">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <ExamPaperIcon />
                     </div>
-                    <div class="card-title">Exam Master</div>
-                    <div class="card-desc">시험 응시 및 채점 도우미</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">Exam Master</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">시험 응시 및 채점 도우미</div>
                 </div>
             </a>
-            <a href="/s3haim" class="app-card" target="_blank" rel="noopener noreferrer">
-                <div class="card">
-                    <div class="icon">
+            <a href="/s3haim" class="no-underline text-inherit" target="_blank" rel="noopener noreferrer">
+                <div class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
                         <S3HaimIcon />
                     </div>
-                    <div class="card-title">S3 Haim</div>
-                    <div class="card-desc">S3 활용 Note Taking App</div>
+                    <div class="text-xl font-medium text-center mb-1.5 break-keep">S3 Haim</div>
+                    <div class="text-[0.95rem] text-(--text-secondary) text-center break-keep transition-colors duration-500">S3 활용 Note Taking App</div>
                 </div>
             </a>
         </div>
@@ -182,7 +200,6 @@
 
 <script setup>
 import { onMounted, onUnmounted } from 'vue';
-import DownloadIcon from '@/components/icons/DownloadIcon.vue';
 import ArchGraphicIcon from '@/components/icons/ArchGraphicIcon.vue';
 import DijkstraIcon from '@/components/icons/DijkstraIcon.vue';
 import UnnamedIcon from '@/components/icons/UnnamedIcon.vue';
@@ -199,10 +216,11 @@ import WebRTCVideoIcon from '@/components/icons/WebRTCVideoIcon.vue';
 import QRCodeScannerIcon from '@/components/icons/QrCodeScannerIcon.vue';
 import ExamPaperIcon from '@/components/icons/ExamPaperIcon.vue';
 import S3HaimIcon from '@/components/icons/S3HaimIcon.vue';
+import HTML2MDIcon from '@/components/icons/HTML2MDIcon.vue';
 
 let deferredPrompt = null;
-const pwaInstallContainer = document.getElementById('pwa-install-container');
-const pwaInstallBtn = document.getElementById('pwa-install-btn');
+let pwaInstallContainer = null;
+let pwaInstallBtn = null;
 
 const handleInstallClick = async () => {
     if (deferredPrompt) {
@@ -210,7 +228,7 @@ const handleInstallClick = async () => {
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
             console.log('PWA 설치가 수락되었습니다.');
-            pwaInstallContainer.style.display = 'none';
+            if (pwaInstallContainer) pwaInstallContainer.style.display = 'none';
         } else {
             console.log('PWA 설치가 거부되었습니다.');
         }
@@ -219,6 +237,9 @@ const handleInstallClick = async () => {
 };
 
 onMounted(() => {
+    pwaInstallContainer = document.getElementById('pwa-install-container');
+    pwaInstallBtn = document.getElementById('pwa-install-btn');
+
     // Service Worker 등록 해제
     if ('serviceWorker' in navigator && false) {
         navigator.serviceWorker
@@ -272,7 +293,6 @@ onMounted(() => {
     window.addEventListener('beforeinstallprompt', beforeInstallHandler);
     window.addEventListener('appinstalled', installedHandler);
 
-    // Cleanup
     onUnmounted(() => {
         window.removeEventListener('beforeinstallprompt', beforeInstallHandler);
         window.removeEventListener('appinstalled', installedHandler);
@@ -280,143 +300,3 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.home-page {
-    background-color: var(--background);
-    font-family: 'Roboto', 'Noto Sans KR', Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    min-height: 100dvh;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
-}
-
-.pwa-install-wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0 auto 20px auto;
-    max-width: 900px;
-    width: 100%;
-}
-
-.pwa-install-button {
-    background: #1976d2;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
-    transition: all 0.2s ease;
-}
-
-.pwa-install-button:hover {
-    background: #1565c0;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
-}
-
-.pwa-install-button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
-}
-
-.main-title {
-    text-align: center;
-    font-family: 'Roboto', 'Noto Sans KR', Arial, sans-serif;
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0 0 32px 0;
-    transition: color 500ms ease-in-out;
-}
-
-.section-title {
-    text-align: center;
-    font-family: 'Roboto', 'Noto Sans KR', Arial, sans-serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 32px 0;
-    transition: color 500ms ease-in-out;
-}
-
-.container {
-    max-width: 900px;
-    margin: 0 auto;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 32px;
-    justify-content: center;
-}
-
-.app-card {
-    text-decoration: none;
-    color: inherit;
-}
-
-.card {
-    background-color: var(--surface);
-    border-radius: 16px;
-    box-shadow: 0 2px 8px var(--shadow-color), 0 1.5px 4px var(--shadow-color);
-    width: 200px;
-    height: 220px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: box-shadow 0.2s, transform 0.2s, background-color 500ms ease-in-out;
-    cursor: pointer;
-    position: relative;
-}
-
-.card:hover {
-    box-shadow: 0 6px 24px rgba(60, 60, 60, 0.16), 0 3px 8px rgba(60, 60, 60, 0.1);
-    transform: translateY(-4px) scale(1.03);
-}
-
-.icon {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.card-title {
-    font-size: 1.2rem;
-    font-weight: 500;
-    text-align: center;
-    margin-bottom: 6px;
-    word-break: keep-all !important;
-}
-
-.card-desc {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-    text-align: center;
-    word-break: keep-all !important;
-    transition: color 500ms ease-in-out;
-}
-
-hr {
-    width: 100%;
-    max-width: 900px;
-    margin: 32px auto;
-    border: none;
-    border-top: 1px solid var(--border-color);
-    transition: border-color 500ms ease-in-out;
-}
-</style>
