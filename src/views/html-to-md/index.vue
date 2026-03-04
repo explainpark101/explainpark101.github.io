@@ -103,8 +103,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onBeforeUnmount } from 'vue';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
 const STORAGE_KEY = 'html-to-md-input';
 const DEFAULT_INPUT =
   '<h1>Vue 3 변환기</h1>\n<p>HTML을 마크다운으로 <strong>쉽게</strong> 바꿔보세요.</p>\n<table>\n  <thead>\n    <tr><th>기능</th><th>상태</th></tr>\n  </thead>\n  <tbody>\n    <tr><td>Table 지원</td><td>✅ 완료</td></tr>\n    <tr><td>Vue 3 사용</td><td>✅ 완료</td></tr>\n  </tbody>\n</table>';
@@ -118,7 +120,53 @@ function loadFromStorage() {
   }
 }
 
-const htmlInput = ref(loadFromStorage());
+function getHtmlFromQuery() {
+  const queryHtml = route.query.html;
+  if (queryHtml && typeof queryHtml === 'string') {
+    try {
+      return decodeURIComponent(queryHtml);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+function getHtmlFromHash() {
+  const hash = window.location.hash;
+  if (!hash) return null;
+  const match = hash.match(/^#html=(.+)$/);
+  if (!match) return null;
+  const value = match[1];
+
+  // Try URL decode first
+  try {
+    const decoded = decodeURIComponent(value);
+    if (decoded) return decoded;
+  } catch {
+    // ignore
+  }
+
+  // Try base64 (for longer content)
+  try {
+    const decoded = atob(value.replace(/-/g, '+').replace(/_/g, '/'));
+    if (decoded) return decoded;
+  } catch {
+    // ignore
+  }
+
+  return null;
+}
+
+function getHtmlFromUrl() {
+  return getHtmlFromQuery() ?? getHtmlFromHash();
+}
+
+function getInitialHtml() {
+  return getHtmlFromUrl() ?? loadFromStorage();
+}
+
+const htmlInput = ref(getInitialHtml());
 const showToast = ref(false);
 
 watch(
@@ -132,6 +180,49 @@ watch(
   },
   { deep: true }
 );
+
+watch(
+  () => route.query.html,
+  () => {
+    const decoded = getHtmlFromUrl();
+    if (decoded !== null) {
+      htmlInput.value = decoded;
+    }
+  }
+);
+
+const POST_MESSAGE_TYPE = 'html-to-md';
+
+function handlePostMessage(event) {
+  const data = event?.data;
+  if (!data || typeof data !== 'object') return;
+
+  const html =
+    (data.type === POST_MESSAGE_TYPE && typeof data.html === 'string' && data.html) ||
+    (typeof data.html === 'string' && data.html);
+
+  if (html) {
+    htmlInput.value = html;
+  }
+}
+
+function applyHtmlFromUrl() {
+  const decoded = getHtmlFromUrl();
+  if (decoded !== null) {
+    htmlInput.value = decoded;
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('hashchange', applyHtmlFromUrl);
+  window.addEventListener('message', handlePostMessage);
+}
+onBeforeUnmount(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('hashchange', applyHtmlFromUrl);
+    window.removeEventListener('message', handlePostMessage);
+  }
+});
 
 function processTable(tableNode) {
   const rows = Array.from(tableNode.querySelectorAll('tr'));
