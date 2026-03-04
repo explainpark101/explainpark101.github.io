@@ -1,63 +1,60 @@
 <template>
-  <div class="arch-graphic-app" :data-theme="theme">
+  <div class="font-[Roboto] box-border m-0 bg-[var(--background)] text-[var(--text-primary)] leading-relaxed transition-colors duration-500 min-h-screen p-5" :data-theme="theme">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-    <nav style="background-color: transparent; padding: 1rem; margin-bottom: 2rem;">
-      <div style="max-width: 1200px; margin: 0 auto;">
-        <router-link to="/"
-          style="color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 1.2rem; font-weight: 500;">
-          <span class="material-icons" style="font-size: 1.5rem;">home</span>
+    <nav class="bg-transparent p-4 mb-8 flex justify-between items-center">
+      <div class="max-w-[1200px] mx-auto flex-1">
+        <router-link to="/" class="text-[var(--text-primary)] no-underline inline-flex items-center gap-2 text-xl font-medium">
+          <span class="material-icons text-2xl">home</span>
         </router-link>
-        <router-link to="/arch-graphic/endterm"
-          style="color: var(--primary-color); text-decoration: none; margin-left: 1.5rem; font-size: 1.1rem; font-weight: 400;">기말고사</router-link>
+        <router-link to="/arch-graphic/endterm" class="text-[var(--primary-color)] no-underline ml-6 text-lg font-normal">기말고사</router-link>
       </div>
+      <button type="button" class="py-2 px-4 rounded-lg border border-[var(--border-color)] bg-[var(--surface)] text-[var(--text-primary)] transition-colors duration-300 hover:bg-[var(--background)]" @click="showSettings = true">설정</button>
     </nav>
 
-    <button class="settings-button" @click="showSettings = true">설정</button>
-
-    <dialog ref="settingsDialog" class="settings-dialog">
-      <div class="settings-content">
-        <h3 class="settings-title">설정</h3>
-        <div class="theme-switch">
-          <input type="checkbox" id="themeSwitch" v-model="isDarkMode" @change="toggleTheme">
-          <label for="themeSwitch">다크 모드</label>
+    <dialog ref="settingsDialog" class="arch-dialog border-none rounded-lg p-0 max-w-md w-[90%] bg-[var(--surface)] shadow-lg fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 [&::backdrop]:bg-[var(--overlay-color)] [&::backdrop]:backdrop-blur-sm">
+      <div class="p-6">
+        <h3 class="m-0 mb-4 text-[var(--primary-color)] text-lg font-medium">설정</h3>
+        <div class="flex items-center gap-3 mb-2">
+          <input type="checkbox" id="themeSwitch" v-model="isDarkMode" @change="toggleTheme" class="w-5 h-5 accent-[var(--primary-color)]">
+          <label for="themeSwitch" class="cursor-pointer text-[var(--text-primary)]">다크 모드</label>
         </div>
-        <div class="dialog-buttons">
-          <button class="secondary" @click="showSettings = false">닫기</button>
+        <div class="flex justify-end gap-2 mt-4">
+          <button type="button" class="py-2 px-4 rounded border border-[var(--border-color)] bg-transparent text-[var(--text-secondary)] text-sm font-medium cursor-pointer transition-colors duration-300 hover:bg-[var(--background)]" @click="showSettings = false">닫기</button>
         </div>
       </div>
     </dialog>
 
-    <div class="progress-box">
-      <h3>진행 상황</h3>
-      <div class="progress-bar">
-        <div class="progress-fill" :style="{ width: progress + '%' }"></div>
+    <div class="fixed top-5 right-5 z-[1000] bg-[var(--surface)] p-4 rounded-lg shadow min-w-[200px] transition-all duration-500">
+      <h3 class="text-[var(--primary-color)] mb-2 text-lg font-medium">진행 상황</h3>
+      <div class="w-full h-2 bg-[var(--border-color)] rounded overflow-hidden my-2">
+        <div class="h-full bg-[var(--primary-color)] transition-all duration-300" :style="{ width: progress + '%' }"></div>
       </div>
-      <div class="progress-stats">
+      <div class="flex justify-between text-sm text-[var(--text-secondary)]">
         <span>{{ Math.round(progress) }}%</span>
         <span>정답률: {{ Math.round(accuracy) }}%</span>
       </div>
     </div>
 
-    <div class="container">
-      <h1>중간고사: Graphical Communications in Construction</h1>
-      <p class="subtitle">범위: A ~ H 약어</p>
+    <div class="max-w-[1200px] mx-auto bg-[var(--surface)] p-8 rounded-lg shadow transition-all duration-500 relative">
+      <h1 class="text-2xl font-bold text-[var(--text-primary)] mb-2">중간고사: Graphical Communications in Construction</h1>
+      <p class="text-[var(--text-secondary)] mb-6">범위: A ~ H 약어</p>
 
       <form @submit.prevent="gradeAll">
-        <div id="questions" class="questions-container">
+        <div id="questions" class="flex flex-col gap-4">
           <QuestionItem v-for="question in questions" :key="question.abbr"
             :ref="(el) => setQuestionRef(question.abbr, el)" :question="question" @focus="handleQuestionFocus"
             @blur="handleQuestionBlur" @input="handleQuestionInput" @grade="handleQuestionGrade"
             @enter-correct="handleEnterCorrect" />
         </div>
-        <div class="button-group">
-          <button type="button" @click="handleReset">리셋</button>
-          <button type="button" class="danger" @click="handleHardReset">하드 리셋</button>
-          <button type="submit">제출</button>
+        <div class="flex gap-4 justify-center mt-8">
+          <button type="button" class="py-2.5 px-5 rounded-lg border-none cursor-pointer font-medium text-[var(--surface)] bg-[var(--primary-color)] transition-colors duration-300 hover:bg-[var(--primary-dark)]" @click="handleReset">리셋</button>
+          <button type="button" class="py-2.5 px-5 rounded-lg border-none cursor-pointer font-medium text-white bg-red-600 transition-colors duration-300 hover:bg-red-700" @click="handleHardReset">하드 리셋</button>
+          <button type="submit" class="py-2.5 px-5 rounded-lg border-none cursor-pointer font-medium text-[var(--surface)] bg-[var(--primary-color)] transition-colors duration-300 hover:bg-[var(--primary-dark)]">제출</button>
         </div>
       </form>
 
-      <div id="score" ref="scoreElement">{{ scoreText }}</div>
+      <div id="score" ref="scoreElement" class="mt-6 p-4 rounded-lg text-center text-[var(--text-primary)] font-medium">{{ scoreText }}</div>
     </div>
   </div>
 </template>
@@ -622,387 +619,3 @@ onUnmounted(() => {
   window.removeEventListener('beforeunload', saveState);
 });
 </script>
-
-<style scoped>
-:root {
-  --primary-color: #1976d2;
-  --primary-light: #42a5f5;
-  --primary-dark: #1565c0;
-  --text-primary: #212121;
-  --text-secondary: #757575;
-  --background: #f5f5f5;
-  --surface: #ffffff;
-  --error: #d32f2f;
-  --success: #388e3c;
-  --border-color: #e0e0e0;
-  --shadow-color: rgba(0, 0, 0, 0.1);
-  --overlay-color: rgba(0, 0, 0, 0.5);
-  transition: background-color 500ms ease-in-out, color 500ms ease-in-out, border-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
-}
-
-/* 다크모드 기본 설정 (브라우저 설정) */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary-color: #90caf9;
-    --primary-light: #42a5f5;
-    --primary-dark: #1565c0;
-    --text-primary: #ffffff;
-    --text-secondary: #b0bec5;
-    --background: #121212;
-    --surface: #1e1e1e;
-    --error: #ef5350;
-    --success: #66bb6a;
-    --border-color: #424242;
-    --shadow-color: rgba(0, 0, 0, 0.3);
-    --overlay-color: rgba(0, 0, 0, 0.7);
-  }
-}
-
-/* 사용자 설정 - 라이트 모드 */
-[data-theme="light"] {
-  --primary-color: #1976d2;
-  --primary-light: #42a5f5;
-  --primary-dark: #1565c0;
-  --text-primary: #212121;
-  --text-secondary: #757575;
-  --background: #f5f5f5;
-  --surface: #ffffff;
-  --error: #d32f2f;
-  --success: #388e3c;
-  --border-color: #e0e0e0;
-  --shadow-color: rgba(0, 0, 0, 0.1);
-  --overlay-color: rgba(0, 0, 0, 0.5);
-}
-
-/* 사용자 설정 - 다크 모드 */
-[data-theme="dark"] {
-  --primary-color: #90caf9;
-  --primary-light: #42a5f5;
-  --primary-dark: #1565c0;
-  --text-primary: #ffffff;
-  --text-secondary: #b0bec5;
-  --background: #121212;
-  --surface: #1e1e1e;
-  --error: #ef5350;
-  --success: #66bb6a;
-  --border-color: #424242;
-  --shadow-color: rgba(0, 0, 0, 0.3);
-  --overlay-color: rgba(0, 0, 0, 0.7);
-}
-
-[data-theme="dark"] .question input {
-  background-color: #2d2d2d;
-  color: var(--text-primary);
-}
-
-[data-theme="dark"] .question input:focus {
-  background-color: #333333;
-}
-
-/* 브라우저 기본 다크모드 설정 */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .question input {
-    background-color: #2d2d2d;
-    color: var(--text-primary);
-  }
-
-  :root:not([data-theme]) .question input:focus {
-    background-color: #333333;
-  }
-}
-
-.arch-graphic-app {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  transition: background-color 500ms ease-in-out, color 500ms ease-in-out, border-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
-}
-
-.arch-graphic-app * {
-  box-sizing: border-box;
-  transition: background-color 500ms ease-in-out, color 500ms ease-in-out, border-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
-}
-
-.arch-graphic-app {
-  font-family: 'Roboto', sans-serif;
-  background-color: var(--background);
-  color: var(--text-primary);
-  line-height: 1.6;
-  padding: 20px;
-  transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
-  min-height: 100vh;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  background-color: var(--surface);
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px var(--shadow-color);
-  position: relative;
-  transition: background-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
-}
-
-.progress-box {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background-color: var(--surface);
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px var(--shadow-color);
-  z-index: 1000;
-  min-width: 200px;
-  transition: background-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
-}
-
-.progress-box h3 {
-  color: var(--primary-color);
-  margin-bottom: 0.5rem;
-  font-size: 1.1rem;
-  transition: color 500ms ease-in-out;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 8px;
-  background-color: var(--border-color);
-  border-radius: 4px;
-  margin: 0.5rem 0;
-  overflow: hidden;
-  transition: background-color 500ms ease-in-out;
-}
-
-.progress-fill {
-  height: 100%;
-  background-color: var(--primary-color);
-  transition: width 0.3s ease, background-color 500ms ease-in-out;
-}
-
-.progress-stats {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  transition: color 500ms ease-in-out;
-}
-
-.button-group {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 2rem;
-}
-
-button {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 500ms ease-in-out;
-}
-
-button:hover {
-  background-color: var(--primary-dark);
-}
-
-button.secondary {
-  background-color: var(--text-secondary);
-}
-
-button.secondary:hover {
-  background-color: var(--text-primary);
-}
-
-button.danger {
-  background-color: var(--error);
-}
-
-button.danger:hover {
-  background-color: #b71c1c;
-}
-
-h1 {
-  text-align: center;
-  color: var(--primary-color);
-  margin-bottom: 1.5rem;
-  font-weight: 500;
-  transition: color 500ms ease-in-out;
-}
-
-.subtitle {
-  text-align: center;
-  color: var(--text-secondary);
-  margin-bottom: 2rem;
-  transition: color 500ms ease-in-out;
-}
-
-.questions-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-#score {
-  text-align: center;
-  font-size: 1.2rem;
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background-color: var(--surface);
-  border-radius: 4px;
-  box-shadow: 0 1px 3px var(--shadow-color);
-  transition: background-color 500ms ease-in-out, box-shadow 500ms ease-in-out;
-}
-
-@keyframes dialogSlideIn {
-  from {
-    transform: translateY(-100px);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes backdropFadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-dialog {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: var(--surface);
-  border: none;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px var(--shadow-color);
-  min-width: 300px;
-  animation: dialogSlideIn 0.3s ease-out;
-}
-
-dialog::backdrop {
-  background-color: var(--overlay-color);
-  animation: backdropFadeIn 0.3s ease-out;
-}
-
-.settings-button {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background-color: transparent;
-  color: var(--text-primary);
-  border: none;
-  padding: 0.5rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background-color 500ms ease-in-out, color 500ms ease-in-out;
-  z-index: 1001;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.settings-button:hover {
-  background-color: var(--shadow-color);
-}
-
-.settings-button::before {
-  content: '⚙️';
-  font-size: 1.2rem;
-}
-
-.settings-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.settings-title {
-  margin: 0 0 1rem 0;
-  color: var(--text-primary);
-  font-size: 1.2rem;
-  font-weight: 500;
-}
-
-.theme-switch {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.theme-switch label {
-  color: var(--text-primary);
-  font-size: 1rem;
-}
-
-.theme-switch input[type="checkbox"] {
-  width: 40px;
-  height: 20px;
-  appearance: none;
-  background-color: var(--border-color);
-  border-radius: 10px;
-  position: relative;
-  cursor: pointer;
-  transition: background-color 500ms ease-in-out;
-}
-
-.theme-switch input[type="checkbox"]:checked {
-  background-color: var(--primary-color);
-}
-
-.theme-switch input[type="checkbox"]::before {
-  content: '';
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background-color: white;
-  top: 2px;
-  left: 2px;
-  transition: transform 500ms ease-in-out;
-}
-
-.theme-switch input[type="checkbox"]:checked::before {
-  transform: translateX(20px);
-}
-
-.dialog-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.dialog-buttons button {
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-}
-
-.dialog-buttons button.secondary {
-  background-color: var(--text-secondary);
-}
-
-.dialog-buttons button.secondary:hover {
-  background-color: var(--text-primary);
-}
-
-button[type=button] {
-  padding: 0.75rem 1.5rem;
-}
-</style>
