@@ -114,7 +114,7 @@ import S3VideoRecorderIcon from '../components/icons/S3VideoRecorderIcon.vue';
 const internalAppItems = [
     { to: '/arch-graphic', icon: ArchGraphicIcon, title: '건설 그래픽 커뮤니케이션', description: '건설 그래픽 커뮤니케이션 단어 외우기' },
     { to: '/dijkstra', icon: DijkstraIcon, title: '다익스트라 알고리즘', description: '다익스트라 알고리즘 테스트' },
-    { to: '/imgs/unnamed', icon: UnnamedIcon, title: '마작부장 강의장면 만들기', description: '합성짤 만들기' },
+    // { to: '/imgs/unnamed', icon: UnnamedIcon, title: '마작부장 강의장면 만들기', description: '합성짤 만들기' },
     { to: '/jungsan', icon: JungsanIcon, title: '회식 정산 계산기', description: '테이블별 회식비 정산' },
     { to: '/password', icon: PasswordIcon, title: '강력한 비밀번호 생성기', description: '안전한 비밀번호 생성' },
     { to: '/surveys', icon: SurveysIcon, title: '검사 모음', description: '각종 검사 모음' },
@@ -122,7 +122,7 @@ const internalAppItems = [
     { to: '/pdf-to-png', icon: PdfToPngIcon, title: 'PDF to PNG', description: 'PDF를 고화질 PNG 이미지로 변환' },
     { to: '/todo', icon: TodoIcon, title: '할 일 관리', description: '할 일 목록 관리 및 체크리스트 <br/> Fast TODO List' },
     { to: '/wbs-chart', icon: WBSChartIcon, title: 'WBS 차트 편집기', description: '프로젝트 구조를 시각적으로 계획하고 편집하세요.' },
-    { to: '/typing-game', icon: TypingGameIcon, title: '타자 게임', description: '한컴 타자 연습 소나기 비슷한거' },
+    // { to: '/typing-game', icon: TypingGameIcon, title: '타자 게임', description: '한컴 타자 연습 소나기 비슷한거' },
     { to: '/chatting-app', icon: ChattingAppIcon, title: 'WebRTC 채팅', description: 'QR코드로 연결하는 퀴즈용 P2P 실시간채팅' },
     { to: '/web-rtc-video', icon: WebRTCVideoIcon, title: 'WebRTC 비디오', description: 'WebRTC 비디오 통화 테스트' },
     { to: '/html-to-md', icon: HTML2MDIcon, title: 'HTML to MD', description: 'HTML을 MD로 변환' },
