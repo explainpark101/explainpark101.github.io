@@ -132,7 +132,7 @@ const externalAppItems = [
     { href: 'https://qrscan101.onrender.com/', icon: QRCodeScannerIcon, title: 'QR Scanner', description: 'QR 코드 스캐너 / 클립보드 qr코드 인식' },
     { href: '/test-paper/', icon: ExamPaperIcon, title: 'Exam Master', description: '시험 응시 및 채점 도우미' },
     { href: '/s3haim', icon: S3HaimIcon, title: 'S3 Haim', description: 'S3 활용 Note Taking App' },
-    { href: '/s3-video-recorder', icon: S3VideoRecorderIcon, title: 'S3 Video Recorder', description: 'S3 활용 Video Recorder App' },
+    // { href: '/s3-video-recorder', icon: S3VideoRecorderIcon, title: 'S3 Video Recorder', description: 'S3 활용 Video Recorder App' },
 ];
 
 let deferredPrompt = null;
