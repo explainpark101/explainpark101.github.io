@@ -133,22 +133,115 @@
               <div class="aspect-[3/4] overflow-hidden bg-slate-50 flex items-center justify-center">
                 <img :src="img.url" :alt="'Page ' + img.id" class="w-full h-full object-contain p-2" />
               </div>
-              <div class="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-4 transition-opacity">
+              <div class="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-3 transition-opacity pointer-events-none group-hover:pointer-events-auto">
                 <div class="bg-white/20 backdrop-blur-xl px-4 py-1.5 rounded-full text-white font-bold text-sm">Page {{ img.id }}</div>
-                <button
-                  @click="downloadSingle(img.url, img.name)"
-                  class="flex items-center gap-2 bg-white text-indigo-600 py-2.5 px-6 rounded-xl font-bold border-none cursor-pointer shadow-lg transition-all hover:bg-indigo-50 active:scale-[0.98]"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="7 10 12 15 17 10"/>
-                    <line x1="12" y1="15" x2="12" y2="3"/>
-                  </svg>
-                  다운로드
-                </button>
+                <div class="flex flex-col gap-2 w-[min(100%,220px)] px-2">
+                  <button
+                    type="button"
+                    @click.stop="downloadSingle(img.url, img.name)"
+                    class="flex items-center justify-center gap-2 bg-white text-indigo-600 py-2 px-4 rounded-xl font-bold border-none cursor-pointer shadow-lg transition-all hover:bg-indigo-50 active:scale-[0.98] text-sm"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    다운로드
+                  </button>
+                  <button
+                    type="button"
+                    @click.stop="copyImageToClipboard(img.url)"
+                    class="flex items-center justify-center gap-2 bg-white/95 text-slate-800 py-2 px-4 rounded-xl font-bold border-none cursor-pointer shadow-lg transition-all hover:bg-white active:scale-[0.98] text-sm"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2"/>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    클립보드에 복사
+                  </button>
+                  <button
+                    type="button"
+                    @click.stop="openPreviewModal(img)"
+                    class="flex items-center justify-center gap-2 bg-white/95 text-slate-800 py-2 px-4 rounded-xl font-bold border-none cursor-pointer shadow-lg transition-all hover:bg-white active:scale-[0.98] text-sm"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"/>
+                      <path d="M21 21l-4.3-4.3"/>
+                      <line x1="11" y1="8" x2="11" y2="14"/>
+                      <line x1="8" y1="11" x2="14" y2="11"/>
+                    </svg>
+                    크게 보기
+                  </button>
+                  <button
+                    type="button"
+                    @click.stop="openPreviewNewTab(img.url)"
+                    class="flex items-center justify-center gap-2 bg-white/95 text-slate-800 py-2 px-4 rounded-xl font-bold border-none cursor-pointer shadow-lg transition-all hover:bg-white active:scale-[0.98] text-sm"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                      <polyline points="15 3 21 3 21 9"/>
+                      <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                    새 탭에서 미리보기
+                  </button>
+                </div>
               </div>
-              <div class="p-4 bg-slate-50/50 border-t border-slate-100 text-center">
-                <p class="text-xs font-medium text-slate-500 m-0 overflow-hidden text-ellipsis whitespace-nowrap px-2">{{ img.name }}</p>
+              <div class="p-3 bg-slate-50/50 border-t border-slate-100">
+                <p class="text-xs font-medium text-slate-500 m-0 mb-2 overflow-hidden text-ellipsis whitespace-nowrap px-1 text-center">{{ img.name }}</p>
+                <div class="flex flex-wrap items-center justify-center gap-1.5">
+                  <button
+                    type="button"
+                    @click="downloadSingle(img.url, img.name)"
+                    class="inline-flex items-center gap-1 rounded-lg bg-indigo-600 text-white text-[11px] font-bold px-2.5 py-1.5 border-none cursor-pointer hover:bg-indigo-700"
+                    title="다운로드"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="7 10 12 15 17 10"/>
+                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    저장
+                  </button>
+                  <button
+                    type="button"
+                    @click="copyImageToClipboard(img.url)"
+                    class="inline-flex items-center gap-1 rounded-lg bg-slate-200 text-slate-800 text-[11px] font-bold px-2.5 py-1.5 border-none cursor-pointer hover:bg-slate-300"
+                    title="클립보드에 복사"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2"/>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    복사
+                  </button>
+                  <button
+                    type="button"
+                    @click="openPreviewModal(img)"
+                    class="inline-flex items-center gap-1 rounded-lg bg-slate-200 text-slate-800 text-[11px] font-bold px-2.5 py-1.5 border-none cursor-pointer hover:bg-slate-300"
+                    title="크게 보기"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"/>
+                      <path d="M21 21l-4.3-4.3"/>
+                      <line x1="11" y1="8" x2="11" y2="14"/>
+                      <line x1="8" y1="11" x2="14" y2="11"/>
+                    </svg>
+                    확대
+                  </button>
+                  <button
+                    type="button"
+                    @click="openPreviewNewTab(img.url)"
+                    class="inline-flex items-center gap-1 rounded-lg bg-slate-200 text-slate-800 text-[11px] font-bold px-2.5 py-1.5 border-none cursor-pointer hover:bg-slate-300"
+                    title="새 탭에서 미리보기"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                      <polyline points="15 3 21 3 21 9"/>
+                      <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                    새 탭
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -161,11 +254,50 @@
     </div>
 
     <canvas ref="canvasRef" class="absolute -left-[9999px] -top-[9999px] pointer-events-none"></canvas>
+
+    <div
+      v-if="copyToast"
+      class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[2100] px-4 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-medium shadow-lg pointer-events-none"
+      role="status"
+    >
+      {{ copyToast }}
+    </div>
+
+    <Teleport to="body">
+      <div
+        v-if="previewModal"
+        class="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm"
+        role="dialog"
+        aria-modal="true"
+        aria-label="이미지 크게 보기"
+        @click.self="closePreviewModal"
+      >
+        <div class="relative max-w-[min(100%,96vw)] max-h-[90vh] flex flex-col items-center gap-4">
+          <button
+            type="button"
+            class="absolute -top-1 right-0 sm:-right-12 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white text-slate-800 border-none shadow-lg cursor-pointer hover:bg-slate-100"
+            aria-label="닫기"
+            @click="closePreviewModal"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+          <img
+            :src="previewModal.url"
+            :alt="previewModal.alt"
+            class="max-w-full max-h-[min(85vh,1200px)] w-auto h-auto object-contain rounded-lg shadow-2xl ring-1 ring-white/10"
+          />
+          <p class="text-sm text-slate-300 m-0 text-center">{{ previewModal.name }}</p>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
@@ -180,6 +312,85 @@ const error = ref(null);
 
 const fileInputRef = ref(null);
 const canvasRef = ref(null);
+
+/** @type {import('vue').Ref<{ url: string; name: string; alt: string } | null>} */
+const previewModal = ref(null);
+const copyToast = ref('');
+let copyToastTimer = null;
+
+function openPreviewModal(img) {
+  previewModal.value = {
+    url: img.url,
+    name: img.name,
+    alt: `Page ${img.id}`,
+  };
+}
+
+function closePreviewModal() {
+  previewModal.value = null;
+}
+
+function onPreviewKeydown(e) {
+  if (e.key === 'Escape') {
+    closePreviewModal();
+  }
+}
+
+watch(previewModal, (v) => {
+  document.body.style.overflow = v ? 'hidden' : '';
+});
+
+onMounted(() => {
+  window.addEventListener('keydown', onPreviewKeydown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onPreviewKeydown);
+  document.body.style.overflow = '';
+  if (copyToastTimer) {
+    clearTimeout(copyToastTimer);
+  }
+});
+
+async function copyImageToClipboard(dataUrl) {
+  try {
+    if (!navigator.clipboard?.write) {
+      showError('이 브라우저에서는 클립보드 복사를 지원하지 않습니다.');
+      return;
+    }
+    const blob = await (await fetch(dataUrl)).blob();
+    const type = blob.type || 'image/png';
+    await navigator.clipboard.write([new ClipboardItem({ [type]: blob })]);
+    copyToast.value = '이미지가 클립보드에 복사되었습니다.';
+    if (copyToastTimer) {
+      clearTimeout(copyToastTimer);
+    }
+    copyToastTimer = setTimeout(() => {
+      copyToast.value = '';
+      copyToastTimer = null;
+    }, 2200);
+  } catch (err) {
+    console.error(err);
+    showError('클립보드에 복사하지 못했습니다. HTTPS 환경인지 확인해 주세요.');
+  }
+}
+
+function openPreviewNewTab(url) {
+  const w = window.open('', '_blank', 'noopener,noreferrer');
+  if (!w) {
+    showError('팝업이 차단되었습니다. 브라우저에서 팝업을 허용해 주세요.');
+    return;
+  }
+  w.document.write(
+    '<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>미리보기</title>',
+  );
+  w.document.write(
+    '<style>body{margin:0;background:#0f172a;color:#e2e8f0;font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:16px;box-sizing:border-box;}img{max-width:100%;max-height:calc(100vh - 32px);width:auto;height:auto;object-fit:contain;border-radius:8px;}</style></head><body>',
+  );
+  w.document.write('<img src="' + url.replace(/"/g, '&quot;') + '" alt="미리보기"/>');
+  w.document.write('</body></html>');
+  w.document.close();
+}
 
 function triggerFileInput() {
   fileInputRef.value?.click();
