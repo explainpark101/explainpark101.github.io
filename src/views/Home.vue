@@ -110,6 +110,7 @@ import ExamPaperIcon from '@/components/icons/ExamPaperIcon.vue';
 import S3HaimIcon from '@/components/icons/S3HaimIcon.vue';
 import HTML2MDIcon from '@/components/icons/HTML2MDIcon.vue';
 import S3VideoRecorderIcon from '../components/icons/S3VideoRecorderIcon.vue';
+import WebDavViewerIcon from '../components/icons/WebDavViewerIcon.vue';
 
 const internalAppItems = [
     { to: '/arch-graphic', icon: ArchGraphicIcon, title: '건설 그래픽 커뮤니케이션', description: '건설 그래픽 커뮤니케이션 단어 외우기' },
@@ -133,6 +134,7 @@ const externalAppItems = [
     { href: '/test-paper/', icon: ExamPaperIcon, title: 'Exam Master', description: '시험 응시 및 채점 도우미' },
     { href: '/s3haim', icon: S3HaimIcon, title: 'S3 Haim', description: 'S3 활용 Note Taking App' },
     // { href: '/s3-video-recorder', icon: S3VideoRecorderIcon, title: 'S3 Video Recorder', description: 'S3 활용 Video Recorder App' },
+    { href: '/webdav-viewer', icon: WebDavViewerIcon, title: 'WebDAV Viewer', description: 'WebDAV Viewer App' },
 ];
 
 let deferredPrompt = null;
