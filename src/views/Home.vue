@@ -109,8 +109,9 @@ import QRCodeScannerIcon from '@/components/icons/QrCodeScannerIcon.vue';
 import ExamPaperIcon from '@/components/icons/ExamPaperIcon.vue';
 import S3HaimIcon from '@/components/icons/S3HaimIcon.vue';
 import HTML2MDIcon from '@/components/icons/HTML2MDIcon.vue';
-import S3VideoRecorderIcon from '../components/icons/S3VideoRecorderIcon.vue';
-import WebDavViewerIcon from '../components/icons/WebDavViewerIcon.vue';
+import S3VideoRecorderIcon from '@/components/icons/S3VideoRecorderIcon.vue';
+import WebDavViewerIcon from '@/components/icons/WebDavViewerIcon.vue';
+import FocusTimerIcon from '@/components/icons/FocusTimerIcon.vue';
 
 const internalAppItems = [
     { to: '/arch-graphic', icon: ArchGraphicIcon, title: '건설 그래픽 커뮤니케이션', description: '건설 그래픽 커뮤니케이션 단어 외우기' },

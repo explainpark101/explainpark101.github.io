@@ -1,6 +1,6 @@
 <template>
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="url(#skyIndigoGradient)"
-        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-32 h-32 shrink-0">
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <defs>
             <!-- sky-400(#38bdf8)에서 indigo-400(#818cf8)으로 이어지는 그라데이션 정의 -->
             <linearGradient id="skyIndigoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
