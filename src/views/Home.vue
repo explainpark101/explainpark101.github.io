@@ -161,29 +161,6 @@ onMounted(() => {
     pwaInstallContainer = document.getElementById('pwa-install-container');
     pwaInstallBtn = document.getElementById('pwa-install-btn');
 
-    // Service Worker 등록 해제
-    if ('serviceWorker' in navigator && false) {
-        navigator.serviceWorker
-            .register('/sw.js')
-            .then((registration) => {
-                console.log('SW registered: ', registration);
-            })
-            .catch((registrationError) => {
-                console.log('SW registration failed: ', registrationError);
-            });
-    }
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-            for (const registration of registrations) {
-                registration.unregister().then((success) => {
-                    if (success) {
-                        console.log('Service Worker unregistered successfully');
-                    }
-                });
-            }
-        });
-    }
-
     // PWA 설치 이벤트 감지
     const beforeInstallHandler = (e) => {
         e.preventDefault();
