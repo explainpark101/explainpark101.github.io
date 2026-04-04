@@ -43,9 +43,14 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,webmanifest,json}'],
         navigateFallback: 'index.html',
+        // Same-origin apps that are not this SPA (SSR or separate deploy): must bypass SPA fallback.
+        // Keep in sync with relative `href` entries in `src/views/Home.vue` → externalAppItems.
         navigateFallbackDenylist: [
           /^\/api\//,
           /\.(?:png|jpg|jpeg|svg|gif|webp|ico|woff2?|js|css|json|webmanifest)(?:\?.*)?$/i,
+          /^\/test-paper(\/|$)/,
+          /^\/s3haim(\/|$)/,
+          /^\/webdav-viewer(\/|$)/,
         ],
       },
     }),
