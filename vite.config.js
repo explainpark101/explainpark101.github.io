@@ -2,7 +2,33 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
-import { resolve } from 'path';
+import { readdirSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { buildPwaNavigateFallbackDenylist } from './src/router/pwaDenylist.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// src/views 아래의 각 디렉터리 index.vue → pathname Set ('/' 포함). (config 번들에 import.meta.glob 없음)
+function collectSpaRoutePathsFromViewsDir(viewsRoot) {
+  const set = new Set(['/']);
+  function walk(currentDir, segments) {
+    const entries = readdirSync(currentDir, { withFileTypes: true });
+    for (const ent of entries) {
+      const full = join(currentDir, ent.name);
+      if (ent.isDirectory()) {
+        walk(full, [...segments, ent.name]);
+      } else if (ent.name === 'index.vue') {
+        const path = segments.length ? `/${segments.join('/')}` : '/';
+        set.add(path.replaceAll('//', '/'));
+      }
+    }
+  }
+  walk(viewsRoot, []);
+  return set;
+}
+
+const spaPathSetForPwa = collectSpaRoutePathsFromViewsDir(resolve(__dirname, 'src/views'));
 
 export default defineConfig({
   plugins: [
@@ -43,15 +69,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,webmanifest,json}'],
         navigateFallback: 'index.html',
-        // Same-origin apps that are not this SPA (SSR or separate deploy): must bypass SPA fallback.
-        // Keep in sync with relative `href` entries in `src/views/Home.vue` → externalAppItems.
-        navigateFallbackDenylist: [
-          /^\/api\//,
-          /\.(?:png|jpg|jpeg|svg|gif|webp|ico|woff2?|js|css|json|webmanifest)(?:\?.*)?$/i,
-          /^\/test-paper(\/|$)/,
-          /^\/s3haim(\/|$)/,
-          /^\/webdav-viewer(\/|$)/,
-        ],
+        // `HOME_APP_LINKS` 중 같은 도메인 상대 경로이면서 이 SPA 라우트가 아닌 경로를 자동 포함
+        navigateFallbackDenylist: buildPwaNavigateFallbackDenylist(spaPathSetForPwa),
       },
     }),
   ],
