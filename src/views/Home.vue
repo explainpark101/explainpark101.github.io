@@ -55,7 +55,7 @@
             </label>
         </div>
         <div class="max-w-[900px] mx-auto flex flex-wrap gap-8 justify-center pb-8">
-            <a v-for="item in externalAppItems" :key="item.href" :href="item.href.startsWith('/') ? `${window.location.origin}${item.href}` : item.href " class="no-underline text-inherit"
+            <a v-for="item in externalAppItems" :key="item.href" :href="resolveExternalHref(item.href)" class="no-underline text-inherit"
                 :target="externalOpenInNewTab ? '_blank' : '_self'"
                 :rel="externalOpenInNewTab ? 'noopener noreferrer' : undefined">
                 <div
@@ -129,6 +129,11 @@ const internalAppItems = [
     { to: '/web-rtc-video', icon: WebRTCVideoIcon, title: 'WebRTC 비디오', description: 'WebRTC 비디오 통화 테스트' },
     { to: '/html-to-md', icon: HTML2MDIcon, title: 'HTML to MD', description: 'HTML을 MD로 변환' },
 ];
+
+function resolveExternalHref(href) {
+    if (!href?.startsWith('/')) return href;
+    return typeof window !== 'undefined' ? `${window.location.origin}${href}` : href;
+}
 
 const externalAppItems = [
     { href: 'https://qrscan101.onrender.com/', icon: QRCodeScannerIcon, title: 'QR Scanner', description: 'QR 코드 스캐너 / 클립보드 qr코드 인식' },
