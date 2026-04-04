@@ -55,7 +55,7 @@
             </label>
         </div>
         <div class="max-w-[900px] mx-auto flex flex-wrap gap-8 justify-center pb-8">
-            <a v-for="item in externalAppItems" :key="item.href" :href="item.href" class="no-underline text-inherit"
+            <a v-for="item in externalAppItems" :key="item.href" :href="item.href.startsWith('/') ? `${window.location.origin}${item.href}` : item.href " class="no-underline text-inherit"
                 :target="externalOpenInNewTab ? '_blank' : '_self'"
                 :rel="externalOpenInNewTab ? 'noopener noreferrer' : undefined">
                 <div
