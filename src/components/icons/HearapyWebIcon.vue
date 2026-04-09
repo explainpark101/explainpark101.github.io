@@ -1,0 +1,32 @@
+<template>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- 정현파(Sine Wave)에 적용될 푸른색 그라데이션 -->
+    <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" /> <!-- Tailwind: blue-500 -->
+      <stop offset="100%" stop-color="#4f46e5" /> <!-- Tailwind: indigo-600 -->
+    </linearGradient>
+    
+    <!-- 아이콘에 입체감을 더해줄 부드러운 그림자 효과 -->
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#3b82f6" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- 다크 모드 배경 (Tailwind: slate-950) 및 둥근 모서리 적용 -->
+  <rect width="512" height="512" rx="112" fill="#020617" />
+  
+  <!-- 배경에 은은하게 퍼지는 빛 효과 -->
+  <rect width="512" height="512" rx="112" fill="#3b82f6" fill-opacity="0.05" />
+
+  <!-- 100Hz 순음을 상징하는 1주기 정현파 (Sine wave) 패스 -->
+  <path 
+    d="M 100 256 Q 178 0 256 256 T 412 256" 
+    fill="none" 
+    stroke="url(#waveGradient)" 
+    stroke-width="52" 
+    stroke-linecap="round"
+    filter="url(#dropShadow)"
+  />
+</svg>
+</template>

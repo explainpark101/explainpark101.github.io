@@ -81,23 +81,6 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { HOME_APP_LINKS } from '@/data/homeAppLinks.js';
-import ArchGraphicIcon from '@/components/icons/ArchGraphicIcon.vue';
-import DijkstraIcon from '@/components/icons/DijkstraIcon.vue';
-import JungsanIcon from '@/components/icons/JungsanIcon.vue';
-import PasswordIcon from '@/components/icons/PasswordIcon.vue';
-import SurveysIcon from '@/components/icons/SurveysIcon.vue';
-import ClipboardImgSaveIcon from '@/components/icons/ClipboardImgSaveIcon.vue';
-import PdfToPngIcon from '@/components/icons/PdfToPngIcon.vue';
-import TodoIcon from '@/components/icons/TodoIcon.vue';
-import WBSChartIcon from '@/components/icons/WBSChartIcon.vue';
-import ChattingAppIcon from '@/components/icons/ChattingAppIcon.vue';
-import WebRTCVideoIcon from '@/components/icons/WebRTCVideoIcon.vue';
-import QRCodeScannerIcon from '@/components/icons/QrCodeScannerIcon.vue';
-import ExamPaperIcon from '@/components/icons/ExamPaperIcon.vue';
-import S3HaimIcon from '@/components/icons/S3HaimIcon.vue';
-import HTML2MDIcon from '@/components/icons/HTML2MDIcon.vue';
-import WebDavViewerIcon from '@/components/icons/WebDavViewerIcon.vue';
-import FocusTimerIcon from '@/components/icons/FocusTimerIcon.vue';
 
 const EXTERNAL_OPEN_NEW_TAB_KEY = 'home-external-open-new-tab';
 
@@ -116,26 +99,6 @@ function setExternalOpenInNewTab(value) {
     } catch (_) { }
 }
 
-const iconMap = {
-    archGraphic: ArchGraphicIcon,
-    dijkstra: DijkstraIcon,
-    jungsan: JungsanIcon,
-    password: PasswordIcon,
-    surveys: SurveysIcon,
-    clipboardImgSave: ClipboardImgSaveIcon,
-    pdfToPng: PdfToPngIcon,
-    todo: TodoIcon,
-    wbsChart: WBSChartIcon,
-    chattingApp: ChattingAppIcon,
-    webRtcVideo: WebRTCVideoIcon,
-    htmlToMd: HTML2MDIcon,
-    qrScanner: QRCodeScannerIcon,
-    examPaper: ExamPaperIcon,
-    s3haim: S3HaimIcon,
-    webdavViewer: WebDavViewerIcon,
-    focusTimer: FocusTimerIcon,
-};
-
 const router = useRouter();
 
 function isSpaHref(href) {
@@ -146,7 +109,6 @@ function isSpaHref(href) {
 const appItems = computed(() =>
     HOME_APP_LINKS.map((item) => ({
         ...item,
-        icon: iconMap[item.iconKey],
         isSpa: isSpaHref(item.href),
     })),
 );

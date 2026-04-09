@@ -5,7 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildPwaNavigateFallbackDenylist } from './src/router/pwaDenylist.js';
+import { buildPwaNavigateFallbackAllowlist } from './src/router/pwaAllowlist.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -69,8 +69,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,webmanifest,json}'],
         navigateFallback: 'index.html',
-        // `HOME_APP_LINKS` 중 같은 도메인 상대 경로이면서 이 SPA 라우트가 아닌 경로를 자동 포함
-        navigateFallbackDenylist: buildPwaNavigateFallbackDenylist(spaPathSetForPwa),
+        // SPA 라우트 경로에 대해서만 navigateFallback이 적용되도록 합니다.
+        navigateFallbackAllowlist: buildPwaNavigateFallbackAllowlist(spaPathSetForPwa),
       },
     }),
   ],
