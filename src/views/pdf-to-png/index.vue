@@ -289,7 +289,46 @@
             :alt="previewModal.alt"
             class="max-w-full max-h-[min(85vh,1200px)] w-auto h-auto object-contain rounded-lg shadow-2xl ring-1 ring-white/10"
           />
-          <p class="text-sm text-slate-300 m-0 text-center">{{ previewModal.name }}</p>
+          <p class="text-sm text-slate-300 m-0 text-center">
+            {{ previewModal.name }} ({{ previewModal.id }} / {{ previewTotalPages }})
+          </p>
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 rounded-lg bg-white/95 text-slate-800 text-sm font-bold px-3 py-2 border-none cursor-pointer hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="!canGoPrevPage"
+              aria-label="이전 페이지 (←)"
+              @click="goToPreviousPage"
+            >
+              <- 이전
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 rounded-lg bg-white/95 text-slate-800 text-sm font-bold px-3 py-2 border-none cursor-pointer hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="!canGoNextPage"
+              aria-label="다음 페이지 (→)"
+              @click="goToNextPage"
+            >
+              다음 ->
+            </button>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 text-white text-sm font-bold px-3 py-2 border-none cursor-pointer hover:bg-indigo-700"
+              @click="downloadSingle(previewModal.url, previewModal.name)"
+            >
+              이미지 저장
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 rounded-lg bg-white/95 text-slate-800 text-sm font-bold px-3 py-2 border-none cursor-pointer hover:bg-white"
+              @click="copyImageToClipboard(previewModal.url)"
+            >
+              클립보드에 복사
+            </button>
+          </div>
+          <p class="text-xs text-slate-400 m-0 text-center">키보드 단축키: ← / →</p>
         </div>
       </div>
     </Teleport>
@@ -297,7 +336,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
@@ -313,26 +352,70 @@ const error = ref(null);
 const fileInputRef = ref(null);
 const canvasRef = ref(null);
 
-/** @type {import('vue').Ref<{ url: string; name: string; alt: string } | null>} */
+/** @type {import('vue').Ref<{ id: number; url: string; name: string; alt: string } | null>} */
 const previewModal = ref(null);
+const previewIndex = ref(-1);
 const copyToast = ref('');
 let copyToastTimer = null;
 
-function openPreviewModal(img) {
+const previewTotalPages = computed(() => convertedImages.value.length);
+const canGoPrevPage = computed(() => previewIndex.value > 0);
+const canGoNextPage = computed(() => previewIndex.value < convertedImages.value.length - 1);
+
+function setPreviewModalByIndex(index) {
+  const target = convertedImages.value[index];
+  if (!target) {
+    return;
+  }
+  previewIndex.value = index;
   previewModal.value = {
-    url: img.url,
-    name: img.name,
-    alt: `Page ${img.id}`,
+    id: target.id,
+    url: target.url,
+    name: target.name,
+    alt: `Page ${target.id}`,
   };
+}
+
+function openPreviewModal(img) {
+  const index = convertedImages.value.findIndex((item) => item.id === img.id);
+  setPreviewModalByIndex(index >= 0 ? index : 0);
 }
 
 function closePreviewModal() {
   previewModal.value = null;
+  previewIndex.value = -1;
+}
+
+function goToPreviousPage() {
+  if (!canGoPrevPage.value) {
+    return;
+  }
+  setPreviewModalByIndex(previewIndex.value - 1);
+}
+
+function goToNextPage() {
+  if (!canGoNextPage.value) {
+    return;
+  }
+  setPreviewModalByIndex(previewIndex.value + 1);
 }
 
 function onPreviewKeydown(e) {
+  if (!previewModal.value) {
+    return;
+  }
   if (e.key === 'Escape') {
     closePreviewModal();
+    return;
+  }
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    goToPreviousPage();
+    return;
+  }
+  if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    goToNextPage();
   }
 }
 
