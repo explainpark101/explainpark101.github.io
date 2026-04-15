@@ -266,69 +266,71 @@
     <Teleport to="body">
       <div
         v-if="previewModal"
-        class="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm"
+        class="fixed inset-0 z-[2000] overflow-y-auto bg-slate-950/85 p-2 sm:p-4 backdrop-blur-sm"
         role="dialog"
         aria-modal="true"
         aria-label="이미지 크게 보기"
         @click.self="closePreviewModal"
       >
-        <div class="relative max-w-[min(100%,96vw)] max-h-[90vh] flex flex-col items-center gap-4">
-          <button
-            type="button"
-            class="absolute -top-1 right-0 sm:-right-12 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white text-slate-800 border-none shadow-lg cursor-pointer hover:bg-slate-100"
-            aria-label="닫기"
-            @click="closePreviewModal"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-          <img
-            :src="previewModal.url"
-            :alt="previewModal.alt"
-            class="max-w-full max-h-[min(85vh,1200px)] w-auto h-auto object-contain rounded-lg shadow-2xl ring-1 ring-white/10"
-          />
-          <p class="text-sm text-slate-300 m-0 text-center">
-            {{ previewModal.name }} ({{ previewModal.id }} / {{ previewTotalPages }})
-          </p>
-          <div class="flex items-center gap-2">
+        <div class="flex min-h-full items-center justify-center">
+          <div class="relative my-2 flex w-full max-w-[96vw] flex-col items-center gap-3">
             <button
               type="button"
-              class="inline-flex items-center gap-2 rounded-lg bg-white/95 text-slate-800 text-sm font-bold px-3 py-2 border-none cursor-pointer hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
-              :disabled="!canGoPrevPage"
-              aria-label="이전 페이지 (←)"
-              @click="goToPreviousPage"
+              class="absolute right-2 top-2 z-20 flex h-10 w-10 items-center justify-center rounded-full border-none bg-white text-slate-800 shadow-lg cursor-pointer hover:bg-slate-100"
+              aria-label="닫기"
+              @click="closePreviewModal"
             >
-              <- 이전
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
             </button>
-            <button
-              type="button"
-              class="inline-flex items-center gap-2 rounded-lg bg-white/95 text-slate-800 text-sm font-bold px-3 py-2 border-none cursor-pointer hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
-              :disabled="!canGoNextPage"
-              aria-label="다음 페이지 (→)"
-              @click="goToNextPage"
-            >
-              다음 ->
-            </button>
+            <div class="relative flex w-full items-center justify-center px-11 sm:px-14">
+              <button
+                type="button"
+                class="absolute left-0 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border-none bg-white/95 text-slate-800 shadow-lg cursor-pointer hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="!canGoPrevPage"
+                aria-label="이전 페이지 (←)"
+                @click="goToPreviousPage"
+              >
+                ←
+              </button>
+              <img
+                :src="previewModal.url"
+                :alt="previewModal.alt"
+                class="h-auto max-h-[calc(100vh-220px)] w-auto max-w-[96vw] rounded-lg object-contain shadow-2xl ring-1 ring-white/10"
+              />
+              <button
+                type="button"
+                class="absolute right-0 top-1/2 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border-none bg-white/95 text-slate-800 shadow-lg cursor-pointer hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                :disabled="!canGoNextPage"
+                aria-label="다음 페이지 (→)"
+                @click="goToNextPage"
+              >
+                →
+              </button>
+            </div>
+            <p class="text-sm text-slate-300 m-0 text-center">
+              {{ previewModal.name }} ({{ previewModal.id }} / {{ previewTotalPages }})
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 text-white text-sm font-bold px-3 py-2 border-none cursor-pointer hover:bg-indigo-700"
+                @click="downloadSingle(previewModal.url, previewModal.name)"
+              >
+                이미지 저장
+              </button>
+              <button
+                type="button"
+                class="inline-flex items-center gap-2 rounded-lg bg-white/95 text-slate-800 text-sm font-bold px-3 py-2 border-none cursor-pointer hover:bg-white"
+                @click="copyImageToClipboard(previewModal.url)"
+              >
+                클립보드에 복사
+              </button>
+            </div>
+            <p class="text-xs text-slate-400 m-0 text-center">키보드 단축키: ← / →</p>
           </div>
-          <div class="flex items-center gap-2">
-            <button
-              type="button"
-              class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 text-white text-sm font-bold px-3 py-2 border-none cursor-pointer hover:bg-indigo-700"
-              @click="downloadSingle(previewModal.url, previewModal.name)"
-            >
-              이미지 저장
-            </button>
-            <button
-              type="button"
-              class="inline-flex items-center gap-2 rounded-lg bg-white/95 text-slate-800 text-sm font-bold px-3 py-2 border-none cursor-pointer hover:bg-white"
-              @click="copyImageToClipboard(previewModal.url)"
-            >
-              클립보드에 복사
-            </button>
-          </div>
-          <p class="text-xs text-slate-400 m-0 text-center">키보드 단축키: ← / →</p>
         </div>
       </div>
     </Teleport>
@@ -519,6 +521,8 @@ async function handleFile(file) {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     const totalPages = pdf.numPages;
+    const pageDigits = String(totalPages).length;
+    const baseName = file.name.replace(/\.pdf$/i, '');
     const images = [];
 
     for (let i = 1; i <= totalPages; i++) {
@@ -538,10 +542,11 @@ async function handleFile(file) {
       }).promise;
 
       const dataUrl = canvas.toDataURL('image/png');
+      const pageNumber = String(i).padStart(pageDigits, '0');
       images.push({
         id: i,
         url: dataUrl,
-        name: `${file.name.replace('.pdf', '')}_page_${i}.png`,
+        name: `${baseName}_page_${pageNumber}.png`,
       });
 
       progress.value = Math.round((i / totalPages) * 100);
