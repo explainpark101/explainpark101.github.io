@@ -16,6 +16,7 @@ import S3HaimIcon from '@/components/icons/S3HaimIcon.vue';
 import WebDavViewerIcon from '@/components/icons/WebDavViewerIcon.vue';
 import FocusTimerIcon from '@/components/icons/FocusTimerIcon.vue';
 import HearapyWebIcon from '@/components/icons/HearapyWebIcon.vue';
+import PromptBookIcon from '@/components/icons/PromptBookIcon.vue';
 
 /**
  * 홈 화면에 표시할 앱 카드 메타데이터.
@@ -47,4 +48,5 @@ export const HOME_APP_LINKS = [
   { href: '/webdav-viewer', icon: WebDavViewerIcon, title: 'WebDAV Viewer', description: 'WebDAV Viewer App' },
   { href: 'https://focus-timer.jaehyung101.biz/', icon: FocusTimerIcon, title: 'Focus Timer', description: '타이머 앱' },
   { href: '/hearapy-web', icon: HearapyWebIcon, title: 'Hearapy Web', description: 'Hearapy Web' },
+  { href: '/prompt-book', icon: PromptBookIcon, title: 'Prompt Book', description: 'NotebookLM 용 프롬프트 템플릿 저장소' },
 ];
