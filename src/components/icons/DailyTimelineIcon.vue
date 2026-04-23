@@ -1,0 +1,25 @@
+<template>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+        <defs>
+            <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#3B82F6" />
+                <stop offset="100%" stop-color="#2563EB" />
+            </linearGradient>
+            <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+                <feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.15" />
+            </filter>
+        </defs>
+        <rect width="512" height="512" rx="112" fill="url(#bg-grad)" />
+        <rect x="96" y="112" width="320" height="288" rx="32" fill="#FFFFFF" filter="url(#shadow)" />
+        <path d="M 96 144 Q 96 112 128 112 L 384 112 Q 416 112 416 144 L 416 176 L 96 176 Z" fill="#EFF6FF" />
+        <circle cx="144" cy="144" r="12" fill="#3B82F6" />
+        <circle cx="192" cy="144" r="12" fill="#3B82F6" />
+        <line x1="202" y1="176" x2="202" y2="400" stroke="#F8FAFC" stroke-width="4" stroke-dasharray="12 12"
+            stroke-linecap="round" />
+        <line x1="308" y1="176" x2="308" y2="400" stroke="#F8FAFC" stroke-width="4" stroke-dasharray="12 12"
+            stroke-linecap="round" />
+        <rect x="128" y="208" width="144" height="32" rx="16" fill="#8B5CF6" />
+        <rect x="230" y="272" width="154" height="32" rx="16" fill="#10B981" />
+        <rect x="128" y="336" width="200" height="32" rx="16" fill="#F59E0B" />
+    </svg>
+</template>
