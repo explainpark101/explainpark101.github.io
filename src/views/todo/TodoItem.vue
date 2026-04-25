@@ -1,9 +1,9 @@
 <template>
   <li
     :class="[
-      'flex min-w-0 flex-col py-2.5 relative border-b border-(--border-color) last:border-b-0 transition-colors',
-      todo.state === 'completed' && 'opacity-80 bg-(--row-completed-bg) [&_.todo-text]:line-through [&_.todo-text]:text-(--text-secondary)',
-      todo.state === 'in-progress' && 'bg-(--row-progress-bg) border-l-4 border-l-(--primary-color) pl-2.5 [&_.todo-text]:text-(--row-progress-fg) [&_.todo-text]:font-medium',
+      'flex min-w-0 flex-col py-2.5 relative border-b border-(--border-color) last:border-b-0 transition-colors pl-2.5 border-l-4',
+      todo.state === 'completed' && 'opacity-80 bg-(--row-completed-bg) [&_.todo-text]:line-through [&_.todo-text]:text-(--text-secondary) border-l-emerald-600',
+      todo.state === 'in-progress' && 'border-l-4 bg-(--row-progress-bg) border-l-(--primary-color) [&_.todo-text]:text-(--row-progress-fg) [&_.todo-text]:font-medium',
       { 'opacity-50 bg-(--drag-tint)': isDragging },
       { 'border-t-2 border-t-dashed border-t-(--primary-color)': dragOverTodoId === todo.id },
       isSubtask && 'before:content-[\'\'] before:absolute before:top-6 before:-left-[25px] before:w-[15px] before:h-0.5 before:bg-(--border-color) after:content-[\'\'] after:absolute after:top-0 after:-left-[25px] after:w-0.5 after:h-full after:bg-(--border-color) last:after:h-6'
