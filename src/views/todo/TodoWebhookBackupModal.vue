@@ -4,7 +4,7 @@
     class="border-none rounded-xl p-8 shadow-[0_8px_25px_rgba(0,0,0,0.2)] w-[90%] max-w-[540px] bg-(--surface) text-(--text-primary) max-h-[85vh] overflow-y-auto fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 [&[open]]:flex [&[open]]:flex-col [&[open]]:gap-2.5 [&::backdrop]:bg-black/50 [&::backdrop]:backdrop-blur-[5px] z-50"
   >
     <h2 class="mt-0 text-(--text-primary) text-center">Webhook 백업</h2>
-    <p class="text-sm text-gray-600 m-0">
+    <p class="text-sm text-(--text-secondary) m-0">
       Webhook URL이 노출되면 다른 사람이 데이터에 접근하거나 덮어쓸 수 있습니다. 비공개 채널과 전용 Webhook을 사용하세요.
     </p>
     <label class="text-sm font-medium" for="todoWebhookUrl">Webhook URL</label>
@@ -22,15 +22,34 @@
         class="py-2 px-4 rounded-lg border-none text-white text-sm cursor-pointer bg-blue-600 hover:bg-blue-700"
         @click="saveUrl"
       >URL 저장</button>
+    </div>
+    <label class="text-sm font-medium" for="todoRootMessageId">루트 메시지 ID</label>
+    <p class="text-xs text-(--text-secondary) m-0 -mt-1">
+      최신 백업을 가리키는 Discord 메시지(snowflake)입니다. 백업·복원·루트 갱신에 사용됩니다. 비우면 ID가 제거됩니다.
+    </p>
+    <input
+      id="todoRootMessageId"
+      v-model="rootIdInput"
+      type="text"
+      inputmode="numeric"
+      autocomplete="off"
+      class="w-full p-3 border border-(--border-color) rounded-lg bg-(--surface) text-(--text-primary) text-sm font-mono box-border"
+      placeholder="예: 1234567890123456789 (17~20자리)"
+    />
+    <div class="flex flex-wrap gap-2">
       <button
         type="button"
-        class="py-2 px-4 rounded-lg border border-(--border-color) text-sm cursor-pointer bg-(--background) text-(--text-primary)"
+        class="py-2 px-4 rounded-lg border-none text-white text-sm cursor-pointer bg-(--primary-color) hover:bg-(--primary-dark) disabled:opacity-50"
+        :disabled="loading"
+        @click="saveRootId"
+      >루트 ID 저장</button>
+      <button
+        type="button"
+        class="py-2 px-4 rounded-lg border border-(--border-color) text-sm cursor-pointer bg-(--background) text-(--text-primary) disabled:opacity-50"
+        :disabled="loading"
         @click="clearRoot"
-      >루트 메시지 ID 초기화 (복구 끊기)</button>
+      >루트 ID 비우기</button>
     </div>
-    <p class="text-xs text-gray-500 m-0">
-      저장된 루트 ID: <code class="text-[0.85em] break-all">{{ rootId || '(없음)' }}</code>
-    </p>
     <hr class="w-full border-(--border-color)" />
     <div class="flex flex-wrap gap-2">
       <button
@@ -54,7 +73,7 @@
     </div>
     <p
       class="min-h-[1.5em] text-sm m-0"
-      :class="statusIsError ? 'text-red-600' : 'text-gray-600'"
+      :class="statusIsError ? 'text-(--error)' : 'text-(--text-secondary)'"
     >{{ statusLine }}</p>
     <div class="flex justify-end">
       <button
@@ -86,14 +105,14 @@ const emit = defineEmits(['synced', 'error']);
 
 const rootDialog = ref(null);
 const urlInput = ref('');
-const rootId = ref('');
+const rootIdInput = ref('');
 const statusLine = ref('');
 const statusIsError = ref(false);
 const loading = ref(false);
 
 const syncStateFromStorage = () => {
   urlInput.value = localStorage.getItem(TODO_WEBHOOK_URL_KEY) || '';
-  rootId.value = localStorage.getItem(TODO_WEBHOOK_ROOT_KEY) || '';
+  rootIdInput.value = localStorage.getItem(TODO_WEBHOOK_ROOT_KEY) || '';
 };
 
 onMounted(() => {
@@ -133,8 +152,25 @@ function saveUrl() {
 
 function clearRoot() {
   localStorage.removeItem(TODO_WEBHOOK_ROOT_KEY);
-  syncStateFromStorage();
-  setStatus('루트 ID를 지웠습니다. 다음 백업 시 새 루트가 만들어집니다.');
+  rootIdInput.value = '';
+  setStatus('루트 ID를 비웠습니다. 다음 백업 시 필요하면 새 루트가 만들어집니다.');
+}
+
+function saveRootId() {
+  const raw = (rootIdInput.value || '').trim();
+  if (!raw) {
+    localStorage.removeItem(TODO_WEBHOOK_ROOT_KEY);
+    rootIdInput.value = '';
+    setStatus('루트 ID를 비웠습니다. 다음 백업 시 필요하면 새 루트가 만들어집니다.');
+    return;
+  }
+  if (!/^\d{17,20}$/.test(raw)) {
+    setStatus('루트 메시지 ID는 17~20자리 숫자(눈송이)만 입력할 수 있습니다.', true);
+    return;
+  }
+  localStorage.setItem(TODO_WEBHOOK_ROOT_KEY, raw);
+  rootIdInput.value = raw;
+  setStatus('루트 메시지 ID를 저장했습니다. 백업/복원 시 이 값이 사용됩니다.');
 }
 
 async function doBackup() {
