@@ -64,7 +64,7 @@
                 :rel="externalOpenInNewTab ? 'noopener noreferrer' : undefined">
                 <div
                     class="w-[200px] h-[220px] flex flex-col items-center justify-center rounded-2xl bg-(--surface) shadow-[0_2px_8px_var(--shadow-color),0_1.5px_4px_var(--shadow-color)] cursor-pointer relative transition-all duration-200 hover:shadow-[0_6px_24px_rgba(60,60,60,0.16),0_3px_8px_rgba(60,60,60,0.1)] hover:-translate-y-1 hover:scale-[1.03]">
-                    <div class="w-16 h-16 mb-4 flex items-center justify-center">
+                    <div class="w-16 h-16 mb-4 flex items-center justify-center overflow-hidden">
                         <component :is="item.icon" />
                     </div>
                     <div class="text-xl font-medium text-center mb-1.5 break-keep">{{ item.title }}</div>
