@@ -1,10 +1,10 @@
 <template>
   <button
     type="button"
-    class="shrink-0 inline-flex items-center justify-center w-[22px] h-[22px] mr-4 p-0 border border-gray-400 rounded bg-(--surface) text-base font-bold text-(--text-primary) cursor-pointer transition-colors hover:border-(--primary-color) hover:bg-blue-50"
+    class="shrink-0 inline-flex items-center justify-center w-[22px] h-[22px] mr-4 p-0 border border-(--border-color) rounded bg-(--surface) text-base font-bold text-(--text-primary) cursor-pointer transition-colors hover:border-(--primary-color) hover:bg-(--row-progress-bg)"
     :class="{
-      'border-(--primary-color) text-(--primary-color) bg-blue-50': state === 'in-progress',
-      'border-green-600 text-green-600 bg-green-50': state === 'completed'
+      'border-(--primary-color) text-(--primary-color) bg-(--row-progress-bg)': state === 'in-progress',
+      'border-(--state-done-fg) text-(--state-done-fg) bg-(--state-done-bg)': state === 'completed'
     }"
     :title="stateTitle"
     aria-label="상태 변경"

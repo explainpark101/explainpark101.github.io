@@ -1,5 +1,16 @@
 <template>
   <div class="min-h-screen p-5 bg-(--background) text-(--text-primary) leading-relaxed transition-[background-color,color] duration-500">
+    <div class="max-w-[800px] mx-auto w-full flex flex-wrap justify-between items-center gap-2 mb-4">
+      <router-link
+        to="/"
+        class="inline-flex items-center py-2 px-4 rounded-lg text-sm font-medium no-underline border border-(--border-color) bg-(--surface) text-(--text-primary) transition-colors shadow-sm hover:bg-(--control-muted) hover:text-(--primary-color)"
+      >← 홈</router-link>
+      <button
+        type="button"
+        class="py-2 px-4 bg-(--primary-color) text-white border-none rounded-lg cursor-pointer text-sm font-medium transition-colors shadow-md hover:bg-(--primary-dark) whitespace-nowrap"
+        @click="openTodoWebhookModal"
+      >Webhook 백업</button>
+    </div>
     <div class="max-w-[800px] mx-auto bg-(--surface) p-8 rounded-xl shadow-[0_4px_15px_var(--shadow-color)] transition-[background-color,box-shadow] duration-500">
       <h1
         @dblclick="editTitle"
@@ -17,10 +28,10 @@
           class="flex items-center gap-2 px-4 py-2 rounded-t-lg cursor-grab select-none whitespace-nowrap border border-transparent border-b-0 transition-all active:cursor-grabbing"
           :class="[
             tab.id === currentTabId
-              ? 'bg-(--surface) text-(--primary-color) border border-(--border-color) border-b border-(--surface) translate-y-px'
-              : 'bg-gray-200 text-gray-600 hover:bg-gray-300',
-            { 'opacity-50 bg-blue-100 rotate-[5deg] z-[1000]': tab.id === draggedTabId },
-            { 'border-l-[3px] border-l-(--primary-color) bg-blue-50': tab.id === dragOverTabId && tab.id !== currentTabId }
+              ? 'bg-(--surface) text-(--primary-color) border border-(--border-color) border-b border-(--surface) translate-y-px font-bold'
+              : 'bg-(--control-muted) text-(--text-secondary) hover:bg-(--control-muted-hover)',
+            { 'opacity-50 bg-(--drag-tint) rotate-[5deg] z-[1000]': tab.id === draggedTabId },
+            { 'border-l-[3px] border-l-(--primary-color) bg-(--row-progress-bg)': tab.id === dragOverTabId && tab.id !== currentTabId }
           ]"
           :draggable="true"
           @dragstart="handleTabDragStart($event, tab.id)"
@@ -33,7 +44,7 @@
           <span @dblclick.stop="renameTab(tab)">{{ tab.name }}</span>
           <button
             type="button"
-            class="bg-transparent border-none text-gray-400 text-xl cursor-pointer p-0 px-1 rounded-full hover:text-red-500 hover:bg-gray-200"
+            class="bg-transparent border-none text-(--text-secondary) text-xl cursor-pointer p-0 px-1 rounded-full hover:text-(--error) hover:bg-(--control-muted)"
             @click.stop="deleteTab(tab.id)"
           >×</button>
         </div>
@@ -41,7 +52,7 @@
           id="addTabBtn"
           type="button"
           @click="addNewTab"
-          class="w-8 h-8 flex items-center justify-center rounded-full border-none bg-green-600 text-white text-xl cursor-pointer ml-2.5"
+          class="w-8 h-8 flex items-center justify-center rounded-full border-none bg-(--success) text-(--background) text-xl font-semibold cursor-pointer ml-2.5 shadow-sm hover:opacity-90"
         >+</button>
       </div>
 
@@ -82,7 +93,7 @@
           @drag-end="handleTodoDragEnd" @drag-over="handleTodoDragOver" @drag-leave="handleTodoDragLeave"
           @drop="handleTodoDrop" />
       </ul>
-      <div v-else class="text-center text-gray-500 py-10 px-5 text-lg">
+      <div v-else class="text-center text-(--text-secondary) py-10 px-5 text-lg">
         <template v-if="searchQuery">
           '{{ searchQuery }}'에 대한 검색 결과가 없습니다.
         </template>
@@ -101,11 +112,22 @@
       class="border-none rounded-xl p-8 shadow-[0_8px_25px_rgba(0,0,0,0.2)] w-[90%] max-w-[600px] bg-(--surface) text-(--text-primary) max-h-[80vh] overflow-y-auto fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 [&[open]]:flex [&[open]]:flex-col [&[open]]:gap-2.5 [&::backdrop]:bg-black/50 [&::backdrop]:backdrop-blur-[5px]"
     >
       <h2 class="mt-0 text-(--text-primary) text-center">새 할 일 추가</h2>
+      <p
+        class="m-0 mb-2 text-[0.85em] text-(--text-secondary) flex flex-wrap items-baseline justify-center gap-x-1.5 gap-y-1 [&_mark]:inline-block [&_mark]:px-1.5 [&_mark]:py-0.5 [&_mark]:mx-0.5 [&_mark]:font-sans [&_mark]:text-sm [&_mark]:font-semibold [&_mark]:leading-snug [&_mark]:text-(--text-primary) [&_mark]:bg-(--control-muted) [&_mark]:border [&_mark]:border-(--border-color) [&_mark]:rounded [&_mark]:shadow-sm"
+        title="Ctrl+Enter: 불러오기 · Tab/Shift+Tab: 들여쓰기 · Alt+↑/↓: 줄 순서"
+      >
+        <span class="whitespace-nowrap"><mark>Ctrl</mark>+<mark>Enter</mark>: 불러오기</span>
+        <span class="shrink-0 text-(--text-secondary)">·</span>
+        <span class="whitespace-nowrap"><mark>Tab</mark> / <mark>Shift</mark>+<mark>Tab</mark>: 들여쓰기</span>
+        <span class="shrink-0 text-(--text-secondary)">·</span>
+        <span class="whitespace-nowrap"><mark>Alt</mark>+<mark>↑</mark> / <mark>Alt</mark>+<mark>↓</mark>: 줄 순서 이동</span>
+      </p>
       <textarea
         ref="modalMarkdownInput"
         v-model="markdownInput"
         class="w-full p-3 border border-(--border-color) rounded-lg text-base box-border min-h-[300px] resize-y font-mono bg-(--surface) text-(--text-primary)"
         placeholder="여기에 할일 목록을 마크다운 형식으로 입력하세요.&#10;들여쓰기를 사용하여 하위 작업을 만들 수 있습니다."
+        title="Ctrl+Enter: 불러오기 · Tab/Shift+Tab: 들여쓰기 · Alt+↑/↓: 줄 순서"
         @keydown="handleMarkdownKeydown"
       ></textarea>
       <div class="flex justify-end gap-2.5 mt-2.5">
@@ -120,9 +142,9 @@
       class="border-none rounded-xl p-8 shadow-[0_8px_25px_rgba(0,0,0,0.2)] w-[90%] max-w-[600px] bg-(--surface) text-(--text-primary) max-h-[80vh] overflow-y-auto fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 [&[open]]:flex [&[open]]:flex-col [&[open]]:gap-2.5 [&::backdrop]:bg-black/50 [&::backdrop]:backdrop-blur-[5px]"
     >
       <h2 class="mt-0 text-(--text-primary) text-center">할일 목록 수정 및 내보내기</h2>
-      <p class="[&_code]:font-mono [&_code]:bg-black/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-[0.9em]">진행상황 포함 마크다운: <code>- [ ]</code> 시작전, <code>- [o]</code> 진행중, <code>- [x]</code> 완료. 내용을 수정한 뒤 적용할 수 있습니다.</p>
+      <p class="[&_code]:font-mono [&_code]:bg-(--control-muted) [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-[0.9em] [&_code]:text-(--text-primary)">진행상황 포함 마크다운: <code>- [ ]</code> 시작전, <code>- [o]</code> 진행중, <code>- [x]</code> 완료. 내용을 수정한 뒤 적용할 수 있습니다.</p>
       <p
-        class="m-0 mb-2 text-[0.85em] text-gray-600 [&_mark]:inline-block [&_mark]:px-1.5 [&_mark]:py-0.5 [&_mark]:mx-0.5 [&_mark]:font-sans [&_mark]:text-sm [&_mark]:font-semibold [&_mark]:leading-snug [&_mark]:text-gray-800 [&_mark]:bg-gradient-to-b [&_mark]:from-[#f7f7f7] [&_mark]:to-[#e8e8e8] [&_mark]:border [&_mark]:border-gray-300 [&_mark]:rounded [&_mark]:shadow-[0_1px_0_0_rgba(255,255,255,0.8)_inset,0_1px_2px_rgba(0,0,0,0.1)]"
+        class="m-0 mb-2 text-[0.85em] text-(--text-secondary) [&_mark]:inline-block [&_mark]:px-1.5 [&_mark]:py-0.5 [&_mark]:mx-0.5 [&_mark]:font-sans [&_mark]:text-sm [&_mark]:font-semibold [&_mark]:leading-snug [&_mark]:text-(--text-primary) [&_mark]:bg-(--control-muted) [&_mark]:border [&_mark]:border-(--border-color) [&_mark]:rounded [&_mark]:shadow-sm"
         title="Ctrl+Enter: 편집 내용 적용 · Esc: 닫기 · Tab/Shift+Tab: 들여쓰기 · Alt+↑/↓: 줄 이동 · Ctrl+Shift+K/Ctrl+D: 줄 삭제"
       >
         <mark>Ctrl</mark>+<mark>Enter</mark>: 적용 ·
@@ -170,12 +192,24 @@
         </button>
       </div>
     </dialog>
+
+    <TodoWebhookBackupModal
+      ref="todoWebhookModalRef"
+      :backup-context="todoBackupContext"
+      @synced="refreshStateAfterSync"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import TodoItem from '@/views/todo/TodoItem.vue';
+import TodoWebhookBackupModal from '@/views/todo/TodoWebhookBackupModal.vue';
+import {
+  TODO_WEBHOOK_URL_KEY,
+  restoreTodoFromWebhook,
+  tryKeepaliveTodoBackupOnPageHide,
+} from '@/views/todo/todoDiscordWebhook.js';
 
 const DB_NAME = 'ABCI_TodoList_Tabs';
 const DB_VERSION = 2;
@@ -192,6 +226,7 @@ const appTitle = ref('임시 할일 리스트');
 const markdownModal = ref(null);
 const exportModal = ref(null);
 const customModal = ref(null);
+const todoWebhookModalRef = ref(null);
 const modalMarkdownInput = ref(null);
 const exportTextarea = ref(null);
 const customModalInput = ref(null);
@@ -357,6 +392,66 @@ const handleCustomModalCancel = () => {
 const customAlert = (message, title = '알림') => showCustomModal({ title, message, type: 'alert' });
 const customConfirm = (message, title = '확인') => showCustomModal({ title, message, type: 'confirm' });
 const customPrompt = (message, defaultValue, title = '입력') => showCustomModal({ title, message, defaultValue, type: 'prompt' });
+
+const readTodoLocalState = () => ({
+  todoAppTitle: localStorage.getItem('todoAppTitle') || undefined,
+  currentTabId: localStorage.getItem('currentTabId') || undefined,
+});
+
+const todoBackupContext = computed(() => ({
+  db: db.value,
+  getFromDb,
+  tabStore: TAB_STORE_NAME,
+  todoStore: TODO_STORE_NAME,
+  putInDb,
+  readTodoLocalState,
+}));
+
+const openTodoWebhookModal = () => {
+  todoWebhookModalRef.value?.showModal();
+};
+
+const refreshStateAfterSync = async () => {
+  const savedTitle = localStorage.getItem('todoAppTitle');
+  if (savedTitle) {
+    appTitle.value = savedTitle;
+    document.title = savedTitle;
+  } else {
+    appTitle.value = '임시 할일 리스트';
+    document.title = 'Todo';
+  }
+  let allTabs = await getFromDb(TAB_STORE_NAME);
+  if (allTabs.length === 0) {
+    const defaultTab = { id: `tab-${Date.now()}`, name: '기본 목록', order: 0 };
+    await putInDb(TAB_STORE_NAME, defaultTab);
+    allTabs = await getFromDb(TAB_STORE_NAME);
+  }
+  let lastTabId = localStorage.getItem('currentTabId');
+  if (!lastTabId || !allTabs.some(t => t.id === lastTabId)) {
+    lastTabId = allTabs[0].id;
+  }
+  await switchTab(lastTabId);
+};
+
+const tryAutoRestoreFromWebhook = async () => {
+  if (!db.value) return false;
+  if (!localStorage.getItem(TODO_WEBHOOK_URL_KEY)) return false;
+  const r = await restoreTodoFromWebhook(
+    {
+      db: db.value,
+      getFromDb,
+      tabStore: TAB_STORE_NAME,
+      todoStore: TODO_STORE_NAME,
+      putInDb,
+    },
+    { replace: true, silent: true },
+  );
+  if (r.ok) {
+    await refreshStateAfterSync();
+    return true;
+  }
+  return false;
+};
 
 // Tab Management
 const renderTabs = async () => {
@@ -870,6 +965,48 @@ const getOffsetOfLineStart = (text, lineIndex) => {
   return offset;
 };
 
+/**
+ * Alt+↑ / Alt+↓ 로 선택된 줄(들) 위치 이동. 처리하면 true.
+ */
+const tryMoveLinesWithAltArrows = (e, textRef, textarea) => {
+  if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) {
+    return false;
+  }
+  e.preventDefault();
+  const value = textRef.value;
+  const lines = value.split('\n');
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const startLine = getLineIndexFromOffset(value, start);
+  const endLine = getLineIndexFromOffset(value, end > 0 ? end - 1 : 0);
+  const lineCount = endLine - startLine + 1;
+  if (lines.length === 0) {
+    return true;
+  }
+
+  if (e.key === 'ArrowUp') {
+    if (startLine === 0) return true;
+    const block = lines.splice(startLine, lineCount);
+    lines.splice(startLine - 1, 0, ...block);
+  } else {
+    if (endLine >= lines.length - 1) return true;
+    const block = lines.splice(startLine, lineCount);
+    lines.splice(startLine + 1, 0, ...block);
+  }
+
+  const newValue = lines.join('\n');
+  textRef.value = newValue;
+  const newStartLine = e.key === 'ArrowUp' ? startLine - 1 : startLine + 1;
+  const newEndLine = newStartLine + lineCount - 1;
+  nextTick(() => {
+    if (!textarea || !textarea.isConnected) return;
+    textarea.selectionStart = getOffsetOfLineStart(newValue, newStartLine);
+    textarea.selectionEnd = getOffsetOfLineStart(newValue, newEndLine + 1);
+    textarea.focus();
+  });
+  return true;
+};
+
 const EXPORT_INDENT = '  ';
 
 const handleExportTextareaKeydown = (e) => {
@@ -934,36 +1071,18 @@ const handleExportTextareaKeydown = (e) => {
     return;
   }
 
-  if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
-  e.preventDefault();
-  if (lines.length === 0) return;
-
-  if (e.key === 'ArrowUp') {
-    if (startLine === 0) return;
-    const block = lines.splice(startLine, lineCount);
-    lines.splice(startLine - 1, 0, ...block);
-  } else {
-    if (endLine >= lines.length - 1) return;
-    const block = lines.splice(startLine, lineCount);
-    lines.splice(startLine + 1, 0, ...block);
+  if (tryMoveLinesWithAltArrows(e, exportText, textarea)) {
+    return;
   }
-
-  const newValue = lines.join('\n');
-  exportText.value = newValue;
-  nextTick(() => {
-    if (!exportTextarea.value) return;
-    const newStartLine = e.key === 'ArrowUp' ? startLine - 1 : startLine + 1;
-    const newEndLine = newStartLine + lineCount - 1;
-    exportTextarea.value.selectionStart = getOffsetOfLineStart(newValue, newStartLine);
-    exportTextarea.value.selectionEnd = getOffsetOfLineStart(newValue, newEndLine + 1);
-    exportTextarea.value.focus();
-  });
 };
 
 const handleMarkdownKeydown = (e) => {
+  const textarea = e.target;
+  if (tryMoveLinesWithAltArrows(e, markdownInput, textarea)) {
+    return;
+  }
   if (e.key === 'Tab') {
     e.preventDefault();
-    const textarea = e.target;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const value = textarea.value;
@@ -1126,12 +1245,17 @@ const editTitle = async () => {
 // Initialization
 const initializeApp = async () => {
   try {
+    await openDatabase();
+    if (await tryAutoRestoreFromWebhook()) {
+      return;
+    }
     const savedTitle = localStorage.getItem('todoAppTitle');
     if (savedTitle) {
       appTitle.value = savedTitle;
       document.title = savedTitle;
+    } else {
+      document.title = 'Todo';
     }
-    await openDatabase();
     let allTabs = await getFromDb(TAB_STORE_NAME);
     if (allTabs.length === 0) {
       const defaultTab = { id: `tab-${Date.now()}`, name: '기본 목록', order: 0 };
@@ -1148,7 +1272,17 @@ const initializeApp = async () => {
   }
 };
 
+const onPageHideForWebhookBackup = () => {
+  if (!db.value) return;
+  tryKeepaliveTodoBackupOnPageHide(todoBackupContext.value);
+};
+
 onMounted(() => {
+  window.addEventListener('pagehide', onPageHideForWebhookBackup, { capture: true });
   initializeApp();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('pagehide', onPageHideForWebhookBackup, { capture: true });
 });
 </script>
