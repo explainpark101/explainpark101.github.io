@@ -1,7 +1,7 @@
 <template>
   <li
     :class="[
-      'flex flex-col py-2.5 relative border-b border-(--border-color) last:border-b-0 transition-colors',
+      'flex min-w-0 flex-col py-2.5 relative border-b border-(--border-color) last:border-b-0 transition-colors',
       todo.state === 'completed' && 'opacity-80 bg-(--row-completed-bg) [&_.todo-text]:line-through [&_.todo-text]:text-(--text-secondary)',
       todo.state === 'in-progress' && 'bg-(--row-progress-bg) border-l-4 border-l-(--primary-color) pl-2.5 [&_.todo-text]:text-(--row-progress-fg) [&_.todo-text]:font-medium',
       { 'opacity-50 bg-(--drag-tint)': isDragging },
@@ -15,29 +15,42 @@
     @dragleave="handleDragLeave"
     @drop.prevent="handleDrop"
   >
-    <div class="flex items-center justify-between">
-      <div class="flex flex-nowrap items-center gap-2.5 flex-grow">
+    <div
+      class="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-2"
+    >
+      <div class="flex min-w-0 w-full flex-1 items-start gap-2 sm:items-center">
         <button
           v-if="todo.subtasks && todo.subtasks.length > 0"
           type="button"
-          class="bg-transparent border-none text-(--text-secondary) text-xl cursor-pointer p-0 px-1 ml-1.5 rounded-full transition-all hover:text-(--primary-color) hover:bg-(--control-muted)"
+          class="shrink-0 bg-transparent border-none text-(--text-secondary) text-xl cursor-pointer p-0 px-1 ml-1.5 rounded-full transition-all hover:text-(--primary-color) hover:bg-(--control-muted)"
           :class="{ '-rotate-90': collapsedSubtasks.has(todo.id) }"
           @click.stop="$emit('toggle-collapse', todo.id)"
           title="하위 할일 접기/펼치기"
         >
           ▼
         </button>
-        <span class="flex items-center gap-2.5">
+        <div class="flex min-w-0 flex-1 items-center gap-2 sm:gap-2.5">
           <TodoStateToggle
+            class="!mr-1.5 shrink-0 sm:!mr-3"
             :state="todo.state"
             @change="newState => emit('toggle-state', todo.id, newState)"
           />
-          <span class="todo-text flex-grow text-lg break-words cursor-pointer" @click.stop @dblclick="$emit('edit-text', todo.id)">{{ todo.text }}</span>
-        </span>
+          <div
+            class="min-w-0 flex-1 touch-pan-x overflow-x-auto [scrollbar-width:thin] [-webkit-overflow-scrolling:touch]"
+            @dblclick="$emit('edit-text', todo.id)"
+          >
+            <span
+              class="todo-text block cursor-pointer pr-0.5 text-left text-base leading-snug sm:text-lg whitespace-nowrap"
+              @click.stop
+            >{{ todo.text }}</span>
+          </div>
+        </div>
       </div>
-      <div class="flex flex-nowrap items-center gap-2.5">
+      <div
+        class="flex w-full min-w-0 shrink-0 flex-nowrap items-center justify-end gap-1.5 self-end sm:ml-2 sm:w-auto sm:max-w-[min(100%,20rem)] sm:self-center sm:ps-0"
+      >
         <select
-          class="py-2 px-3 rounded-md border border-(--border-color) bg-(--surface) text-(--text-primary) text-sm cursor-pointer ml-2.5"
+          class="min-w-0 max-w-[9.5rem] flex-1 shrink py-1.5 px-2 sm:max-w-none sm:flex-none sm:py-2 sm:px-3 rounded-md border border-(--border-color) bg-(--surface) text-(--text-primary) text-xs sm:text-sm cursor-pointer"
           :value="todo.state"
           @change="handleStateChange"
         >
@@ -45,8 +58,8 @@
           <option value="in-progress">진행중</option>
           <option value="completed">완료</option>
         </select>
-        <button type="button" class="bg-transparent border-none text-(--text-secondary) text-2xl cursor-pointer py-0 px-2 ml-1.5 rounded-full leading-none hover:text-(--success) hover:bg-(--control-muted)" @click.stop="$emit('add-subtask', todo.id)" title="하위 할일 추가">+</button>
-        <button type="button" class="bg-transparent border-none text-(--text-secondary) text-2xl cursor-pointer py-0 px-2 ml-1.5 rounded-full leading-none hover:text-(--error) hover:bg-(--control-muted)" @click.stop="$emit('delete-todo', todo.id)" title="할일 삭제">×</button>
+        <button type="button" class="shrink-0 bg-transparent border-none text-(--text-secondary) text-2xl cursor-pointer py-0 px-1.5 sm:px-2 sm:ml-1.5 rounded-full leading-none hover:text-(--success) hover:bg-(--control-muted)" @click.stop="$emit('add-subtask', todo.id)" title="하위 할일 추가">+</button>
+        <button type="button" class="shrink-0 bg-transparent border-none text-(--text-secondary) text-2xl cursor-pointer py-0 px-1.5 sm:px-2 sm:ml-1.5 rounded-full leading-none hover:text-(--error) hover:bg-(--control-muted)" @click.stop="$emit('delete-todo', todo.id)" title="할일 삭제">×</button>
       </div>
     </div>
     <ul

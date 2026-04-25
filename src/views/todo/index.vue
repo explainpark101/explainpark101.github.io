@@ -11,7 +11,7 @@
         @click="openTodoWebhookModal"
       >Webhook 백업</button>
     </div>
-    <div class="max-w-[800px] mx-auto bg-(--surface) p-8 rounded-xl shadow-[0_4px_15px_var(--shadow-color)] transition-[background-color,box-shadow] duration-500">
+    <div class="max-w-[800px] mx-auto min-w-0 w-full bg-(--surface) px-3 py-6 sm:p-8 rounded-xl shadow-[0_4px_15px_var(--shadow-color)] transition-[background-color,box-shadow] duration-500">
       <h1
         @dblclick="editTitle"
         id="mainTitle"
@@ -86,7 +86,7 @@
         />
       </div>
 
-      <ul id="todoList" class="list-none p-0" v-if="displayedTodos.length > 0">
+      <ul id="todoList" class="list-none min-w-0 w-full p-0" v-if="displayedTodos.length > 0">
         <TodoItem v-for="todo in displayedTodoTree" :key="todo.id" :todo="todo" :collapsed-subtasks="collapsedSubtasks" :drag-over-todo-id="dragOverTodoId"
           @toggle-state="handleStateChange" @add-subtask="addSubtask" @delete-todo="deleteTodo"
           @edit-text="editTodoText" @toggle-collapse="toggleSubtaskCollapse" @drag-start="handleTodoDragStart"
