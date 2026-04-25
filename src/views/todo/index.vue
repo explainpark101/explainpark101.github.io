@@ -198,15 +198,30 @@
       :backup-context="todoBackupContext"
       @synced="refreshStateAfterSync"
     />
+
+    <Transition name="backup-toast">
+      <div
+        v-if="backupToast.show"
+        class="fixed bottom-4 right-4 z-[200] max-w-[min(100vw-2rem,20rem)] rounded-lg px-4 py-3 text-sm leading-snug shadow-lg border transition-all"
+        :class="backupToast.isError
+          ? 'border-(--error) bg-(--surface) text-(--error)'
+          : 'border-(--border-color) bg-(--surface) text-(--text-primary)'"
+        role="status"
+        aria-live="polite"
+      >
+        {{ backupToast.message }}
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import TodoItem from '@/views/todo/TodoItem.vue';
 import TodoWebhookBackupModal from '@/views/todo/TodoWebhookBackupModal.vue';
 import {
   TODO_WEBHOOK_URL_KEY,
+  performTodoWebhookBackup,
   restoreTodoFromWebhook,
   tryKeepaliveTodoBackupOnPageHide,
 } from '@/views/todo/todoDiscordWebhook.js';
@@ -246,6 +261,11 @@ const draggedTabId = ref(null);
 const dragOverTabId = ref(null);
 const draggedTodoId = ref(null);
 const dragOverTodoId = ref(null);
+const isAppReady = ref(false);
+const backupToast = ref({ show: false, message: '', isError: false });
+const AUTO_BACKUP_DEBOUNCE_MS = 3000;
+let autoBackupDebounceId = null;
+let backupToastHideId = null;
 
 const sortedTabs = computed(() => {
   return [...tabs.value].sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -452,6 +472,38 @@ const tryAutoRestoreFromWebhook = async () => {
   }
   return false;
 };
+
+const showBackupToast = (message, isError = false) => {
+  backupToast.value = { show: true, message, isError };
+  if (backupToastHideId) clearTimeout(backupToastHideId);
+  backupToastHideId = setTimeout(() => {
+    backupToast.value = { show: false, message: '', isError: false };
+    backupToastHideId = null;
+  }, 4000);
+};
+
+const scheduleDebouncedAutoBackup = () => {
+  if (!isAppReady.value || !db.value) return;
+  if (!localStorage.getItem(TODO_WEBHOOK_URL_KEY)) return;
+  if (autoBackupDebounceId) clearTimeout(autoBackupDebounceId);
+  autoBackupDebounceId = setTimeout(async () => {
+    autoBackupDebounceId = null;
+    const r = await performTodoWebhookBackup(todoBackupContext.value, { reason: 'auto' });
+    if (r.ok) {
+      showBackupToast('클라우드에 백업되었습니다.');
+    } else {
+      showBackupToast(r.error || '자동 백업에 실패했습니다.', true);
+    }
+  }, AUTO_BACKUP_DEBOUNCE_MS);
+};
+
+watch(
+  [tabs, currentTodos, appTitle],
+  () => {
+    scheduleDebouncedAutoBackup();
+  },
+  { deep: true },
+);
 
 // Tab Management
 const renderTabs = async () => {
@@ -1247,6 +1299,7 @@ const initializeApp = async () => {
   try {
     await openDatabase();
     if (await tryAutoRestoreFromWebhook()) {
+      isAppReady.value = true;
       return;
     }
     const savedTitle = localStorage.getItem('todoAppTitle');
@@ -1267,8 +1320,12 @@ const initializeApp = async () => {
       lastTabId = allTabs[0].id;
     }
     await switchTab(lastTabId);
+    isAppReady.value = true;
   } catch (error) {
     console.error('Failed to initialize app:', error);
+    if (db.value) {
+      isAppReady.value = true;
+    }
   }
 };
 
@@ -1284,5 +1341,25 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('pagehide', onPageHideForWebhookBackup, { capture: true });
+  if (autoBackupDebounceId) {
+    clearTimeout(autoBackupDebounceId);
+    autoBackupDebounceId = null;
+  }
+  if (backupToastHideId) {
+    clearTimeout(backupToastHideId);
+    backupToastHideId = null;
+  }
 });
 </script>
+
+<style scoped>
+.backup-toast-enter-active,
+.backup-toast-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.backup-toast-enter-from,
+.backup-toast-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
+</style>
