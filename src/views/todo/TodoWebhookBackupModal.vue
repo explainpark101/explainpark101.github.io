@@ -63,7 +63,7 @@
         class="py-2 px-4 rounded-lg border-none text-white text-sm cursor-pointer bg-(--primary-color) disabled:opacity-50"
         :disabled="loading"
         @click="() => doRestore(true)"
-      >클라우드로 복원 (덮어쓰기)</button>
+      >클라우드에서 복원 (덮어쓰기)</button>
       <button
         type="button"
         class="py-2 px-4 rounded-lg border border-(--border-color) text-sm cursor-pointer disabled:opacity-50"

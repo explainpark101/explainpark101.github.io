@@ -52,7 +52,7 @@
           id="addTabBtn"
           type="button"
           @click="addNewTab"
-          class="w-8 h-8 flex items-center justify-center rounded-full border-none bg-(--success) text-(--background) text-xl font-semibold cursor-pointer ml-2.5 shadow-sm hover:opacity-90"
+          class="w-9 min-w-9 aspect-square shrink-0 flex items-center justify-center rounded-full border-none bg-(--success) text-(--background) text-xl font-semibold cursor-pointer ml-2.5 shadow-sm hover:opacity-90"
         >+</button>
       </div>
 
@@ -87,7 +87,7 @@
       </div>
 
       <ul id="todoList" class="list-none min-w-0 w-full p-0" v-if="displayedTodos.length > 0">
-        <TodoItem v-for="todo in displayedTodoTree" :key="todo.id" :todo="todo" :collapsed-subtasks="collapsedSubtasks" :drag-over-todo-id="dragOverTodoId"
+        <TodoItem v-for="todo in displayedTodoTree" :key="todo.id" :todo="todo" :depth="0" :collapsed-subtasks="collapsedSubtasks" :drag-over-todo-id="dragOverTodoId"
           @toggle-state="handleStateChange" @add-subtask="addSubtask" @delete-todo="deleteTodo"
           @edit-text="editTodoText" @toggle-collapse="toggleSubtaskCollapse" @drag-start="handleTodoDragStart"
           @drag-end="handleTodoDragEnd" @drag-over="handleTodoDragOver" @drag-leave="handleTodoDragLeave"
@@ -168,6 +168,43 @@
       </div>
     </dialog>
 
+    <dialog
+      ref="editTodoModal"
+      class="border-none rounded-xl p-6 sm:p-8 shadow-[0_8px_25px_rgba(0,0,0,0.2)] w-[95%] max-w-[900px] bg-(--surface) text-(--text-primary) max-h-[90vh] overflow-y-auto fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0 [&[open]]:flex [&[open]]:flex-col [&[open]]:gap-3 [&::backdrop]:bg-black/50 [&::backdrop]:backdrop-blur-[5px]"
+    >
+      <h2 class="mt-0 text-(--text-primary) text-center">할일 수정</h2>
+      <label class="text-sm font-medium text-(--text-secondary)">제목</label>
+      <input
+        v-model="editTodoTextValue"
+        type="text"
+        class="w-full p-3 border border-(--border-color) rounded-lg bg-(--surface) text-(--text-primary)"
+        placeholder="할일 제목"
+      />
+      <label class="text-sm font-medium text-(--text-secondary)">설명 (Markdown)</label>
+      <div class="flex justify-end">
+        <button
+          type="button"
+          class="py-1.5 px-3 rounded-md border border-(--border-color) bg-(--surface) text-(--text-primary) text-sm transition-colors hover:bg-(--control-muted)"
+          @click="cycleEditViewMode"
+        >
+          보기 모드: {{ editViewModeLabel }}
+        </button>
+      </div>
+      <MdEditor
+        v-model="editTodoDescription"
+        language="ko-KR"
+        :theme="mdEditorTheme"
+        :preview="isEditorPreviewEnabled"
+        :preview-only="isEditorPreviewOnly"
+        :toolbars-exclude="['github', 'save', 'catalog', 'preview', 'previewOnly', 'htmlPreview']"
+        class="min-h-[280px]"
+      />
+      <div class="flex justify-end gap-2.5 mt-1">
+        <button type="button" class="py-2.5 px-5 rounded-lg cursor-pointer text-base transition-colors shadow-[0_2px_5px_rgba(0,0,0,0.1)] border-none bg-green-600 text-white hover:bg-[#218838]" @click="saveTodoEdit">저장</button>
+        <button type="button" class="py-2.5 px-5 rounded-lg cursor-pointer text-base transition-colors shadow-[0_2px_5px_rgba(0,0,0,0.1)] border-none bg-gray-500 text-white hover:bg-gray-600" @click="closeEditTodoModal">취소</button>
+      </div>
+    </dialog>
+
     <!-- Custom Interaction Modal -->
     <dialog
       ref="customModal"
@@ -217,6 +254,8 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { MdEditor } from 'md-editor-v3';
+import 'md-editor-v3/lib/style.css';
 import TodoItem from '@/views/todo/TodoItem.vue';
 import TodoWebhookBackupModal from '@/views/todo/TodoWebhookBackupModal.vue';
 import {
@@ -241,6 +280,7 @@ const appTitle = ref('임시 할일 리스트');
 const markdownModal = ref(null);
 const exportModal = ref(null);
 const customModal = ref(null);
+const editTodoModal = ref(null);
 const todoWebhookModalRef = ref(null);
 const modalMarkdownInput = ref(null);
 const exportTextarea = ref(null);
@@ -252,6 +292,10 @@ const customModalTitle = ref('');
 const customModalMessage = ref('');
 const customModalType = ref('alert');
 const customModalInputValue = ref('');
+const editingTodoId = ref(null);
+const editTodoTextValue = ref('');
+const editTodoDescription = ref('');
+const editViewMode = ref('editor');
 const customModalResolve = ref(null);
 const showCustomModalOk = ref(false);
 const showCustomModalCancel = ref(false);
@@ -266,6 +310,31 @@ const backupToast = ref({ show: false, message: '', isError: false });
 const AUTO_BACKUP_DEBOUNCE_MS = 3000;
 let autoBackupDebounceId = null;
 let backupToastHideId = null;
+let themeObserver = null;
+let systemThemeMediaQuery = null;
+
+const isDarkTheme = ref(false);
+const mdEditorTheme = computed(() => (isDarkTheme.value ? 'dark' : 'light'));
+const isEditorPreviewOnly = computed(() => editViewMode.value === 'preview');
+const isEditorPreviewEnabled = computed(() => editViewMode.value !== 'editor');
+const editViewModeLabel = computed(() => {
+  if (editViewMode.value === 'preview') return 'Preview';
+  if (editViewMode.value === 'split') return 'Editor + Preview';
+  return 'Editor Only';
+});
+
+const detectDarkTheme = () => {
+  const htmlTheme = document.documentElement.getAttribute('data-theme');
+  const bodyTheme = document.body?.getAttribute('data-theme');
+  const explicitTheme = htmlTheme || bodyTheme;
+  if (explicitTheme === 'dark') return true;
+  if (explicitTheme === 'light') return false;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+};
+
+const syncEditorTheme = () => {
+  isDarkTheme.value = detectDarkTheme();
+};
 
 const sortedTabs = computed(() => {
   return [...tabs.value].sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -692,6 +761,7 @@ const addSubtask = async (parentId) => {
     const newTodo = {
       id: `todo-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       text: text.trim(),
+      description: '',
       state: 'not-started',
       parentId: parentId,
       tabId: currentTabId.value,
@@ -734,18 +804,58 @@ const deleteTodo = async (todoId) => {
 const editTodoText = async (todoId) => {
   const todo = currentTodos.value.find(t => t.id === todoId);
   if (!todo) return;
-  const newText = await customPrompt('할일 내용을 수정하세요:', todo.text, '할일 수정');
-  const trimmed = newText != null ? String(newText).trim() : '';
-  if (trimmed === '' || trimmed === todo.text) return;
+  editingTodoId.value = todo.id;
+  editTodoTextValue.value = todo.text || '';
+  editTodoDescription.value = todo.description || '';
+  editTodoModal.value?.showModal();
+};
+
+const closeEditTodoModal = () => {
+  editTodoModal.value?.close();
+  editingTodoId.value = null;
+  editTodoTextValue.value = '';
+  editTodoDescription.value = '';
+};
+
+const cycleEditViewMode = () => {
+  if (editViewMode.value === 'preview') {
+    editViewMode.value = 'editor';
+    return;
+  }
+  if (editViewMode.value === 'editor') {
+    editViewMode.value = 'split';
+    return;
+  }
+  editViewMode.value = 'preview';
+};
+
+const saveTodoEdit = async () => {
+  const todo = currentTodos.value.find(t => t.id === editingTodoId.value);
+  if (!todo) {
+    closeEditTodoModal();
+    return;
+  }
+  const trimmed = String(editTodoTextValue.value ?? '').trim();
+  if (trimmed === '') {
+    await customAlert('할일 제목은 비워둘 수 없습니다.');
+    return;
+  }
+  const normalizedDescription = String(editTodoDescription.value ?? '').trim();
+  if (trimmed === todo.text && normalizedDescription === String(todo.description || '').trim()) {
+    closeEditTodoModal();
+    return;
+  }
   const updated = {
     id: todo.id,
     text: trimmed,
+    description: normalizedDescription,
     state: todo.state,
     parentId: todo.parentId ?? null,
     tabId: todo.tabId,
     order: todo.order ?? 0
   };
   await putInDb(TODO_STORE_NAME, updated);
+  closeEditTodoModal();
   await renderCurrentTodos();
 };
 
@@ -953,7 +1063,7 @@ const parseMarkdownToTodos = (markdownText, tabId) => {
     const parentId = parentStack.length > 0 ? parentStack[parentStack.length - 1].id : null;
     const order = siblingCounters.get(parentId) || 0;
 
-    newTodos.push({ id, text, state, parentId, tabId, order });
+    newTodos.push({ id, text, description: '', state, parentId, tabId, order });
     siblingCounters.set(parentId, order + 1);
     parentStack.push({ id, indent });
   });
@@ -1336,11 +1446,27 @@ const onPageHideForWebhookBackup = () => {
 
 onMounted(() => {
   window.addEventListener('pagehide', onPageHideForWebhookBackup, { capture: true });
+  syncEditorTheme();
+  themeObserver = new MutationObserver(syncEditorTheme);
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.body) {
+    themeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
+  }
+  systemThemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  systemThemeMediaQuery.addEventListener('change', syncEditorTheme);
   initializeApp();
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('pagehide', onPageHideForWebhookBackup, { capture: true });
+  if (themeObserver) {
+    themeObserver.disconnect();
+    themeObserver = null;
+  }
+  if (systemThemeMediaQuery) {
+    systemThemeMediaQuery.removeEventListener('change', syncEditorTheme);
+    systemThemeMediaQuery = null;
+  }
   if (autoBackupDebounceId) {
     clearTimeout(autoBackupDebounceId);
     autoBackupDebounceId = null;
