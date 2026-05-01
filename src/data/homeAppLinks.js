@@ -18,6 +18,7 @@ import FocusTimerIcon from '@/components/icons/FocusTimerIcon.vue';
 import HearapyWebIcon from '@/components/icons/HearapyWebIcon.vue';
 import PromptBookIcon from '@/components/icons/PromptBookIcon.vue';
 import DailyTimelineIcon from '@/components/icons/DailyTimelineIcon.vue';
+import PdfToSvgIcon from '@/components/icons/PdfToSvgIcon.vue';
 
 /**
  * 홈 화면에 표시할 앱 카드 메타데이터.
@@ -51,4 +52,5 @@ export const HOME_APP_LINKS = [
   { href: '/hearapy-web', icon: HearapyWebIcon, title: 'Hearapy Web', description: 'Hearapy Web' },
   { href: '/prompt-book', icon: PromptBookIcon, title: 'Prompt Book', description: 'NotebookLM 용 프롬프트 템플릿 저장소' },
   { href: '/daily-timeline', icon: DailyTimelineIcon, title: 'Daily Timeline', description: '일정 Gantt 차트 간단 관리' },
+  { href: '/pdf-to-svg/', icon: PdfToSvgIcon, title: 'PDF to SVG', description: 'PDF를 SVG로 변환' },
 ];
