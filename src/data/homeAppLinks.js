@@ -21,6 +21,7 @@ import DailyTimelineIcon from '@/components/icons/DailyTimelineIcon.vue';
 import PdfToSvgIcon from '@/components/icons/PdfToSvgIcon.vue';
 import FFMPegGIFIcon from '@/components/icons/FFMpegGIFIcon.vue';
 import DualIluusionImageIcon from '@/components/icons/DualIluusionImageIcon.vue';
+import SmsXmlReaderIcon from '@/components/icons/SmsXmlReaderIcon.vue';
 
 /**
  * 홈 화면에 표시할 앱 카드 메타데이터.
@@ -57,4 +58,5 @@ export const HOME_APP_LINKS = [
   { href: '/pdf-to-svg/', icon: PdfToSvgIcon, title: 'PDF to SVG', description: 'PDF를 SVG로 변환' },
   { href: '/ffmpeg-gif', icon: FFMPegGIFIcon, title: 'Mp4 to GIF', description: 'Mp4를 GIF로 변환' },
   { href: '/dual-illusion-image', icon: DualIluusionImageIcon, title: 'Dual Illusion Image', description: '배경색에 따라 달라지는 착시 이미지 만들기' },
+  { href: '/sms-xml-reader', icon: SmsXmlReaderIcon, title: 'Sms Xml Reader', description: '`SMS Backup & Restore`에서 생성된 파일 읽기' },
 ];
