@@ -60,5 +60,5 @@ export const HOME_APP_LINKS = [
   { href: '/ffmpeg-gif', icon: FFMPegGIFIcon, title: 'Mp4 to GIF', description: 'Mp4를 GIF로 변환' },
   { href: '/dual-illusion-image', icon: DualIluusionImageIcon, title: 'Dual Illusion Image', description: '배경색에 따라 달라지는 착시 이미지 만들기' },
   { href: '/sms-xml-reader', icon: SmsXmlReaderIcon, title: 'Sms Xml Reader', description: '`SMS Backup & Restore`에서 생성된 파일 읽기' },
-  { href: '/pdf-img-export', icon: PDFImgExportIcon, title: 'PDF to Image', description: 'PDF를 이미지로 변환' },
+  { href: '/pdf-img-export', icon: PDFImgExportIcon, title: 'PDF to Image', description: 'PDF에 포함된 모든 이미지를 추출' },
 ];
