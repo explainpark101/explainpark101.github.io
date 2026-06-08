@@ -278,7 +278,7 @@
                 클립보드에 복사
               </button>
             </div>
-            <p class="text-xs text-slate-400 m-0 text-center">키보드 단축키: ← / →</p>
+            <p class="text-xs text-slate-400 m-0 text-center">키보드 단축키: ← / → / Ctrl(Cmd)+C (복사)</p>
           </div>
         </div>
       </div>
@@ -367,6 +367,11 @@ function onPreviewKeydown(e) {
   if (e.key === 'ArrowRight') {
     e.preventDefault();
     goToNextPage();
+    return;
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'c') {
+    e.preventDefault();
+    copyImageToClipboard(previewModal.value.url);
   }
 }
 
