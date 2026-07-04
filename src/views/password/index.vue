@@ -23,11 +23,26 @@
       
       <div class="flex flex-row gap-8 items-start max-md:flex-col max-md:items-center max-md:flex-wrap">
         <div class="flex-1 flex flex-col gap-2 min-w-0">
-          <div class="flex items-center bg-[var(--surface)] p-4 rounded-lg shadow-md border border-[var(--border-color)]">
-            <input type="text" v-model="passwordOutput" readonly class="flex-grow py-3 px-3 text-lg border border-[var(--border-color)] rounded-md bg-gray-100 dark:bg-gray-800 text-[var(--text-primary)] font-bold font-mono">
-            <button @click="copyPassword" id="copyButton" class="ml-2.5 py-3 px-4 bg-blue-600 text-white border-none rounded-md cursor-pointer transition-colors duration-200 hover:bg-blue-800 inline-flex items-center gap-1">
-              <span class="material-icons">{{ copyButtonIcon }}</span> {{ copyButtonText }}
-            </button>
+          <div class="flex flex-col gap-3 bg-(--surface) p-4 rounded-lg shadow-md border border-(--border-color)">
+            <div class="flex flex-col gap-1.5">
+              <label for="passwordOutput" class="text-sm font-medium text-(--text-secondary)">비밀번호</label>
+              <div class="flex items-center gap-2.5 max-sm:flex-col max-sm:items-stretch">
+                <input id="passwordOutput" type="text" v-model="passwordOutput" readonly class="grow min-w-0 py-3 px-3 text-lg border border-(--border-color) rounded-md bg-gray-100 dark:bg-gray-800 text-(--text-primary) font-bold font-mono">
+                <button @click="copyPassword" id="copyButton" class="py-3 px-4 bg-blue-600 text-white border-none rounded-md cursor-pointer transition-colors duration-200 hover:bg-blue-800 inline-flex items-center justify-center gap-1">
+                  <span class="material-icons">{{ copyButtonIcon }}</span> {{ copyButtonText }}
+                </button>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label for="encodedPasswordOutput" class="text-sm font-medium text-(--text-secondary)">URL 인코딩된 비밀번호</label>
+              <div class="flex items-center gap-2.5 max-sm:flex-col max-sm:items-stretch">
+                <input id="encodedPasswordOutput" type="text" :value="encodedPasswordOutput" readonly class="grow min-w-0 py-3 px-3 text-lg border border-(--border-color) rounded-md bg-gray-100 dark:bg-gray-800 text-(--text-primary) font-bold font-mono">
+                <button @click="copyEncodedPassword" class="py-3 px-4 bg-indigo-600 text-white border-none rounded-md cursor-pointer transition-colors duration-200 hover:bg-indigo-800 inline-flex items-center justify-center gap-1">
+                  <span class="material-icons">{{ copyEncodedButtonIcon }}</span> {{ copyEncodedButtonText }}
+                </button>
+              </div>
+            </div>
           </div>
           
           <div class="flex items-center gap-2.5 bg-[var(--surface)] p-4 rounded-lg shadow-md border border-[var(--border-color)]">
@@ -151,6 +166,8 @@ const showToast = ref(false);
 const toastMessage = ref('');
 const copyButtonText = ref('복사');
 const copyButtonIcon = ref('content_copy');
+const copyEncodedButtonText = ref('인코딩 복사');
+const copyEncodedButtonIcon = ref('content_copy');
 const copyDbUrlText = ref('복사');
 const copyDbUrlIcon = ref('content_copy');
 let d2codingFontLinkEl = null;
@@ -172,6 +189,7 @@ const charSetLabels = {
 const savedListsCount = computed(() => Object.keys(savedListsObj.value).length);
 const toggleIcon = computed(() => isSavedListsCollapsed.value ? 'expand_less' : 'expand_more');
 const toggleText = computed(() => isSavedListsCollapsed.value ? '접기' : '펼치기');
+const encodedPasswordOutput = computed(() => encodeURIComponent(passwordOutput.value));
 
 function showToastMessage(message) {
   toastMessage.value = message;
@@ -266,6 +284,19 @@ function copyPassword() {
     setTimeout(() => {
       copyButtonIcon.value = 'content_copy';
       copyButtonText.value = '복사';
+    }, 1500);
+  });
+}
+
+function copyEncodedPassword() {
+  if (!encodedPasswordOutput.value) return;
+  navigator.clipboard.writeText(encodedPasswordOutput.value).then(() => {
+    copyEncodedButtonIcon.value = 'check';
+    copyEncodedButtonText.value = '복사됨!';
+    showToastMessage('URL 인코딩된 비밀번호가 클립보드에 복사되었습니다!');
+    setTimeout(() => {
+      copyEncodedButtonIcon.value = 'content_copy';
+      copyEncodedButtonText.value = '인코딩 복사';
     }, 1500);
   });
 }
